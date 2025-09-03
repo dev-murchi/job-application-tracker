@@ -1,6 +1,7 @@
 const User = require('../models/User');
 const { StatusCodes } = require('http-status-codes');
 const { BadRequestError, UnauthenticatedError } = require('../errors');
+const attachCookie = require('../utils/attachCookie.js');
 
 const register = async (req, res) => {
   const { name, email, password } = req.body;
@@ -13,7 +14,7 @@ const register = async (req, res) => {
     throw new BadRequestError('Email already in use');
   }
   const user = await User.create({ name, email, password });
-
+  attachCookie({ res, token });
   res.status(StatusCodes.CREATED).json({
     user: {
       email: user.email,
@@ -46,6 +47,7 @@ const login = async (req, res) => {
   }
 
   const token = user.createJWT();
+  attachCookie({ res, token });
   res.status(StatusCodes.OK).json({
     user: {
       email: user.email,
@@ -59,7 +61,16 @@ const login = async (req, res) => {
   });
 };
 
+const logout = async (req, res) => {
+  res.cookie('token', 'logout', {
+    httpOnly: true,
+    expires: new Date(Date.now() + 1000),
+  });
+  res.status(StatusCodes.OK).json({ msg: 'user logged out!' });
+};
+
 module.exports = {
   register,
-  login
+  login,
+  logout
 };

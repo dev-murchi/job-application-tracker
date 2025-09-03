@@ -4,6 +4,7 @@ const express = require('express');
 
 // routers
 const authRouter = require('./routes/auth');
+const userRouter = require('./routes/user');
 
 // db
 const connectDB = require('./db/connect');
@@ -21,6 +22,7 @@ app.get('/', (req, res) => {
 
 // api endpoints
 app.use('/api/v1/auth', authRouter);
+app.use('/api/v1/user', userRouter);
 
 // start the server
 const PORT = process.env.PORT || 3001;
