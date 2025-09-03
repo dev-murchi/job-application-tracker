@@ -1,7 +1,7 @@
-const User = require('../models/User.js');
+const User = require('../models/User');
 const { StatusCodes } = require('http-status-codes');
-const { BadRequestError } = require('../errors/index.js');
-const attachCookie = require('../utils/attachCookie.js');
+const { BadRequestError } = require('../errors');
+const attachCookie = require('../utils/attachCookie');
 
 const updateUser = async (req, res) => {
     const { email, name, lastName, location } = req.body;
