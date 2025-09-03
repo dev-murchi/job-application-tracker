@@ -1,10 +1,26 @@
 services:
+  mongodb:
+    image: mongo
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD}
+      MONGO_INITDB_DATABASE: ${MONGO_DATABASE}
+    ports:
+      - "27017:27017"
+    networks:
+      - job-application-tracker
+    volumes:
+      - mongo-data:/data/db # Persist MongoDB data
+      - mongo-config:/data/configdb # Persist MongoDB configuration
+
   api:
     build:
       context: .
       dockerfile: Dockerfile
     ports:
       - "3001:3001"
+    environment:
+      MONGO_URL: ${MONGO_URL}
     networks:
       - job-application-tracker
     volumes:
@@ -13,3 +29,9 @@ services:
 networks:
   job-application-tracker:
     driver: bridge
+
+volumes:
+  mongo-data:
+    driver: local
+  mongo-config:
+    driver: local
