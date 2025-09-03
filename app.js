@@ -7,6 +7,9 @@ const cookieParser = require('cookie-parser');
 const authRouter = require('./routes/auth');
 const userRouter = require('./routes/user');
 
+// middleware
+const authenticateUser = require('./middleware/auth');
+
 // db
 const connectDB = require('./db/connect');
 
@@ -19,7 +22,7 @@ app.use(cookieParser());
 
 // routes
 app.get('/', (req, res) => {
-    res.send('home');
+  res.send('home');
 });
 
 // api endpoints
@@ -30,16 +33,15 @@ app.use('/api/v1/user', userRouter);
 const PORT = process.env.PORT || 3001;
 
 const start = async () => {
-    try {
-        await connectDB(process.env.MONGO_URL);
-        console.log('CONNECTED TO DB!!!');
-        
-        app.listen(PORT, () =>
-            console.log(`Server is listening on port ${PORT}...`)
-        );
-    } catch (error) {
-        console.log(error);
-    }
-}
+  try {
+    await connectDB(process.env.MONGO_URL);
+    console.log('CONNECTED TO DB!!!');
+    app.listen(PORT, () =>
+      console.log(`Server is listening on port ${PORT}...`)
+    );
+  } catch (error) {
+    console.log(error);
+  }
+};
 
 start();

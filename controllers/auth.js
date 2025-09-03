@@ -57,7 +57,7 @@ const login = async (req, res) => {
     },
 
     location: user.location,
-    token
+    token,
   });
 };
 
@@ -72,5 +72,5 @@ const logout = async (req, res) => {
 module.exports = {
   register,
   login,
-  logout
+  logout,
 };

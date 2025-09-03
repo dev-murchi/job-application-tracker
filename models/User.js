@@ -8,7 +8,7 @@ const UserSchema = mongoose.Schema({
     type: String,
     required: [true, 'Please provide name'],
     minlength: 3,
-    maxlength: 20
+    maxlength: 20,
   },
   email: {
     type: String,
@@ -17,12 +17,12 @@ const UserSchema = mongoose.Schema({
       validator: validator.isEmail,
       message: 'Please provide a valid email',
     },
-    unique: true
+    unique: true,
   },
   password: {
     type: String,
     required: [true, 'Please provide password'],
-    minlength: 6
+    minlength: 6,
   },
   lastName: {
     type: String,
@@ -48,7 +48,7 @@ UserSchema.pre('save', async function (next) {
 UserSchema.methods.comparePassword = async function (candidatePassword) {
   const isMatch = await bcrypt.compare(candidatePassword, this.password);
   return isMatch;
-}
+};
 
 UserSchema.methods.createJWT = function () {
   return jwt.sign(

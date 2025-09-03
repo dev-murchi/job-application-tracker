@@ -8,4 +8,4 @@ const attachCookie = ({ res, token }) => {
   });
 };
 
-module.exports =  attachCookie;
+module.exports = attachCookie;

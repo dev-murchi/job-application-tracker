@@ -4,30 +4,30 @@ const { BadRequestError } = require('../errors');
 const attachCookie = require('../utils/attachCookie');
 
 const updateUser = async (req, res) => {
-    const { email, name, lastName, location } = req.body;
-    if (!email || !name || !lastName || !location) {
-        throw new BadRequestError('Please provide all values');
-    }
-    const user = await User.findOne({ _id: req.user.userId });
+  const { email, name, lastName, location } = req.body;
+  if (!email || !name || !lastName || !location) {
+    throw new BadRequestError('Please provide all values');
+  }
+  const user = await User.findOne({ _id: req.user.userId });
 
-    user.email = email;
-    user.name = name;
-    user.lastName = lastName;
-    user.location = location;
+  user.email = email;
+  user.name = name;
+  user.lastName = lastName;
+  user.location = location;
 
-    await user.save();
+  await user.save();
 
-    const token = user.createJWT();
-    attachCookie({ res, token });
-    res.status(StatusCodes.OK).json({ user, location: user.location });
+  const token = user.createJWT();
+  attachCookie({ res, token });
+  res.status(StatusCodes.OK).json({ user, location: user.location });
 };
 
 const getCurrentUser = async (req, res) => {
-    const user = await User.findOne({ _id: req.user.userId });
-    res.status(StatusCodes.OK).json({ user, location: user.location });
+  const user = await User.findOne({ _id: req.user.userId });
+  res.status(StatusCodes.OK).json({ user, location: user.location });
 };
 
 module.exports = {
-    getCurrentUser,
-    updateUser
+  getCurrentUser,
+  updateUser,
 };
