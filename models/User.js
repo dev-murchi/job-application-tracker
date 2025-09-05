@@ -9,6 +9,7 @@ const UserSchema = mongoose.Schema({
     required: [true, 'Please provide name'],
     minlength: 3,
     maxlength: 20,
+    trim: true,
   },
   email: {
     type: String,
@@ -23,6 +24,7 @@ const UserSchema = mongoose.Schema({
     type: String,
     required: [true, 'Please provide password'],
     minlength: 6,
+    select: false,
   },
   lastName: {
     type: String,

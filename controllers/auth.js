@@ -14,6 +14,7 @@ const register = async (req, res) => {
     throw new BadRequestError('Email already in use');
   }
   const user = await User.create({ name, email, password });
+  const token = user.createJWT();
   attachCookie({ res, token });
   res.status(StatusCodes.CREATED).json({
     user: {
