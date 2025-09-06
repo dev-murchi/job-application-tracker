@@ -3,29 +3,36 @@ const { StatusCodes } = require('http-status-codes');
 const { BadRequestError, UnauthenticatedError } = require('../errors');
 const attachCookie = require('../utils/attachCookie.js');
 
+// Helper functions
+const formatUserResponse = (user) => ({
+  user: {
+    email: user.email,
+    lastName: user.lastName,
+    location: user.location,
+    name: user.name,
+  },
+  location: user.location,
+});
+
+// Main controller functions
 const register = async (req, res) => {
   const { name, email, password } = req.body;
 
   if (!name || !email || !password) {
     throw new BadRequestError('please provide all values');
   }
+
   const userAlreadyExists = await User.findOne({ email });
   if (userAlreadyExists) {
     throw new BadRequestError('Email already in use');
   }
+
   const user = await User.create({ name, email, password });
   const token = user.createJWT();
-  attachCookie({ res, token });
-  res.status(StatusCodes.CREATED).json({
-    user: {
-      email: user.email,
-      lastName: user.lastName,
-      location: user.location,
-      name: user.name,
-    },
 
-    location: user.location,
-  });
+  attachCookie({ res, token });
+
+  res.status(StatusCodes.CREATED).json(formatUserResponse(user));
 };
 
 const login = async (req, res) => {
@@ -48,18 +55,14 @@ const login = async (req, res) => {
   }
 
   const token = user.createJWT();
-  attachCookie({ res, token });
-  res.status(StatusCodes.OK).json({
-    user: {
-      email: user.email,
-      lastName: user.lastName,
-      location: user.location,
-      name: user.name,
-    },
 
-    location: user.location,
+  attachCookie({ res, token });
+  const response = {
+    ...formatUserResponse(user),
     token,
-  });
+  };
+
+  res.status(StatusCodes.OK).json(response);
 };
 
 const logout = async (req, res) => {
