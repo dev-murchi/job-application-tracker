@@ -1,7 +1,7 @@
 const Job = require('../models/Job.js');
 const { StatusCodes } = require('http-status-codes');
-const { BadRequestError, NotFoundError } = require('../errors');
-const checkPermissions = require('../utils/checkPermissions');
+const { BadRequestError, NotFoundError } = require('../errors/index.js');
+const checkPermissions = require('../utils/checkPermissions.js');
 const mongoose = require('mongoose');
 const { format } = require('date-fns');
 

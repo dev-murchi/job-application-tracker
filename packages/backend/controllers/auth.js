@@ -1,6 +1,6 @@
-const User = require('../models/User');
+const User = require('../models/User.js');
 const { StatusCodes } = require('http-status-codes');
-const { BadRequestError, UnauthenticatedError } = require('../errors');
+const { BadRequestError, UnauthenticatedError } = require('../errors/index.js');
 const attachCookie = require('../utils/attachCookie.js');
 
 // Helper functions

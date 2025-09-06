@@ -10,8 +10,8 @@ services:
     networks:
       - job-application-tracker
     volumes:
-      - mongo-data:/data/db # Persist MongoDB data
-      - mongo-config:/data/configdb # Persist MongoDB configuration
+      - mongo-data:/data/db
+      - mongo-config:/data/configdb
 
   api:
     build:
@@ -21,6 +21,11 @@ services:
       - "3001:3001"
     environment:
       MONGO_URL: ${MONGO_URL}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_LIFETIME: ${JWT_LIFETIME}
+      CORS_ORIGIN: ${CORS_ORIGIN}
+    depends_on:
+      - mongodb
     networks:
       - job-application-tracker
     volumes:

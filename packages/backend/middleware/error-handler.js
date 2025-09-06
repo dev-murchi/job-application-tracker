@@ -1,6 +1,9 @@
 const { StatusCodes } = require('http-status-codes');
+const logger = require('../utils/logger');
 
 const errorHandlerMiddleware = (err, req, res, next) => {
+  logger.error(err.stack || err);
+  
   const defaultError = {
     statusCode: err.statusCode || StatusCodes.INTERNAL_SERVER_ERROR,
     msg: err.message || 'Something went wrong, try again later',
