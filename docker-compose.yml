@@ -13,10 +13,10 @@ services:
       - mongo-data:/data/db
       - mongo-config:/data/configdb
 
-  api:
+  server:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.backend
     ports:
       - "3001:3001"
     environment:
@@ -31,6 +31,32 @@ services:
     volumes:
       - .:/usr/src/app
       - /usr/src/app/node_modules
+    
+  frontend-dev:
+    profiles: ["dev"]
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+      target: dev
+    ports:
+      - "4200:4200"
+    networks:
+      - job-application-tracker
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+
+  frontend-prod:
+    profiles: ["prod"]
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+      target: prod
+    ports:
+      - "80:80"
+    networks:
+      - job-application-tracker
+
 networks:
   job-application-tracker:
     driver: bridge
