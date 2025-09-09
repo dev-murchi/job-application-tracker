@@ -1,0 +1,28 @@
+import { inject, Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable, of } from 'rxjs';
+import { delay } from 'rxjs/operators';
+
+
+export interface UserRegisterData {
+  name: string,
+  lastName: string,
+  email: string,
+  password: string,
+  location: string,
+}
+
+@Injectable({
+  providedIn: 'root',
+})
+export class AuthApi {
+  private readonly apiUrl = '/api';
+  private readonly http = inject(HttpClient);
+
+  constructor() {}
+
+  register(payload: UserRegisterData): Observable<any> {
+    console.log('API call: Attempting to register user:', payload.email);
+    return this.http.post(`${this.apiUrl}/auth/register`, payload);
+  }
+}

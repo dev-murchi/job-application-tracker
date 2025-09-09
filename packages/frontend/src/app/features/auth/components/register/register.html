@@ -1,26 +1,63 @@
-<form class="space-y-6">
+<form [formGroup]="registerForm" (submit)="registerUser()" class="space-y-6">
     <h2 class="text-2xl font-bold text-center mb-4 text-primary">Create Your Account</h2>
     <div>
-        <label for="register-name" class="block text-sm font-medium text-primary">Full Name</label>
-        <input type="text" id="register-name" name="register-name" placeholder="John Doe"
-            class="input-field mt-1 w-full rounded-lg px-4 py-2" required>
+        <label for="firstName" class="block text-sm font-medium text-primary">First Name</label>
+        <input type="text" id="firstName" formControlName="firstName" placeholder="John"
+            class="input-field mt-1 w-full rounded-lg px-4 py-2 placeholder-stone-400" required>
+        @if (registerForm.get('firstName')?.invalid && registerForm.get('firstName')?.touched) {
+        <p class="text-sm text-red-600 mt-1">First Name is required.</p>
+        }
     </div>
     <div>
-        <label for="register-email" class="block text-sm font-medium text-primary">Email Address</label>
-        <input type="email" id="register-email" name="register-email" placeholder="you@example.com"
-            class="input-field mt-1 w-full rounded-lg px-4 py-2" required>
+        <label for="lastName" class="block text-sm font-medium text-primary">Last Name</label>
+        <input type="text" id="lastName" formControlName="lastName" placeholder="Doe"
+            class="input-field mt-1 w-full rounded-lg px-4 py-2 placeholder-stone-400" required>
+        @if (registerForm.get('lastName')?.invalid && registerForm.get('lastName')?.touched) {
+        <p class="text-sm text-red-600 mt-1">Last Name is required.</p>
+        }
     </div>
     <div>
-        <label for="register-password" class="block text-sm font-medium text-primary">Password</label>
-        <input type="password" id="register-password" name="register-password" placeholder="••••••••"
-            class="input-field mt-1 w-full rounded-lg px-4 py-2" required>
+        <label for="email" class="block text-sm font-medium text-primary">Email Address</label>
+        <input type="email" id="email" name="email" formControlName="email" placeholder="you@example.com"
+            class="input-field mt-1 w-full rounded-lg px-4 py-2 placeholder-stone-400" required>
+        @if (registerForm.get('email')?.invalid && registerForm.get('email')?.touched) {
+        @if (registerForm.get('email')?.errors?.['required']) {
+        <p class="text-sm text-red-600 mt-1">Email is required.</p>
+        }
+        @if (registerForm.get('email')?.errors?.['email']) {
+        <p class="text-sm text-red-600 mt-1">Please enter a valid email address.</p>
+        }
+        }
     </div>
     <div>
-        <label for="register-confirm-password" class="block text-sm font-medium text-primary">Confirm Password</label>
-        <input type="password" id="register-confirm-password" name="register-confirm-password" placeholder="••••••••"
-            class="input-field mt-1 w-full rounded-lg px-4 py-2" required>
+        <label for="password" class="block text-sm font-medium text-primary">Password</label>
+        <input type="password" id="password" formControlName="password" placeholder="********"
+            class="input-field mt-1 w-full rounded-lg px-4 py-2 placeholder-stone-400" required>
+        @if (registerForm.get('password')?.invalid && registerForm.get('password')?.touched) {
+        @if (registerForm.get('password')?.errors?.['required']) {
+        <p class="text-sm text-red-600 mt-1">Password is required.</p>
+        }
+        @if (registerForm.get('password')?.errors?.['minlength']) {
+        <p class="text-sm text-red-600 mt-1">Password must be at least 8 characters long.</p>
+        }
+        @if (registerForm.get('password')?.errors?.['pattern']) {
+        <p class="text-sm text-red-600 mt-1">Password must contain at least one uppercase letter, one lowercase letter,
+            and one number.</p>
+        }
+        }
     </div>
-    <button type="submit"
-        class="btn-primary w-full py-3 rounded-lg cursor-pointer font-bold shadow-lg transform transition-transform duration-200 hover:scale-[1.01] focus:scale-[1.01]">Create
-        Account</button>
+    <div>
+        <label for="location" class="block text-sm font-medium text-primary">Location</label>
+        <input type="text" id="location" formControlName="location" placeholder="TX, USA"
+            class="input-field mt-1 w-full rounded-lg px-4 py-2 placeholder-stone-400" required>
+        @if (registerForm.get('location')?.invalid && registerForm.get('location')?.touched) {
+        <p class="text-sm text-red-600 mt-1">Location is required.</p>
+        }
+    </div>
+
+
+    <button type="submit" [disabled]="registerForm.invalid"
+        class="w-full py-4 rounded-lg cursor-pointer font-bold shadow-lg t ransform transition-all duration-300 ease-in-out transform bg-emerald-500 text-white hover:bg-emerald-600 disabled:bg-emerald-900 disabled:cursor-not-allowed">
+        Create Account
+    </button>
 </form>

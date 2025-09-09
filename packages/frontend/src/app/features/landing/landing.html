@@ -1,7 +1,7 @@
 <div
     class="min-h-dvh flex flex-col justify-between bg-gradient-to-br from-stone-900 via-teal-900 to-emerald-700 font-inter antialiased">
-    <section class="flex-1 flex flex-col md:flex-row items-center justify-center gap-6">
-        <div class="lg:w-1/2 flex flex-col items-center justify-center p-8 text-center md:text-left text-white">
+    <section class="flex-1 flex flex-col lg:flex-row items-center justify-center gap-0 lg:gap-6">
+        <div class="flex flex-col items-center justify-center p-8 text-center md:text-left text-white">
             <div class="space-y-6">
                 <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight drop-shadow-lg">
                     Welcome to <span class="text-teal-300">Solempleo</span>
@@ -9,12 +9,12 @@
                 <p class="text-base sm:text-lg md:text-xl max-w-lg leading-relaxed drop-shadow-sm">Track every
                     application, ace
                     every interview, and celebrate every offer. Your job search, beautifully organized.</p>
-                <div class="mt-8 flex flex-row items-center justify-center md:justify-start gap-6">
-                    <a href="auth/register"
+                <div class="hidden lg:flex flex-row mt-8 items-center justify-center md:justify-start gap-6">
+                    <a routerLink="/auth/register"
                         class="px-8 py-3 bg-teal-500 text-white font-semibold rounded-lg shadow-md hover:bg-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-400 focus:ring-opacity-75 transition duration-300 ease-in-out transform hover:-translate-y-1">
                         Register
                     </a>
-                    <a href="demo"
+                    <a routerLink="demo"
                         class="px-8 py-3 bg-stone-700 text-white font-semibold rounded-lg shadow-md hover:bg-stone-800 focus:outline-none focus:ring-2 focus:ring-stone-500 focus:ring-opacity-75 transition duration-300 ease-in-out transform hover:-translate-y-1">
                         Demo
                     </a>
@@ -22,9 +22,19 @@
             </div>
         </div>
 
-        <div class="sm:flex lg:w-1/2 items-center justify-center p-4 sm:p-8">
+        <div class="sm:flex flex-col items-center justify-center p-4">
             <img src="images/main.svg" alt="Job Application Tracking Illustration"
                 class="w-full max-w-md lg:max-w-lg xl:max-w-xl h-auto drop-shadow-2xl" />
+            <div class="flex flex-row mt-8 items-center justify-center md:justify-start gap-6 lg:hidden">
+                <a routerLink="/auth/register"
+                    class="px-8 py-3 bg-teal-500 text-white font-semibold rounded-lg shadow-md hover:bg-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-400 focus:ring-opacity-75 transition duration-300 ease-in-out transform hover:-translate-y-1">
+                    Register
+                </a>
+                <a routerLink="demo"
+                    class="px-8 py-3 bg-stone-700 text-white font-semibold rounded-lg shadow-md hover:bg-stone-800 focus:outline-none focus:ring-2 focus:ring-stone-500 focus:ring-opacity-75 transition duration-300 ease-in-out transform hover:-translate-y-1">
+                    Demo
+                </a>
+            </div>
         </div>
     </section>
     <!-- Footer -->
