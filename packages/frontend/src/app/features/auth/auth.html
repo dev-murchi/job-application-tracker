@@ -1,0 +1,22 @@
+<div
+  class="min-h-dvh flex flex-col justify-between bg-gradient-to-br from-stone-900 via-teal-900 to-emerald-700 font-inter antialiased">
+  <section class="flex-1 flex flex-col items-center justify-center gap-12">
+    <div class="p-4 sm:p-8 w-full flex justify-center">
+      <div
+        class="form-bg opacity-90 rounded-2xl p-6 sm:p-10 w-full max-w-sm md:max-w-lg lg:max-w-xl mx-auto relative z-10 my-8 lg:my-0 transition-colors duration-300 shadow-xl">
+        <router-outlet></router-outlet>
+        <div class="text-center mt-6">
+          <p class="text-sm text-secondary">{{ promptText }}
+            <a [routerLink]="linkUrl" class="accent-text font-medium hover:underline focus:outline-none">
+              {{ linkText }}
+            </a>
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- Footer -->
+  <footer class="text-center text-stone-200 py-2">
+    <span>&copy; 2025 Solempleo. All rights reserved.</span>
+  </footer>
+</div>
