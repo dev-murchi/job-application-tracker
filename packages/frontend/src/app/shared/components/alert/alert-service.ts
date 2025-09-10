@@ -1,4 +1,5 @@
 import { Injectable, signal } from '@angular/core';
+import { v4 as uuidv4 } from 'uuid';
 
 export interface Alert {
   id: string;
@@ -16,7 +17,7 @@ export class AlertService {
   show(message: string, type: 'success' | 'error'): void {
 
     const newAlert: Alert = {
-      id: crypto.randomUUID(),
+      id: uuidv4(),
       message,
       type
     };
