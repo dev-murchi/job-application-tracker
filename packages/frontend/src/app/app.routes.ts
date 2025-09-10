@@ -1,6 +1,9 @@
 import { Routes } from '@angular/router';
 import { Landing } from './features/landing/landing';
 import { authRoutes } from './features/auth/auth-routing';
+import { authGuard } from './core/guards/auth-guard';
+import { dashboardRoutes } from './features/dashboard/dashboard-routing';
+import { NotFoundPage } from './features/not-found-page/not-found-page';
 
 export const routes: Routes = [
   {
@@ -13,8 +16,17 @@ export const routes: Routes = [
     children: authRoutes,
   },
   {
+    path: 'dashboard',
+    canActivate: [authGuard],
+    children: dashboardRoutes
+  },
+  {
+    path: 'not-found',
+    component: NotFoundPage,
+  },
+  {
     path: '**',
-    redirectTo: '',
+    redirectTo: '/not-found',
     pathMatch: 'full',
   },
 ];

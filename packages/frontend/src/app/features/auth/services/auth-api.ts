@@ -11,6 +11,10 @@ export interface UserRegisterData {
   password: string,
   location: string,
 }
+export interface UserLoginData {
+  email: string,
+  password: string,
+}
 
 @Injectable({
   providedIn: 'root',
@@ -24,5 +28,10 @@ export class AuthApi {
   register(payload: UserRegisterData): Observable<any> {
     console.log('API call: Attempting to register user:', payload.email);
     return this.http.post(`${this.apiUrl}/auth/register`, payload);
+  }
+  
+  login(payload: UserLoginData): Observable<any> {
+    console.log('API call: Attempting to login user:', payload.email);
+    return this.http.post(`${this.apiUrl}/auth/login`, payload);
   }
 }
