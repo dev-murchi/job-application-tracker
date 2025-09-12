@@ -1,8 +1,8 @@
 import { Routes } from '@angular/router';
 import { Landing } from './features/landing/landing';
-import { authRoutes } from './features/auth/auth-routing';
+import { authRoutes } from './features/auth/auth.routes';
 import { authGuard } from './core/guards/auth-guard';
-import { dashboardRoutes } from './features/dashboard/dashboard-routing';
+import { dashboardRoutes } from './features/dashboard/dashboard.routes';
 import { NotFoundPage } from './features/not-found-page/not-found-page';
 
 export const routes: Routes = [

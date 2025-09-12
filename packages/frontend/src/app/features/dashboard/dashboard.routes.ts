@@ -1,12 +1,12 @@
 import { Routes } from "@angular/router";
-import { Dashboard } from "./dashboard";
+import { DashboardLayout } from "./dashboard-layout";
 import { Test } from "./components/test/test";
 
 
 export const dashboardRoutes: Routes = [
     {
         path: '',
-        component: Dashboard,
+        component: DashboardLayout,
         children: [
             { path: 'create-job', component: Test, data: { title: 'Create Job' } },
             { path: 'all-jobs', component: Test, data: { title: 'All Jobs' } },

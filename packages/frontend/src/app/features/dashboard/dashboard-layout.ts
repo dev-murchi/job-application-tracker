@@ -6,12 +6,12 @@ import { MobileNavbar } from '../../shared/components/mobile-navbar/mobile-navba
 
 
 @Component({
-  selector: 'app-dashboard',
+  selector: 'app-dashboard-layout',
   imports: [RouterOutlet, Sidebar, Topbar, MobileNavbar],
-  templateUrl: './dashboard.html',
-  styleUrl: './dashboard.css'
+  templateUrl: './dashboard-layout.html',
+  styleUrl: './dashboard-layout.css'
 })
-export class Dashboard {
+export class DashboardLayout {
   sidebarItems = [
     { text: 'Dashboard', link: '/dashboard', icon: '' },
     { text: 'Create Job', link: '/dashboard/create-job', icon: '' },
