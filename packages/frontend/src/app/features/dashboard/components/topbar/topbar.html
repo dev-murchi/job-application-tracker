@@ -1,0 +1,28 @@
+<!-- Desktop Topbar -->
+<header class="flex w-full top-0 z-40 items-center justify-between px-6 py-3">
+    <span class="font-bold text-xl">{{title}}</span>
+    <div class="flex items-center gap-4">
+        <div class="relative group">
+            <div userMenu class="ml-auto relative">
+                <button class="flex items-center px-4 gap-2 py-2 rounded focus:outline-none cursor-pointer"
+                    (click)="showDropdown = !showDropdown">
+                    <img src="{{avatar}}" alt="Avatar" class="w-8 h-8 rounded-full border-2" />
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                    </svg>
+                </button>
+                @if(showDropdown) {
+                <div class="absolute right-0 mt-2 w-48 rounded-xl shadow-lg p-4 z-50">
+                    <app-nav-link [link]="'/dashboard/profile'" [text]="'Profile'"></app-nav-link>
+                    <button class="nav-link flex w-full items-center gap-3 px-2 py-3 rounded-lg group">
+                        <span class="inline-block w-5 h-5"></span>
+                        <span class="whitespace-nowrap">Logout</span>
+                    </button>
+                </div>
+                }
+            </div>
+        </div>
+
+        <app-theme-switch class="toggle-circle"></app-theme-switch>
+    </div>
+</header>

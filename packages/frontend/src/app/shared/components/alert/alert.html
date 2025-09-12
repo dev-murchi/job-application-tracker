@@ -1,7 +1,7 @@
 <div class="fixed w-full max-h-screen top-6 z-[100] flex flex-col items-center space-y-2">
 
     @for (alert of alerts(); track alert.id) {
-    <div class="relative w-full md:max-w-[420px] text-sm alert-bg rounded-lg shadow-lg overflow-hidden"
+    <div class="relative w-full max-w-sm md:max-w-md text-sm alert-bg rounded-lg shadow-lg overflow-hidden"
     [class.border-emerald-600]="alert.type === 'success'" [class.border-red-500]="alert.type === 'error'"
     role="alert" tabindex="-1">
         <div class="flex p-4">
@@ -26,7 +26,7 @@
             </div>
 
             <div class="ms-3">
-                <p class="text-sm" [class.text-emerald-600]="alert.type === 'success'"
+                <p class="text-sm px-[4px] text-wrap" [class.text-emerald-600]="alert.type === 'success'"
                     [class.text-red-500]="alert.type === 'error'">
                     {{ alert.message }}
                 </p>

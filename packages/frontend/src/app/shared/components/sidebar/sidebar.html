@@ -1,0 +1,7 @@
+<aside class="flex flex-col w-full z-30">
+    <nav class="flex-1 flex flex-col gap-1 mt-2">
+        @for (item of items; track item.link) {
+        <app-nav-link [link]="item.link" [icon]="item.icon" [text]="item.text" class="px-4"></app-nav-link>
+        }
+    </nav>
+</aside>

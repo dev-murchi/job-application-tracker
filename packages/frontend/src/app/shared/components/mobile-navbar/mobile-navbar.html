@@ -1,0 +1,24 @@
+<header class="mobile-topbar fixed top-0 z-40 flex items-center justify-between px-2 py-2">
+    <button class="toggle-btn p-2 rounded" (click)="onToggleMenu()">
+        @if (!mobileMenuOpen) {
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-6 h-6">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+        }
+        @if (mobileMenuOpen) {
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-6 h-6">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+        }
+    </button>
+    <div class="flex items-center justify-between">
+        <span class="font-bold text-2xl text-emerald-600">Solempleo</span>
+    </div>
+    <app-theme-switch />
+</header>
+
+@if (mobileMenuOpen) {
+<div class="sm:hidden flex flex-1 flex-col items-left justify-start rounded-xl shadow-lg form-bg w-full max-w-[240px] fixed h-full " (click)="mobileMenuOpen = false">
+    <app-sidebar [items]="items"></app-sidebar>
+</div>
+}

@@ -1,0 +1,19 @@
+.sidebar,
+.topbar,
+.dropdown-menu {
+    background-color: var(--bg-form);
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.topbar {
+    border-bottom: 1px solid var(--color-emerald-600);
+    height: 64px;
+    position: sticky;
+}
+
+.desktop-sidebar {
+    border-right: 1px solid var(--color-emerald-600);
+    transition: width 0.3s ease-in-out;
+}
+
+.dashboard-bg { background-color: var(--dashboard-bg); }
