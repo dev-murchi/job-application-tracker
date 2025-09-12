@@ -1,6 +1,10 @@
 import { Routes } from "@angular/router";
 import { DashboardLayout } from "./dashboard-layout";
-import { Test } from "./components/test/test";
+import { Statistics } from "./components/statistics/statistics";
+import { UserProfile } from "./components/user-profile/user-profile";
+import { Jobs } from "./components/jobs/jobs";
+import { JobForm } from "./components/job-form/job-form";
+import { Dashboard } from "./components/dashboard/dashboard";
 
 
 export const dashboardRoutes: Routes = [
@@ -8,10 +12,11 @@ export const dashboardRoutes: Routes = [
         path: '',
         component: DashboardLayout,
         children: [
-            { path: 'create-job', component: Test, data: { title: 'Create Job' } },
-            { path: 'all-jobs', component: Test, data: { title: 'All Jobs' } },
-            { path: 'profile', component: Test, data: { title: 'Profile' } },
-            { path: 'stats', component: Test, data: { title: 'Stats' } },
+            { path: '', component: Dashboard, data: { title: 'Dashboard' } },
+            { path: 'create-job', component: JobForm, data: { title: 'Create Job' } },
+            { path: 'all-jobs', component: Jobs, data: { title: 'All Jobs' } },
+            { path: 'profile', component: UserProfile, data: { title: 'Profile' } },
+            { path: 'stats', component: Statistics, data: { title: 'Stats' } },
         ],
     },
     { path: '**', pathMatch: 'full', redirectTo: '/not-found' }
