@@ -12,7 +12,7 @@ export const authGuard: CanActivateFn = (route, state) => {
     return true;
   } else {
     console.log('AuthGuard: User is not logged in. Redirecting to login.');
-    router.navigate(['/auth/login']);
+    router.navigate(['/not-found']);
     return false;
   }
 };

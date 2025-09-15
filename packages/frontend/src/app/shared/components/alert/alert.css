@@ -13,3 +13,17 @@
 .toast-border-animate {
     animation: borderSlide 3s linear infinite;
 }
+
+.text-alert-success {
+    color: var(--status-success);
+}
+.text-alert-error {
+    color: var(--status-error);
+}
+
+.bg-alert-success {
+    background-color: var(--status-success);
+}
+.bg-alert-error {
+    background-color: var(--status-error);
+}

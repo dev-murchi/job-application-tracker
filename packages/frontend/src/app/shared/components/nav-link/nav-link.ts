@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, input } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 
 @Component({
@@ -9,7 +9,8 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
   styleUrls: ['./nav-link.css']
 })
 export class NavLink {
-  @Input() link = '/';
-  @Input() icon = '';
-  @Input() text = '';
+  link = input.required<string>();
+  text = input<string | undefined>();
+  icon = input<string | undefined>();
+  cssClass = input<string>('');
 }

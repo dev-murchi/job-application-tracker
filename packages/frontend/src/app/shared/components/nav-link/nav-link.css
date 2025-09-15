@@ -1,3 +1,11 @@
+:host {
+  display: block;
+}
+
+.nav-link.active, .nav-link:hover {
+  color: var(--brand-accent);
+}
+
 .nav-link {
-    cursor: pointer;
+  cursor: pointer;
 }

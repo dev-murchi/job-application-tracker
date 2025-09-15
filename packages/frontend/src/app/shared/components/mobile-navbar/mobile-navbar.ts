@@ -1,11 +1,11 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { Sidebar } from '../sidebar/sidebar';
+import { Component, Input } from '@angular/core';
 import { ThemeSwitch } from '../theme-switch/theme-switch';
+import { NavLink } from '../nav-link/nav-link';
 
 @Component({
   selector: 'app-mobile-navbar',
   standalone: true,
-  imports: [Sidebar, ThemeSwitch],
+  imports: [ThemeSwitch, NavLink],
   templateUrl: './mobile-navbar.html',
   styleUrls: ['./mobile-navbar.css']
 })
@@ -16,5 +16,9 @@ export class MobileNavbar {
 
   onToggleMenu() {
     this.mobileMenuOpen = !this.mobileMenuOpen;
+  }
+
+  closeMenu() {
+    this.mobileMenuOpen = false;
   }
 }

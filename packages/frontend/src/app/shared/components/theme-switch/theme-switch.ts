@@ -11,27 +11,31 @@ export class ThemeSwitch {
 
   ngOnInit() {
     const savedTheme = localStorage.getItem('theme');
-    if (savedTheme) {
-      this.isDarkMode = savedTheme === 'dark';
-    } else {
-      this.isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    }
-    this.applyTheme();
+    const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const defaultTheme = savedTheme || (prefersDark ? 'dark' : 'light');
+    this.applyTheme(defaultTheme);
   }
 
-  toggleTheme() {
-    this.isDarkMode = !this.isDarkMode;
-    localStorage.setItem('theme', this.isDarkMode ? 'dark' : 'light');
-    this.applyTheme();
+  toggle() {
+    const currentTheme = document.body.getAttribute('data-theme');
+    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+    this.applyTheme(newTheme);
   }
 
-  private applyTheme() {
-    if (this.isDarkMode) {
-      document.body.classList.remove('light-theme');
-      document.body.classList.add('dark-theme');
-    } else {
-      document.body.classList.remove('dark-theme');
-      document.body.classList.add('light-theme');
-    }
+  changeMode(mode: 'light' | 'dark') {
+    console.log({ mode })
+    this.isDarkMode = mode === 'dark';
+    const newTheme = mode === 'dark' ? 'dark' : 'light';
+    this.applyTheme(newTheme);
+  }
+
+  applyTheme(theme: string) {
+    document.body.setAttribute('data-theme', theme);
+    localStorage.setItem('theme', theme);
+    this.updateIcon(theme);
+  }
+
+  updateIcon(theme: string) {
+    this.isDarkMode = theme === 'dark';
   }
 }

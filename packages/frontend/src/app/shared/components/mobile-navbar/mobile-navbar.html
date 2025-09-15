@@ -1,24 +1,46 @@
-<header class="mobile-topbar fixed top-0 z-40 flex items-center justify-between px-2 py-2">
-    <button class="toggle-btn p-2 rounded" (click)="onToggleMenu()">
-        @if (!mobileMenuOpen) {
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-6 h-6">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+<header class="h-16 sticky flex items-center justify-between px-4 text-brand-accent shadow-lg">
+    <h1 class="text-2xl font-bold">Solempleo</h1>
+    <button class="p-2 text-primary cursor-pointer" (click)="onToggleMenu()">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
         </svg>
-        }
-        @if (mobileMenuOpen) {
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-6 h-6">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-        </svg>
-        }
     </button>
-    <div class="flex items-center justify-between">
-        <span class="font-bold text-2xl text-emerald-600">Solempleo</span>
-    </div>
-    <app-theme-switch />
 </header>
 
-@if (mobileMenuOpen) {
-<div class="sm:hidden flex flex-1 flex-col items-left justify-start rounded-xl shadow-lg form-bg w-full max-w-[240px] fixed h-full " (click)="mobileMenuOpen = false">
-    <app-sidebar [items]="items"></app-sidebar>
+
+<div class="fixed inset-0 z-30 bg-neutral-900/90" [class.hidden]="!mobileMenuOpen" (click)="closeMenu()"></div>
+
+<div class="sidebar fixed top-0 left-0 h-full flex flex-col w-64 z-40 py-4 px-2 transition-transform duration-300 ease-in-out -translate-x-full"
+    [class.translate-x-0]="mobileMenuOpen">
+    <header class="h-16 flex items-center justify-between text-brand-accent border-b-2">
+        <h1 class="text-2xl font-bold">Solempleo</h1>
+        <button class="p-2 border-2 rounded-lg" (click)="closeMenu()">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                class="w-6 h-6">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+        </button>
+    </header>
+    <nav class="flex-1 mt-8 px-2 space-y-2">
+        @for (item of items; track item.link) {
+        <app-nav-link [link]="item.link" [icon]="'item.icon'" [text]="item.text"
+            [cssClass]="'p-2 rounded-lg sidebar-item gap-2'"></app-nav-link>
+        }
+    </nav>
+    <div class="p-4 space-y-3">
+        <app-theme-switch class="block" />
+        <button
+            class="flex items-center justify-between text-center text-sm w-full text-red-500 font-bold py-2 px-4 rounded-full gap-2 border-1 hover:bg-red-500 hover:text-white cursor-pointer ">
+            <span class="h-6 w-6">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor"
+                    viewBox="0 0 640 640"><!--!Font Awesome Free v7.0.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.-->
+                    <path
+                        d="M224 160C241.7 160 256 145.7 256 128C256 110.3 241.7 96 224 96L160 96C107 96 64 139 64 192L64 448C64 501 107 544 160 544L224 544C241.7 544 256 529.7 256 512C256 494.3 241.7 480 224 480L160 480C142.3 480 128 465.7 128 448L128 192C128 174.3 142.3 160 160 160L224 160zM566.6 342.6C579.1 330.1 579.1 309.8 566.6 297.3L438.6 169.3C426.1 156.8 405.8 156.8 393.3 169.3C380.8 181.8 380.8 202.1 393.3 214.6L466.7 288L256 288C238.3 288 224 302.3 224 320C224 337.7 238.3 352 256 352L466.7 352L393.3 425.4C380.8 437.9 380.8 458.2 393.3 470.7C405.8 483.2 426.1 483.2 438.6 470.7L566.6 342.7z" />
+                </svg>
+            </span>
+
+            <span class="text">Logout</span>
+
+        </button>
+    </div>
 </div>
-}

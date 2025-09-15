@@ -1,0 +1,3 @@
+.selected-theme {
+    background-color: color-mix(in oklab, var(--color-gray-500) 20%, transparent);
+}

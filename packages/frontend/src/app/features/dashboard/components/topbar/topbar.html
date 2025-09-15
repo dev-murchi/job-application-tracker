@@ -1,28 +1,38 @@
 <!-- Desktop Topbar -->
-<header class="flex w-full top-0 z-40 items-center justify-between px-6 py-3">
-    <span class="font-bold text-xl">{{title}}</span>
-    <div class="flex items-center gap-4">
+<header class="flex justify-end w-full top-0 z-40 items-center justify-between px-6 py-3">
+    <div class="flex items-center gap-2">
         <div class="relative group">
-            <div userMenu class="ml-auto relative">
-                <button class="flex items-center px-4 gap-2 py-2 rounded focus:outline-none cursor-pointer"
+            <div class="ml-auto relative bg-gray-500/10 p-1 rounded-full">
+                <button
+                    class="flex items-center p-1 w-full focus:outline-none cursor-pointer hover:bg-gray-500/20 text-secondary rounded-full"
                     (click)="showDropdown = !showDropdown">
-                    <img src="{{avatar}}" alt="Avatar" class="w-8 h-8 rounded-full border-2" />
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <img src="{{userProfile.avatar}}" alt="Avatar" class="w-8 h-8 rounded-full" />
+                    <div class="h-6 w-px bg-gray-500/30 mx-1"></div>
+                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                     </svg>
                 </button>
                 @if(showDropdown) {
-                <div class="absolute right-0 mt-2 w-48 rounded-xl shadow-lg p-4 z-50">
-                    <app-nav-link [link]="'/dashboard/profile'" [text]="'Profile'"></app-nav-link>
-                    <button class="nav-link flex w-full items-center gap-3 px-2 py-3 rounded-lg group">
-                        <span class="inline-block w-5 h-5"></span>
-                        <span class="whitespace-nowrap">Logout</span>
-                    </button>
+                <div class="absolute flex-1 space-y-2 right-0 mt-2 w-48 rounded-xl shadow-lg p-3 z-50 card">
+                    <app-nav-link [link]="userProfile.link.target" [text]="userProfile.link.text" [icon]="userProfile.link.icon"
+                        [cssClass]="'p-3 rounded-lg sidebar-item gap-2'"></app-nav-link>
+                        <div class=" space-y-3">
+                            <button
+                                class="flex items-center justify-center text-center text-sm w-full text-red-500 font-bold rounded-full gap-2 p-2 border-1 hover:bg-red-500 hover:text-white cursor-pointer ">
+                                <span class="h-6 w-6">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor"
+                                        viewBox="0 0 640 640"><!--!Font Awesome Free v7.0.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.-->
+                                        <path
+                                            d="M224 160C241.7 160 256 145.7 256 128C256 110.3 241.7 96 224 96L160 96C107 96 64 139 64 192L64 448C64 501 107 544 160 544L224 544C241.7 544 256 529.7 256 512C256 494.3 241.7 480 224 480L160 480C142.3 480 128 465.7 128 448L128 192C128 174.3 142.3 160 160 160L224 160zM566.6 342.6C579.1 330.1 579.1 309.8 566.6 297.3L438.6 169.3C426.1 156.8 405.8 156.8 393.3 169.3C380.8 181.8 380.8 202.1 393.3 214.6L466.7 288L256 288C238.3 288 224 302.3 224 320C224 337.7 238.3 352 256 352L466.7 352L393.3 425.4C380.8 437.9 380.8 458.2 393.3 470.7C405.8 483.2 426.1 483.2 438.6 470.7L566.6 342.7z" />
+                                    </svg>
+                                </span>
+                                <span class="text ">Logout</span>
+                            </button>
+                        </div>
                 </div>
                 }
             </div>
         </div>
-
         <app-theme-switch class="toggle-circle"></app-theme-switch>
     </div>
 </header>

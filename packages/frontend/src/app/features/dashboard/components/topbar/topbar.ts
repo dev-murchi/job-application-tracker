@@ -14,7 +14,10 @@ export class Topbar {
   showDropdown=false;
   titleService = inject(Title);
   title: string = '';
-  avatar: string = 'images/main.svg'
+  userProfile = {
+    link: { target: '/dashboard/profile', text: 'Profile', icon: undefined },
+    avatar: 'images/avatar.svg'
+  }
 
   constructor() {
     this.titleService.title$.pipe(filter(title => !!title && typeof(title) === 'string')).subscribe((title) => {
