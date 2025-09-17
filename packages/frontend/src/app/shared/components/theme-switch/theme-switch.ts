@@ -1,13 +1,19 @@
 import { Component } from '@angular/core';
+import { SvgComponent } from '../svg/svg';
+import { SvgNameType } from '../../../svg.config';
 
 @Component({
   selector: 'app-theme-switch',
   standalone: true,
+  imports: [SvgComponent],
   templateUrl: './theme-switch.html',
   styleUrls: ['./theme-switch.css']
 })
 export class ThemeSwitch {
   isDarkMode = false;
+
+  darkModeIcon: SvgNameType = 'darkModeIcon';
+  lightModeIcon: SvgNameType = 'lightModeIcon';
 
   ngOnInit() {
     const savedTheme = localStorage.getItem('theme');

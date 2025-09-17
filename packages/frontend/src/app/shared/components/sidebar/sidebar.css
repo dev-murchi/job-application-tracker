@@ -1,0 +1,8 @@
+nav::-webkit-scrollbar {
+  display: none;
+}
+
+nav {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}

@@ -1,16 +1,19 @@
-<div class="page flex h-screen main-content-bg font-inter antialiase">
-    <!-- Sidebar for large screens -->
-    <app-sidebar [items]="sidebarItems" class="hidden sm:flex h-screen max-w-64"></app-sidebar>
-    
-    <!-- Main content area -->
-    <div class="flex-1 flex flex-col overflow-hidden">
-        <!-- Mobile Navbar encapsulated -->
-        <app-mobile-navbar class="sm:hidden" [items]="mobileMenuLinks"></app-mobile-navbar>
-        <app-topbar class="topbar hidden sm:flex"></app-topbar>
+<div class="page flex flex-col w-full h-screen main-content-bg font-inter antialiase">
 
-        <!-- Content area -->
-        <main class="flex-1 overflow-x-hidden overflow-y-auto p-6 md:p-8">
-            <router-outlet />
-        </main>
+    <app-topbar class="topbar h-[48px] md:h-[64px] hidden sm:flex"></app-topbar>
+    <!-- Mobile Navbar encapsulated -->
+    <app-mobile-navbar class="sm:hidden h-[64px] w-full sticky" [items]="mobileMenuLinks"></app-mobile-navbar>
+
+    <!-- Content area -->
+    <div class="flex flex-row w-full overflow-hidden m-0 p-0 h-full">
+        <!-- Sidebar for large screens -->
+        <app-sidebar [items]="sidebarItems" class="hidden sm:flex sm:flex-col h-[calc(100dvh-48px)] md:h-[calc(100dvh-64px)]"></app-sidebar>
+
+        <!-- Main content area -->
+        <div class="flex-1 flex flex-col ">
+            <main class="flex-1 flex flex-col w-full overflow-x-hidden overflow-y-auto p-6 md:p-8">
+                <router-outlet />
+            </main>
+        </div>
     </div>
 </div>

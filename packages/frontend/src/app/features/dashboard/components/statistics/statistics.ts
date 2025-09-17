@@ -1,9 +1,8 @@
 import { Component } from '@angular/core';
-import { Register } from '../../../auth/components/register/register';
 
 @Component({
   selector: 'app-statistics',
-  imports: [Register],
+  imports: [],
   templateUrl: './statistics.html',
   styleUrl: './statistics.css'
 })

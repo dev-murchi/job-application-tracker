@@ -1,5 +1,13 @@
 @import "tailwindcss";
 
+html,
+body {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  overflow-x: hidden;
+}
+
 /* Using a custom font and base styling */
 body {
   font-family: 'Poppins', sans-serif;
@@ -20,7 +28,7 @@ body[data-theme="dark"] {
   --bg-card: var(--color-stone-800);
   --bg-sidebar: var(--color-stone-800);
   --bg-sidebar-active: var(--color-slate-700);
-   --dashboard-bg: var(--color-stone-900);
+  --dashboard-bg: var(--color-stone-900);
   --text-primary: var(--color-gray-50);
   --text-secondary: var(--color-gray-400);
   --text-on-accent: var(--color-white);
@@ -32,6 +40,11 @@ body[data-theme="dark"] {
   --brand-accent: var(--color-emerald-700);
   --brand-accent2: var(--color-emerald-400);
   --brand-accent3: var(--color-emerald-600);
+
+  --status-success: var(--color-green-600);
+  --status-warning: var(--color-amber-600);
+  --status-error: var(--color-red-600);
+  --status-info: var(--color-sky-600);
 
 }
 
@@ -53,11 +66,6 @@ body[data-theme="light"] {
   --text-sidebar: var(--color-gray-700);
   --text-sidebar-active: var(--color-gray-900);
   --border-color: var(--color-gray-300);
-
-  --status-success: var(--color-green-600);
-  --status-warning: var(--color-amber-600);
-  --status-error: var(--color-red-600);
-  --status-info: var(--color-sky-600);
 }
 
 /* --- THEME-AWARE STYLES --- */
@@ -96,6 +104,11 @@ body[data-theme="light"] {
 }
 
 .sidebar {
+  background-color: var(--bg-sidebar);
+  color: var(--text-sidebar);
+}
+
+.topbar {
   background-color: var(--bg-sidebar);
   color: var(--text-sidebar);
 }
@@ -139,6 +152,14 @@ body[data-theme="light"] {
   }
 }
 
+.text-primary {
+  color: var(--text-primary);
+}
+
 .text-secondary {
   color: var(--text-secondary);
+}
+
+.bg-brand-accent {
+  background-color: var(--brand-accent);
 }

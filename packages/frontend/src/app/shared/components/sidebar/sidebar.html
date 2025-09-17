@@ -1,17 +1,17 @@
-<aside class="sidebar h-full px-4 flex-shrink-0 flex flex-col w-24 shadow-md" [class.w-full]="!isCollapsed">
-     <header class="h-16 flex items-center justify-center text-brand-accent border-b-2 mb-4" >
-        <h1 class="text-2xl font-bold mr-8" [class.hidden]="isCollapsed">Solempleo</h1>
-        <button class="p-2 rounded-lg cursor-pointer" (click)="toggle()">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24"
-                stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
-            </svg>
-        </button>
-    </header>
-    <nav class="flex-1 px-2 space-y-2">
+<aside class="sidebar h-full px-4 flex-shrink-0 flex flex-col shadow-md w-24" [class.w-64]="!isCollapsed">
+
+    <nav class="flex-1 flex-col overflow-y-auto w-full items-left px-2 space-y-2 my-4">
         @for (item of items; track item.link) {
         <app-nav-link [link]="item.link" [text]="!isCollapsed ? item.text : undefined" [icon]="item.icon"
             [cssClass]="'p-3 rounded-lg sidebar-item gap-2'"></app-nav-link>
         }
     </nav>
+
+    <div class="h-px bg-gray-200 dark:bg-gray-700"></div>
+
+    <footer class="mt-auto h-16 flex items-center justify-center text-brand-accent py-4">
+        <button class="p-2 rounded-lg cursor-pointer" (click)="toggle()">
+            <app-svg [svgName]="isCollapsed? panelOpenIcon : panelCloseIcon" fill="currentColor"></app-svg>
+        </button>
+    </footer>
 </aside>

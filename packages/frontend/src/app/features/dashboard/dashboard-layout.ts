@@ -3,6 +3,7 @@ import { RouterOutlet } from '@angular/router';
 import { Sidebar } from '../../shared/components/sidebar/sidebar';
 import { MobileNavbar } from '../../shared/components/mobile-navbar/mobile-navbar';
 import { Topbar } from './components/topbar/topbar';
+import { NavLinkData } from '../../shared/components/nav-link/nav-link';
 
 
 @Component({
@@ -12,18 +13,18 @@ import { Topbar } from './components/topbar/topbar';
   styleUrl: './dashboard-layout.css'
 })
 export class DashboardLayout {
-  sidebarItems = [
-    { text: 'Dashboard', link: '/dashboard', icon: undefined },
-    { text: 'Create Job', link: '/dashboard/create-job', icon: undefined },
-    { text: 'All Jobs', link: '/dashboard/all-jobs', icon: undefined },
-    { text: 'Stats', link: '/dashboard/stats', icon: undefined },
+  sidebarItems: NavLinkData[] = [
+    { text: 'Dashboard', link: '/dashboard', icon: 'dashboardIcon' },
+    { text: 'Add Job', link: '/dashboard/create-job',  icon: 'addJobApplicationIcon' },
+    { text: 'All Jobs', link: '/dashboard/all-jobs',  icon: 'appliedJobsIcon' },
+    { text: 'Statistics', link: '/dashboard/stats',  icon: 'monitoringIcon' },
   ];
 
-  mobileMenuLinks = [
-    { text: 'Dashboard', link: '/dashboard', icon: undefined },
-    { text: 'Create Job', link: '/dashboard/create-job', icon: undefined },
-    { text: 'All Jobs', link: '/dashboard/all-jobs', icon: undefined },
-    { text: 'Stats', link: '/dashboard/stats', icon: undefined },
-    { text: 'Profile', link: '/dashboard/profile', icon: undefined },
+  mobileMenuLinks: NavLinkData[]= [
+   { text: 'Dashboard', link: '/dashboard', icon: 'dashboardIcon' },
+    { text: 'Add Job', link: '/dashboard/create-job',  icon: 'addJobApplicationIcon' },
+    { text: 'All Jobs', link: '/dashboard/all-jobs',  icon: 'appliedJobsIcon' },
+    { text: 'Statistics', link: '/dashboard/stats',  icon: 'monitoringIcon' },
+    { text: 'Profile', link: '/dashboard/profile', icon: 'accountCircleIcon' },
   ];
 }

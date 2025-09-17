@@ -4,17 +4,20 @@ import { RouterOutlet, RouterLink, Router, NavigationEnd } from '@angular/router
 import { filter, tap } from 'rxjs/operators';
 import { startWith } from 'rxjs';
 import { ThemeSwitch } from '../../shared/components/theme-switch/theme-switch';
+import { SvgComponent } from '../../shared/components/svg/svg';
+import { SvgNameType } from '../../svg.config';
 
 @Component({
   standalone: true,
   selector: 'app-auth',
-  imports: [CommonModule, RouterOutlet, RouterLink, ThemeSwitch],
+  imports: [CommonModule, RouterOutlet, RouterLink, ThemeSwitch, SvgComponent],
   templateUrl: './auth.html'
 })
 export class Auth implements OnInit {
   promptText = '';
   linkText = '';
   linkUrl = '';
+  logo: SvgNameType = 'logo';
 
   private router = inject(Router);
 
