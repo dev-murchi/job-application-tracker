@@ -87,7 +87,7 @@ const setupMiddleware = (app) => {
 const setupRoutes = (app) => {
   app.get('/', (req, res) => res.send('home'));
   app.use('/api/v1/auth', rateLimiters.auth, authRouter);
-  app.use('/api/v1/user', userRouter);
+  app.use('/api/v1/users', authenticateUser, userRouter);
   app.use('/api/v1/jobs', authenticateUser, jobsRouter);
   app.use(notFoundMiddleware);
   app.use(errorHandlerMiddleware);

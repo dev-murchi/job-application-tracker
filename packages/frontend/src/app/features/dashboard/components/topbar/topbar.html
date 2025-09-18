@@ -11,9 +11,9 @@
                     class="flex items-center p-2 w-full hover:bg-gray-500/20 focus:outline-none cursor-pointer text-secondary rounded-full"
                     (click)="showDropdown = !showDropdown">
 
-                    <img src="{{userProfile.avatar}}" alt="Avatar" class="w-6 h-6 rounded-full" />
+                    <img src="{{userProfile()?.avatar}}" alt="Avatar" class="w-6 h-6 rounded-full" />
 
-                    <div class="h-4 mx-1 text-sm flex items-center">{{userProfile.name}}</div>
+                    <div class="h-4 mx-1 text-sm flex items-center">{{userProfile()?.name}}</div>
 
                     <app-svg [svgName]="dropDownIcon" class="rounded-full" fill="currentColor" />
 

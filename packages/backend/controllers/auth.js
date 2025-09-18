@@ -5,13 +5,10 @@ const attachCookie = require('../utils/attachCookie.js');
 
 // Helper functions
 const formatUserResponse = (user) => ({
-  user: {
-    email: user.email,
-    lastName: user.lastName,
-    location: user.location,
-    name: user.name,
-  },
+  email: user.email,
+  lastName: user.lastName,
   location: user.location,
+  name: user.name,
 });
 
 // Main controller functions
@@ -28,9 +25,6 @@ const register = async (req, res) => {
   }
 
   const user = await User.create({ name, email, password });
-  const token = user.createJWT();
-
-  attachCookie({ res, token });
 
   res.status(StatusCodes.CREATED).json(formatUserResponse(user));
 };
@@ -57,12 +51,8 @@ const login = async (req, res) => {
   const token = user.createJWT();
 
   attachCookie({ res, token });
-  const response = {
-    ...formatUserResponse(user),
-    token,
-  };
 
-  res.status(StatusCodes.OK).json(response);
+  res.status(StatusCodes.OK).json(formatUserResponse(user));
 };
 
 const logout = async (req, res) => {

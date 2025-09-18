@@ -3,9 +3,9 @@ import { ThemeSwitch } from '../../../../shared/components/theme-switch/theme-sw
 import { SvgComponent } from '../../../../shared/components/svg/svg';
 import { SvgNameType } from '../../../../svg.config';
 import { AuthService } from '../../../../core/services/auth';
+import { UsersService } from '../../../../core/services/users';
 import { NavLink } from '../../../../shared/types/nav-link.data';
 import { NavLink as NavLinkComponent } from '../../../../shared/components/nav-link/nav-link';
-import { UserProfile } from '../../../../shared/types/user-profile.data';
 
 @Component({
   selector: 'app-topbar',
@@ -14,7 +14,7 @@ import { UserProfile } from '../../../../shared/types/user-profile.data';
   styleUrl: './topbar.css'
 })
 export class Topbar {
-  showDropdown = false
+  showDropdown = false;
 
   readonly profileNavigtion: NavLink = { 
     link: '/dashboard/profile', 
@@ -22,16 +22,14 @@ export class Topbar {
     icon: 'accountCircleIcon' 
   };
 
-  readonly userProfile: UserProfile = {
-    avatar: 'images/avatar-2.jpg',
-    name: 'User John Doe'
-  };
-
   dropDownIcon: SvgNameType = 'arrowDropDownIcon';
   logoutIcon: SvgNameType = 'logoutIcon';
   logo: SvgNameType = 'logo';
 
   private readonly authService = inject(AuthService);
+  private readonly usersService = inject(UsersService);
+
+  readonly userProfile = this.usersService.currentUser;
 
   logout() {
     this.authService.logout().subscribe();

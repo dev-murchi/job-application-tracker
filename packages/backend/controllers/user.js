@@ -1,34 +1,22 @@
 const User = require('../models/User');
 const { StatusCodes } = require('http-status-codes');
 const { BadRequestError } = require('../errors');
-const attachCookie = require('../utils/attachCookie');
+
+const formatUserResponse = (user) => ({
+  email: user.email,
+  lastName: user.lastName,
+  location: user.location,
+  name: user.name,
+});
 
 const updateUser = async (req, res) => {
-  const { name, email, password, newPassword, location, lastName } = req.body;
-
-  if (!password) {
-    throw new BadRequestError('Password is required.');
-  }
+  const { name, email, location, lastName } = req.body;
 
   if (!email && !name && !lastName && !location) {
     throw new BadRequestError('No changes provided');
   }
 
-  const user = await User.findOne({ _id: req.user.userId }).select('+password');
-
-  const isPasswordMatch = await user.comparePassword(password);
-  if (!isPasswordMatch) {
-    throw new BadRequestError('Current password is incorrect.');
-  }
-
-  if (newPassword) {
-    if (newPassword === password) {
-      throw new BadRequestError(
-        'New password must be different from old password.'
-      );
-    }
-    user.password = newPassword;
-  }
+  const user = await User.findOne({ _id: req.user.userId });
 
   if (email) user.email = email;
   if (name) user.name = name;
@@ -37,15 +25,12 @@ const updateUser = async (req, res) => {
 
   await user.save();
 
-  const token = user.createJWT();
-  attachCookie({ res, token });
-  user.password = undefined;
-  res.status(StatusCodes.OK).json({ user, location: user.location });
+  res.status(StatusCodes.OK).json(formatUserResponse(user));
 };
 
 const getCurrentUser = async (req, res) => {
   const user = await User.findOne({ _id: req.user.userId });
-  res.status(StatusCodes.OK).json({ user, location: user.location });
+  res.status(StatusCodes.OK).json(formatUserResponse(user));
 };
 
 module.exports = {

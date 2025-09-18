@@ -20,10 +20,16 @@
 .text-alert-error {
     color: var(--status-error);
 }
+.text-alert-warning {
+    color: var(--status-warning);
+}
 
 .bg-alert-success {
     background-color: var(--status-success);
 }
 .bg-alert-error {
     background-color: var(--status-error);
+}
+.bg-alert-warning {
+    background-color: var(--status-warning);
 }

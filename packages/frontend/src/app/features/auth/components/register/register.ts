@@ -14,7 +14,6 @@ import { UserRegister } from '../../../../shared/types/user-register.data';
 })
 export class Register {
   private authService = inject(AuthService);
-  private alertService = inject(AlertService);
 
   registerForm = new FormGroup({
     firstName: new FormControl('', Validators.required),

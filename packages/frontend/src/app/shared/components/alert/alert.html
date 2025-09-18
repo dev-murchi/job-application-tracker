@@ -2,7 +2,9 @@
 
     @for (alert of alerts(); track alert.id) {
     <div class="relative w-full max-w-xs md:max-w-md text-sm card rounded-lg shadow-lg overflow-hidden" role="alert"
-        tabindex="-1" [class.text-alert-success]="alert.type === 'success'"
+        tabindex="-1" 
+        [class.text-alert-success]="alert.type === 'success'"
+        [class.text-alert-warning]="alert.type === 'warn'"
         [class.text-alert-error]="alert.type === 'error'">
         <div class="flex p-4">
             <div class="shrink-0">
@@ -27,7 +29,9 @@
             </div>
         </div>
         <div class="absolute bottom-0 left-0 h-1 w-full toast-border-animate"
-            [class.bg-alert-success]="alert.type === 'success'" [class.bg-alert-error]="alert.type === 'error'"></div>
+            [class.bg-alert-success]="alert.type === 'success'" 
+            [class.bg-alert-warning]="alert.type === 'warn'" 
+            [class.bg-alert-error]="alert.type === 'error'"></div>
     </div>
     }
 </div>
