@@ -1,8 +1,8 @@
 <div class="page flex flex-col w-full h-screen main-content-bg font-inter antialiase">
 
-    <app-topbar class="topbar h-[48px] md:h-[64px] hidden sm:flex"></app-topbar>
+    <app-topbar class="topbar h-[64px] hidden sm:flex"></app-topbar>
     <!-- Mobile Navbar encapsulated -->
-    <app-mobile-navbar class="sm:hidden h-[64px] w-full sticky" [items]="mobileMenuLinks"></app-mobile-navbar>
+    <app-mobile-navbar class="topbar sm:hidden w-full sticky" [items]="mobileMenuLinks"></app-mobile-navbar>
 
     <!-- Content area -->
     <div class="flex flex-row w-full overflow-hidden m-0 p-0 h-full">

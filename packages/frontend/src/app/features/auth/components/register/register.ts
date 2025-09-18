@@ -42,16 +42,7 @@ export class Register {
         location: this.registerForm.value.location!,
       }
 
-      this.authService.register(payload).subscribe({
-        next: (response) => {
-          console.log('Registration successful:', response);
-          this.alertService.show('Registration successful!', 'success');
-        },
-        error: (err) => {
-          console.error('Registration failed:', err);
-          this.alertService.show('Registration failed. Please try again.', 'error');
-        }
-      });
+      this.authService.register(payload).subscribe();
     } else {
       this.registerForm.markAllAsTouched();
     }

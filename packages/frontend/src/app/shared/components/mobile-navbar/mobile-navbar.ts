@@ -1,8 +1,9 @@
-import { Component, Input } from '@angular/core';
+import { Component, inject, Input } from '@angular/core';
 import { ThemeSwitch } from '../theme-switch/theme-switch';
 import { NavLink, NavLinkData } from '../nav-link/nav-link';
 import { SvgComponent } from '../svg/svg';
 import { SvgNameType } from '../../../svg.config';
+import { AuthService } from '../../../core/services/auth';
 
 @Component({
   selector: 'app-mobile-navbar',
@@ -13,11 +14,12 @@ import { SvgNameType } from '../../../svg.config';
 })
 export class MobileNavbar {
   @Input() items: Array<NavLinkData> = [];
+  private readonly authService = inject(AuthService);
 
-  logoutIcon:SvgNameType = 'logoutIcon';
-  closeIcon:SvgNameType = 'closeIcon';
-  mobileMenuIcon:SvgNameType = 'mobileMenuIcon';
-  logoImage:SvgNameType = 'logo';
+  logoutIcon: SvgNameType = 'logoutIcon';
+  closeIcon: SvgNameType = 'closeIcon';
+  mobileMenuIcon: SvgNameType = 'mobileMenuIcon';
+  logoImage: SvgNameType = 'logo';
 
   mobileMenuOpen = false;
 
@@ -27,5 +29,9 @@ export class MobileNavbar {
 
   closeMenu() {
     this.mobileMenuOpen = false;
+  }
+
+  logout() {
+    this.authService.logout().subscribe();
   }
 }

@@ -30,16 +30,7 @@ export class Login implements OnInit {
         password: this.loginForm.value.password!,
       };
 
-      this.authService.login(payload).subscribe({
-        next: (response) => {
-          console.log('Login successful:', response);
-          this.alertService.show('Login successful!', 'success');
-        },
-        error: (err) => {
-          console.error('Login failed:', err);
-          this.alertService.show('Login failed. Please check your credentials', 'error');
-        },
-      });
+      this.authService.login(payload).subscribe();
     } else {
       console.log(this.loginForm);
       this.loginForm.markAllAsTouched();
