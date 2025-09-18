@@ -1,22 +1,11 @@
-import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, of } from 'rxjs';
-
-
-export interface UserRegisterData {
-  name: string,
-  lastName: string,
-  email: string,
-  password: string,
-  location: string,
-}
-export interface UserLoginData {
-  email: string,
-  password: string,
-}
+import { inject, Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
+import { UserLogin } from '../shared/types/user-login.data';
+import { UserRegister } from '../shared/types/user-register.data';
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: 'root'
 })
 export class AuthApi {
   private readonly apiUrl = '/api';
@@ -24,12 +13,12 @@ export class AuthApi {
 
   constructor() {}
 
-  register(payload: UserRegisterData): Observable<any> {
+  register(payload: UserRegister): Observable<any> {
     console.log('API call: Attempting to register user:', payload.email);
     return this.http.post(`${this.apiUrl}/auth/register`, payload);
   }
   
-  login(payload: UserLoginData): Observable<any> {
+  login(payload: UserLogin): Observable<any> {
     console.log('API call: Attempting to login user:', payload.email);
     return this.http.post(`${this.apiUrl}/auth/login`, payload);
   }

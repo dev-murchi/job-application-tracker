@@ -3,12 +3,6 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
 import { SvgComponent } from '../svg/svg';
 import { SvgNameType } from '../../../svg.config';
 
-export interface NavLinkData { 
-  text: string; 
-  link: string; 
-  icon: SvgNameType | undefined 
-}
-
 @Component({
   selector: 'app-nav-link',
   standalone: true,

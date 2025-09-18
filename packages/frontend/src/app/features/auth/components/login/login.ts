@@ -1,6 +1,6 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { UserLoginData } from '../../services/auth-api';
+import { UserLogin } from '../../../../shared/types/user-login.data';
 import { AuthService } from '../../../../core/services/auth';
 import { AlertService } from '../../../../shared/components/alert/alert-service';
 
@@ -25,7 +25,7 @@ export class Login implements OnInit {
 
   loginUser() {
     if(this.loginForm.valid) {
-      const payload: UserLoginData = {
+      const payload: UserLogin = {
         email: this.loginForm.value.email!,
         password: this.loginForm.value.password!,
       };

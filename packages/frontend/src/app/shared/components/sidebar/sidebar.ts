@@ -1,17 +1,18 @@
 import { Component, Input } from '@angular/core';
-import { NavLink, NavLinkData } from '../nav-link/nav-link';
+import { NavLink as NavLinkComponent } from '../nav-link/nav-link';
 import { SvgComponent } from '../svg/svg';
 import { SvgNameType } from '../../../svg.config';
+import { NavLink } from '../../types/nav-link.data';
 
 @Component({
   selector: 'app-sidebar',
   standalone: true,
-  imports: [ NavLink, SvgComponent],
+  imports: [ NavLinkComponent, SvgComponent],
   templateUrl: './sidebar.html',
   styleUrls: ['./sidebar.css']
 })
 export class Sidebar {
-  @Input() items: Array<NavLinkData> = [];
+  @Input() items: Array<NavLink> = [];
 
   isCollapsed = false;
 

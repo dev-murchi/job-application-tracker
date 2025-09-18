@@ -4,7 +4,7 @@ import { FormGroup, FormControl, ReactiveFormsModule, Validators } from '@angula
 
 import { AuthService } from '../../../../core/services/auth';
 import { AlertService } from '../../../../shared/components/alert/alert-service';
-import { UserRegisterData } from '../../services/auth-api';
+import { UserRegister } from '../../../../shared/types/user-register.data';
 
 @Component({
   selector: 'app-register',
@@ -34,7 +34,7 @@ export class Register {
 
   registerUser() {
     if (this.registerForm.valid) {
-      const payload: UserRegisterData = {
+      const payload: UserRegister = {
         name: this.registerForm.value.firstName!,
         lastName: this.registerForm.value.lastName!,
         email: this.registerForm.value.email!,

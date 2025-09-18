@@ -1,9 +1,11 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable, throwError } from 'rxjs';
 import { Router } from '@angular/router';
-import { AuthApi, UserLoginData, UserRegisterData } from '../../features/auth/services/auth-api';
 import { catchError, tap } from 'rxjs/operators';
 import { AlertService } from '../../shared/components/alert/alert-service';
+import { AuthApi } from '../../api/auth-api';
+import { UserLogin } from '../../shared/types/user-login.data';
+import { UserRegister } from '../../shared/types/user-register.data';
 
 @Injectable({
   providedIn: 'root',
@@ -13,7 +15,7 @@ export class AuthService {
   private readonly router = inject(Router);
   private readonly alertService = inject(AlertService);
 
-  register(userData: UserRegisterData): Observable<any> {
+  register(userData: UserRegister): Observable<any> {
     return this.authApi.register(userData).pipe(
       tap(() => {
         this.alertService.show('Registration successful!', 'success');
@@ -26,7 +28,7 @@ export class AuthService {
     );
   }
 
-  login(loginData: UserLoginData): Observable<any> {
+  login(loginData: UserLogin): Observable<any> {
     return this.authApi.login(loginData).pipe(
       tap((response) => {
         localStorage.setItem('auth_token', response.token);

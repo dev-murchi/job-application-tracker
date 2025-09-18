@@ -1,11 +1,7 @@
 import { Injectable, signal } from '@angular/core';
 import { v4 as uuidv4 } from 'uuid';
+import { Alert } from '../../types/alert.data';
 
-export interface Alert {
-  id: string;
-  message: string;
-  type: 'success' | 'error';
-}
 
 @Injectable({
   providedIn: 'root'
