@@ -6,6 +6,7 @@ import { AlertService } from '../../shared/components/alert/alert-service';
 import { AuthApi } from '../../api/auth-api';
 import { UserLogin } from '../../shared/types/user-login.data';
 import { UserRegister } from '../../shared/types/user-register.data';
+import { UsersService } from './users';
 
 @Injectable({
   providedIn: 'root',
@@ -14,6 +15,7 @@ export class AuthService {
   private readonly authApi = inject(AuthApi);
   private readonly router = inject(Router);
   private readonly alertService = inject(AlertService);
+  private readonly usersService = inject(UsersService);
 
   register(userData: UserRegister): Observable<any> {
     return this.authApi.register(userData).pipe(
@@ -50,6 +52,7 @@ export class AuthService {
     return this.authApi.logout().pipe(
       tap(() => {
         localStorage.removeItem('auth_token');
+        this.usersService.clearCache();
         this.alertService.show('You have been logged out.', 'success');
         this.router.navigate(['/']);
       }),
