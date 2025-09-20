@@ -1,37 +1,70 @@
-<div class="card  p-8 w-full rounded-lg shadow-lg ">
-  <h1 class="text-3xl font-bold text-primary mb-8">Your Profile</h1>
-  <form [formGroup]="profileForm" (submit)="updateProfile();"
-    class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-end">
+<div class="max-w-4xl mx-auto  rounded-md">
+    <h2 class="text-2xl font-medium text-primary lg:py-6">Profile</h2>
 
-    <div class="col-span-1">
-      <label for="firstName" class="block text-sm font-medium text-secondary mb-2">First Name</label>
-      <input type="text" id="firstName" formControlName="firstName" placeholder="John"
-        class="form-input w-full px-4 py-3 rounded-lg focus:outline-none placeholder-stone-400" required>
+    <div class="flex items-center my-8">
+      <img [src]="currentUser()?.avatar ??'images/default-avatar.png'" alt="Profile Picture"
+        class="size-20 rounded-full object-cover mr-4" />
+      <div>
+        <h3 class="text-xl font-medium text-primary">{{currentUser()?.name}} {{currentUser()?.lastName}}</h3>
+      </div>
     </div>
 
-    <div class="col-span-1">
-      <label for="lastName" class="block text-sm font-medium text-secondary mb-2">Last Name</label>
-      <input type="text" id="lastName" formControlName="lastName" placeholder="Doe"
-        class="form-input w-full px-4 py-3 rounded-lg focus:outline-none placeholder-stone-400" required>
-    </div>
+    <hr class="mb-8" />
+    <form [formGroup]="profileForm" (submit)="updateProfile();" (reset)="resetForm($event)">
 
-    <div class="col-span-1">
-      <label for="email" class="block text-sm font-medium text-secondary mb-2">Email Address</label>
-      <input type="email" id="email" name="email" formControlName="email" placeholder="you@example.com"
-        class="form-input w-full px-4 py-3 rounded-lg focus:outline-none placeholder-stone-400" required>
-    </div>
 
-    <div class="col-span-1">
-      <label for="location" class="block text-sm font-medium text-secondary mb-2">Location</label>
-      <input type="text" id="location" formControlName="location" placeholder="TX, USA"
-        class="form-input w-full px-4 py-3 rounded-lg focus:outline-none placeholder-stone-400" required>
-    </div>
 
-    <div class="col-span-1">
-      <button type="submit" [disabled]="profileForm.invalid || profileForm.disabled"
-        class="w-full py-4 rounded-lg cursor-pointer font-bold shadow-lg transform transition-all duration-300 ease-in-out transform bg-emerald-500 text-white hover:bg-emerald-600 disabled:bg-emerald-900 disabled:cursor-not-allowed">
-        Update
-      </button>
-    </div>
-  </form>
-</div>
+      <div class="flex justify-between items-end mb-12">
+        <h2 class="text-xl font-medium text-primary">Personal Details</h2>
+        <button type="button" (click)="enableForm()"
+          class="flex items-center px-2 pr-4 py-1 bg-emerald-500 text-white cursor-pointer rounded-md hover:bg-emerald-600 focus:outline-none">
+          <app-svg [svgName]="editIcon" [class]="'h-4 w-4 mr-2'" fill="currentColor" />
+          Edit
+        </button>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
+
+        <div>
+          <label for="firstName" class="block text-sm font-medium text-secondary mb-2">First Name</label>
+          <input type="text" id="firstName" formControlName="firstName" placeholder="John"
+            class="form-input w-full px-2 py-1 rounded-md focus:outline-none placeholder-stone-400" required>
+        </div>
+
+        <div>
+          <label for="lastName" class="block text-sm font-medium text-secondary mb-2">Last Name</label>
+          <input type="text" id="lastName" formControlName="lastName" placeholder="Doe"
+            class="form-input w-full px-2 py-1 rounded-md focus:outline-none placeholder-stone-400" required>
+        </div>
+
+        <div>
+          <label for="email" class="block text-sm font-medium text-secondary mb-2">Email Address</label>
+          <input type="email" id="email" name="email" formControlName="email" placeholder="you@example.com"
+            class="form-input w-full px-2 py-1 rounded-md focus:outline-none placeholder-stone-400" required>
+        </div>
+
+        <div>
+          <label for="location" class="block text-sm font-medium text-secondary mb-2">Location</label>
+          <input type="text" id="location" formControlName="location" placeholder="TX, USA"
+            class="form-input w-full px-2 py-1 rounded-md focus:outline-none placeholder-stone-400" required>
+        </div>
+      </div>
+
+      @if(editMode()) {
+      <div class="max-w-xs grid grid-cols-2 gap-6 justify-end ml-auto">
+        <button type="submit"
+          class="flex flex-row w-full justify-center items-center gap-2 px-2 py-2 cursor-pointer rounded-md bg-emerald-500 text-white hover:bg-emerald-600 disabled:bg-emerald-900 disabled:cursor-not-allowed font-medium shadow-md transform transition-all duration-300 ease-in-out">
+          <app-svg [svgName]="sendIcon" [class]="'h-5 w-5 mr-2 text-white'" fill="currentColor" />
+          Send
+        </button>
+
+        <button type="button" (click)="resetForm($event)"
+          class="flex flex-row w-full justify-center items-center gap-2 px-2 py-2 cursor-pointer rounded-md bg-sky-500 text-white hover:bg-sky-600 disabled:bg-sky-900 disabled:cursor-not-allowed font-medium shadow-md transform transition-all duration-300 ease-in-out">
+          <app-svg [svgName]="cancelIcon" [class]="'h-5 w-5 text-white'" fill="currentColor" />
+          Cancel
+        </button>
+      </div>
+      }
+
+    </form>
+  </div>

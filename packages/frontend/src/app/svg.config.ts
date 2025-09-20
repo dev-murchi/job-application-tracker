@@ -20,6 +20,11 @@ export const svgConfig =
   logoutIcon: 'images/logout-icon.svg',
   monitoringIcon: 'images/monitoring-icon.svg',
   mobileMenuIcon: 'images/segment-icon.svg',
+  editIcon: 'images/edit-icon.svg',
+  sendIcon: 'images/send-icon.svg',
+  loginIcon: 'images/send-icon.svg',
+  demoIcon: 'images/hands-free-icon.svg',
+  registerIcon: 'images/app-registration-icon.svg',
 };
 
 export type SvgNameType = keyof typeof svgConfig;

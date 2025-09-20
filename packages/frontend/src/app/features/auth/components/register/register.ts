@@ -5,10 +5,12 @@ import { FormGroup, FormControl, ReactiveFormsModule, Validators } from '@angula
 import { AuthService } from '../../../../core/services/auth';
 import { AlertService } from '../../../../shared/components/alert/alert-service';
 import { UserRegister } from '../../../../shared/types/user-register.data';
+import { SvgNameType } from '../../../../svg.config';
+import { SvgComponent } from '../../../../shared/components/svg/svg';
 
 @Component({
   selector: 'app-register',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, SvgComponent],
   templateUrl: './register.html',
   styleUrl: './register.css'
 })
@@ -26,6 +28,8 @@ export class Register {
     ]),
     location: new FormControl('', Validators.required),
   });
+
+  registerIcon: SvgNameType = 'registerIcon';
 
   ngOnInit() {
     this.registerForm.reset();

@@ -1,21 +1,27 @@
-import { Component, inject, OnInit, OnDestroy } from '@angular/core';
-import { Observable } from 'rxjs';
-import { filter } from 'rxjs/operators';
-import { UserProfile } from '../../../../shared/types/user-profile.data';
+import { Component, inject, OnInit, OnDestroy, effect, signal } from '@angular/core';
 import { FormGroup, FormControl, Validators, ReactiveFormsModule } from '@angular/forms';
 import { UsersService } from '../../../../core/services/users';
 import { AlertService } from '../../../../shared/components/alert/alert-service';
+import { SvgComponent } from '../../../../shared/components/svg/svg';
+import { SvgNameType } from '../../../../svg.config';
 
 @Component({
   selector: 'app-user-profile',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, SvgComponent],
   templateUrl: './user-profile.html',
   styleUrl: './user-profile.css'
 })
-export class UserProfileComponent implements OnInit, OnDestroy {
+export class UserProfileComponent {
   private readonly usersService = inject(UsersService);
   private readonly alertService = inject(AlertService);
-  private profileSub?: ReturnType<Observable<any>["subscribe"]>;
+
+  editIcon: SvgNameType = 'editIcon';
+  sendIcon: SvgNameType = 'sendIcon';
+  cancelIcon: SvgNameType = 'cancelIcon';
+
+  editMode = signal<boolean>(false);
+
+  readonly currentUser = this.usersService.currentUser;
 
   readonly profileForm = new FormGroup({
     firstName: new FormControl('', Validators.required),
@@ -24,28 +30,24 @@ export class UserProfileComponent implements OnInit, OnDestroy {
     location: new FormControl('', Validators.required),
   });
 
-  ngOnInit(): void {
-    this.profileSub = this.usersService.getProfile()
-      .pipe(
-        filter((profile: UserProfile | null): profile is UserProfile => !!profile)
-      )
-      .subscribe({
-        next: (profile: UserProfile) => {
-          this.profileForm.patchValue({
-            firstName: profile.name ?? '',
-            lastName: profile.lastName ?? '',
-            email: profile.email ?? '',
-            location: profile.location ?? ''
-          });
-        },
-        error: () => {
-          this.alertService.show('Failed to load profile.', 'error');
-        }
-      });
+
+  constructor() {
+    this.disableForm();
+    effect(() => {
+      const user = this.usersService.currentUser();
+      if (user) {
+        this.patchFormWithUser(user);
+      }
+    });
   }
 
-  ngOnDestroy(): void {
-    this.profileSub?.unsubscribe();
+  private patchFormWithUser(user: any) {
+    this.profileForm.patchValue({
+      firstName: user.name ?? '',
+      lastName: user.lastName ?? '',
+      email: user.email ?? '',
+      location: user.location ?? '',
+    });
   }
 
   updateProfile(): void {
@@ -68,15 +70,35 @@ export class UserProfileComponent implements OnInit, OnDestroy {
       location: this.profileForm.value.location!,
     };
 
-    this.profileForm.disable();
+    this.disableForm();
     this.usersService.updateProfile(payload).subscribe({
       next: () => {
         this.profileForm.markAsPristine();
-        this.profileForm.enable();
+        this.profileForm.markAsUntouched();
       },
       error: (err) => {
-        this.profileForm.enable();
+        this.enableForm();
       },
     });
+  }
+
+  enableForm() {
+    this.editMode.set(true);
+    this.profileForm.enable();
+  }
+
+  disableForm() {
+    this.editMode.set(false);
+    this.profileForm.disable();
+  }
+
+  resetForm(event: Event) {
+    const user = this.currentUser();
+    if (user) {
+      this.patchFormWithUser(user);
+      this.profileForm.markAsPristine();
+      this.profileForm.markAsUntouched();
+      this.disableForm();
+    }
   }
 }
