@@ -5,7 +5,7 @@
         <div>
             <label for="firstName" class="block text-sm font-medium text-secondary mb-2">First Name</label>
             <input type="text" id="firstName" formControlName="firstName" placeholder="John"
-                class="form-input w-full px-4 py-3 rounded-lg focus:outline-none placeholder-stone-400" required>
+                class="form-input w-full px-4 py-3 rounded-md focus:outline-none placeholder-stone-400" required>
             @if (registerForm.get('firstName')?.invalid && registerForm.get('firstName')?.touched) {
             <p class="text-sm text-red-600 mt-1">First Name is required.</p>
             }
@@ -13,7 +13,7 @@
         <div>
             <label for="lastName" class="block text-sm font-medium text-secondary mb-2">Last Name</label>
             <input type="text" id="lastName" formControlName="lastName" placeholder="Doe"
-                class="form-input w-full px-4 py-3 rounded-lg focus:outline-none placeholder-stone-400" required>
+                class="form-input w-full px-4 py-3 rounded-md focus:outline-none placeholder-stone-400" required>
             @if (registerForm.get('lastName')?.invalid && registerForm.get('lastName')?.touched) {
             <p class="text-sm text-red-600 mt-1">Last Name is required.</p>
             }
@@ -23,7 +23,7 @@
     <div class="mb-4">
         <label for="email" class="block text-sm font-medium text-secondary mb-2">Email Address</label>
         <input type="email" id="email" name="email" formControlName="email" placeholder="you@example.com"
-            class="form-input w-full px-4 py-3 rounded-lg focus:outline-none placeholder-stone-400" required>
+            class="form-input w-full px-4 py-3 rounded-md focus:outline-none placeholder-stone-400" required>
         @if (registerForm.get('email')?.invalid && registerForm.get('email')?.touched) {
         @if (registerForm.get('email')?.errors?.['required']) {
         <p class="text-sm text-red-600 mt-1">Email is required.</p>
@@ -36,7 +36,7 @@
     <div class="mb-4">
         <label for="password" class="block text-sm font-medium text-secondary mb-2">Password</label>
         <input type="password" id="password" formControlName="password" placeholder="********"
-            class="form-input w-full px-4 py-3 rounded-lg focus:outline-none placeholder-stone-400" required>
+            class="form-input w-full px-4 py-3 rounded-md focus:outline-none placeholder-stone-400" required>
         @if (registerForm.get('password')?.invalid && registerForm.get('password')?.touched) {
         @if (registerForm.get('password')?.errors?.['required']) {
         <p class="text-sm text-red-600 mt-1">Password is required.</p>
@@ -53,7 +53,7 @@
     <div class="mb-4">
         <label for="location" class="block text-sm font-medium text-secondary mb-2">Location</label>
         <input type="text" id="location" formControlName="location" placeholder="TX, USA"
-            class="form-input w-full px-4 py-3 rounded-lg focus:outline-none placeholder-stone-400" required>
+            class="form-input w-full px-4 py-3 rounded-md focus:outline-none placeholder-stone-400" required>
         @if (registerForm.get('location')?.invalid && registerForm.get('location')?.touched) {
         <p class="text-sm text-red-600 mt-1">Location is required.</p>
         }
@@ -61,7 +61,7 @@
 
 
     <button type="submit" [disabled]="registerForm.invalid"
-        class="w-full py-4 rounded-lg cursor-pointer font-bold shadow-lg transform transition-all duration-300 ease-in-out transform bg-emerald-500 text-white hover:bg-emerald-600 disabled:bg-emerald-900 disabled:cursor-not-allowed">
+        class="w-full py-4 rounded-md cursor-pointer font-bold shadow-lg transform transition-all duration-300 ease-in-out transform bg-emerald-500 text-white hover:bg-emerald-600 disabled:bg-emerald-900 disabled:cursor-not-allowed">
         Create Account
     </button>
 </form>

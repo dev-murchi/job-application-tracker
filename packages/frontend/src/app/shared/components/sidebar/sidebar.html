@@ -3,14 +3,14 @@
     <nav class="flex-1 flex-col overflow-y-auto w-full items-left px-2 space-y-2 my-4">
         @for (item of items; track item.link) {
         <app-nav-link [link]="item.link" [text]="!isCollapsed ? item.text : undefined" [icon]="item.icon"
-            [cssClass]="'p-3 rounded-lg sidebar-item gap-2'"></app-nav-link>
+            [cssClass]="'p-3 rounded-md sidebar-item gap-2'"></app-nav-link>
         }
     </nav>
 
     <div class="h-px bg-gray-200 dark:bg-gray-700"></div>
 
     <footer class="mt-auto h-16 flex items-center justify-center text-brand-accent py-4">
-        <button class="p-2 rounded-lg cursor-pointer" (click)="toggle()">
+        <button class="p-2 rounded-md cursor-pointer" (click)="toggle()">
             <app-svg [svgName]="isCollapsed? panelOpenIcon : panelCloseIcon" fill="currentColor"></app-svg>
         </button>
     </footer>

@@ -1,9 +1,9 @@
-<header class="w-full h-[64px] flex flex-row items-center justify-between px-4 text-brand-accent shadow-lg">
+<header class="w-full h-20 flex flex-row items-center justify-between px-2 text-brand-accent shadow-lg">
     <app-svg [svgName]="logoImage" [mode]="'image'" class="h-12" fill="currentColor" />
 
     <div class="flex flex-row items-center justify-end gap-1">
         <app-theme-switch />
-        <app-svg [svgName]="mobileMenuIcon" class="p-1 h-10 cursor-pointer" fill="currentColor"
+        <app-svg [svgName]="mobileMenuIcon" class="p-1 size-10 cursor-pointer" fill="currentColor"
             (click)="onToggleMenu()" />
     </div>
 </header>
@@ -15,19 +15,19 @@
     [class.translate-x-0]="mobileMenuOpen">
     <header class="h-16 flex items-center justify-between text-brand-accent border-b-2 pr-2 gap-3 ">
         <app-svg [svgName]="logoImage" [mode]="'image'" class="h-12" fill="currentColor" />
-        <app-svg [svgName]="closeIcon" class="p-1 h-8 cursor-pointer border-1 rounded-lg" fill="currentColor"
+        <app-svg [svgName]="closeIcon" class="p-1 h-8 cursor-pointer border-1 rounded-md" fill="currentColor"
             (click)="closeMenu()" />
     </header>
 
     <nav class="flex-1 mt-8 px-2 space-y-2 overflow-y-auto">
         @for (item of items; track item.link) {
         <app-nav-link [link]="item.link" [icon]="item.icon!" [text]="item.text"
-            [cssClass]="'p-2 rounded-lg sidebar-item gap-2'"></app-nav-link>
+            [cssClass]="'p-2 rounded-md sidebar-item gap-2'"></app-nav-link>
         }
     </nav>
     
     <button (click)="logout()"
-        class="flex items-center justify-between text-center text-sm w-full text-red-500 font-bold p-3 mt-8 rounded-lg gap-2 border-1 hover:bg-red-500 hover:text-white cursor-pointer ">
+        class="flex items-center justify-between text-center text-sm w-full text-red-500 font-bold p-3 mt-8 rounded-md gap-2 border-1 hover:bg-red-500 hover:text-white cursor-pointer ">
         <span class="h-6 w-6">
             <app-svg [svgName]="logoutIcon" fill="currentColor" />
         </span>
