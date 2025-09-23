@@ -3,7 +3,7 @@
     <nav class="flex-1 flex-col overflow-y-auto w-full items-left px-2 space-y-2 my-4">
         @for (item of items; track item.link) {
         <app-nav-link [link]="item.link" [text]="!isCollapsed ? item.text : undefined" [icon]="item.icon"
-            [cssClass]="'p-3 rounded-lg gap-2 flex-row flex w-full justify-start'">
+            [cssClass]="'p-3 rounded-lg gap-2 flex-row flex w-full justify-start hover:scale-105'">
         </app-nav-link>
         }
     </nav>

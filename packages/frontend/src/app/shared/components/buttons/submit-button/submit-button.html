@@ -1,0 +1,26 @@
+
+<button type="submit" [disabled]="isDisabled()"
+  class="flex flex-row w-full
+  justify-center 
+  items-center 
+  gap-1
+  px-3 py-2 
+  cursor-pointer 
+  rounded-lg 
+  text-[var(--color-text-on-brand)]
+  bg-[var(--color-brand-primary)]
+  hover:bg-[var(--color-brand-hover)]
+  disabled:bg-[var(--color-brand-disabled)] 
+  disabled:cursor-not-allowed 
+  font-medium 
+  shadow-md 
+  transform transition-all duration-300 ease-in-out">
+
+
+  @if(icon()) {
+  <app-svg [svgName]="icon()!" [class]="'h-5 w-5 mr-2 text-[var(--color-text-on-brand)]'" fill="currentColor" />
+  }
+
+  <span>{{text()}}</span>
+
+</button>

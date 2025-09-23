@@ -5,12 +5,12 @@ import { FormGroup, FormControl, ReactiveFormsModule, Validators } from '@angula
 import { AuthService } from '../../../../core/services/auth';
 import { UserRegister } from '../../../../shared/types/user-register.data';
 import { SvgNameType } from '../../../../svg.config';
-import { SvgComponent } from '../../../../shared/components/svg/svg';
 import { CustomInput } from '../../../../shared/components/form-items/input/input';
+import { SubmitButton } from "../../../../shared/components/buttons/submit-button/submit-button";
 
 @Component({
   selector: 'app-register',
-  imports: [ReactiveFormsModule, SvgComponent, CustomInput],
+  imports: [ReactiveFormsModule, CustomInput, SubmitButton],
   templateUrl: './register.html',
   styleUrl: './register.css'
 })

@@ -5,6 +5,7 @@ import { AlertService } from '../../../../shared/components/alert/alert-service'
 import { SvgComponent } from '../../../../shared/components/svg/svg';
 import { SvgNameType } from '../../../../svg.config';
 import { CustomInput } from '../../../../shared/components/form-items/input/input';
+import { SubmitButton } from "../../../../shared/components/buttons/submit-button/submit-button";
 
 type ProfileForm = FormGroup<{
   firstName: FormControl<string | null>;
@@ -15,7 +16,7 @@ type ProfileForm = FormGroup<{
 
 @Component({
   selector: 'app-user-profile',
-  imports: [ReactiveFormsModule, SvgComponent, CustomInput],
+  imports: [ReactiveFormsModule, SvgComponent, CustomInput, SubmitButton],
   templateUrl: './user-profile.html',
   styleUrl: './user-profile.css'
 })

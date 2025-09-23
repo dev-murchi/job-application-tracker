@@ -27,22 +27,6 @@
 
 
     <div class="flex py-2">
-        <button type="submit" [disabled]="registerForm.invalid" class="flex flex-row w-full 
-            justify-center items-center 
-            gap-2 px-2 py-2 
-            cursor-pointer 
-            rounded-lg
-            text-[var(--color-text-on-brand)]
-            bg-[var(--color-brand-primary)]
-            hover:bg-[var(--color-brand-hover)]
-            disabled:bg-[var(--color-brand-disabled)] 
-            disabled:cursor-not-allowed 
-            font-medium 
-            shadow-md 
-            transform transition-all duration-300 ease-in-out">
-            <app-svg [svgName]="registerIcon" [class]="'h-5 w-5 mr-2 text-[var(--color-text-on-brand)]'"
-                fill="currentColor" />
-            Register
-        </button>
+        <app-submit-button [icon]="registerIcon" text="Create Account" [isDisabled]="registerForm.invalid" class="flex flex-row w-full" />
     </div>
 </form>

@@ -3,7 +3,7 @@
   <div class="flex justify-between items-end my-8 block">
     <h2 class="text-xl md:text-2xl font-medium text-primary">Profile</h2>
     <button type="button" (click)="enableForm()"
-      class="flex items-center pl-2 pr-4 py-1 gap-x-2 bg-emerald-500 text-white cursor-pointer rounded-lg hover:bg-emerald-600 focus:outline-none">
+      class="flex items-center pl-2 pr-4 py-1 gap-x-2 bg-emerald-500 text-white cursor-pointer rounded-lg hover:bg-emerald-600 focus:outline-none hover:scale-105">
       <app-svg [svgName]="editIcon" [class]="'h-4 w-4'" fill="currentColor" />
       Edit
     </button>
@@ -43,29 +43,15 @@
     </div>
 
     @if(editMode()) {
-    <div class="max-w-xs grid grid-cols-2 gap-6 justify-end ml-auto">
-      <button type="submit" class="flex flex-row w-full 
-          justify-center items-center 
-          gap-2 px-2 py-2 
-          cursor-pointer 
-          rounded-lg
-          text-[var(--color-text-on-brand)]
-          bg-[var(--color-brand-primary)]
-          hover:bg-[var(--color-brand-hover)]
-          disabled:bg-[var(--color-brand-disabled)] 
-          disabled:cursor-not-allowed 
-          font-medium 
-          shadow-md 
-          transform transition-all duration-300 ease-in-out">
-        <app-svg [svgName]="sendIcon" [class]="'h-5 w-5 mr-2 text-[var(--color-text-on-brand)]'" fill="currentColor" />
-        Send
-      </button>
-
-      <button type="button" (click)="resetForm($event)"
-        class="flex flex-row w-full justify-center items-center gap-2 px-2 py-2 cursor-pointer rounded-md bg-sky-500 text-white hover:bg-sky-600 disabled:bg-sky-900 disabled:cursor-not-allowed font-medium shadow-md transform transition-all duration-300 ease-in-out">
-        <app-svg [svgName]="cancelIcon" [class]="'h-5 w-5 text-white'" fill="currentColor" />
-        Cancel
-      </button>
+    <div class="flex flex-col-reverse sm:flex-row w-full justify-end gap-2">
+      <div class="sm:max-w-sm flex flex-row  px-2">
+        <button type="button" (click)="resetForm($event)"
+          class="w-full flex flex-row justify-center items-center gap-1 px-3 py-2 cursor-pointer rounded-lg bg-[var(--color-emerald-800)] text-white hover:bg-[var(--color-emerald-900)] font-medium shadow-md transform transition-all duration-300 ease-in-out hover:scale-105">
+          <app-svg [svgName]="cancelIcon" [class]="'h-5 w-5 text-white'" fill="currentColor" />
+          Cancel
+        </button>
+      </div>
+      <app-submit-button [icon]="sendIcon" text="Update Profile" [isDisabled]="profileForm.invalid" class="flex flex-row sm:max-w-sm px-2 hover:scale-105" />
     </div>
     }
 

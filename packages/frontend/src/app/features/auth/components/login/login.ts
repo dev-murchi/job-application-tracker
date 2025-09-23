@@ -5,10 +5,11 @@ import { AuthService } from '../../../../core/services/auth';
 import { SvgComponent } from '../../../../shared/components/svg/svg';
 import { SvgNameType } from '../../../../svg.config';
 import { CustomInput } from '../../../../shared/components/form-items/input/input';
+import { SubmitButton } from "../../../../shared/components/buttons/submit-button/submit-button";
 
 @Component({
   selector: 'app-login',
-  imports: [ReactiveFormsModule, SvgComponent, CustomInput],
+  imports: [ReactiveFormsModule, SvgComponent, CustomInput, SubmitButton],
   templateUrl: './login.html',
   styleUrl: './login.css'
 })
