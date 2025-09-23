@@ -4,10 +4,11 @@ import { UserLogin } from '../../../../shared/types/user-login.data';
 import { AuthService } from '../../../../core/services/auth';
 import { SvgComponent } from '../../../../shared/components/svg/svg';
 import { SvgNameType } from '../../../../svg.config';
+import { CustomInput } from '../../../../shared/components/form-items/input/input';
 
 @Component({
   selector: 'app-login',
-  imports: [ReactiveFormsModule, SvgComponent],
+  imports: [ReactiveFormsModule, SvgComponent, CustomInput],
   templateUrl: './login.html',
   styleUrl: './login.css'
 })
@@ -16,9 +17,12 @@ export class Login implements OnInit {
   loginIcon: SvgNameType = 'loginIcon';
   demoIcon: SvgNameType = 'demoIcon';
 
+  emailControl = new FormControl('', [Validators.email]);
+  passwordControl = new FormControl('', Validators.required);
+
   loginForm = new FormGroup({
-    email: new FormControl('', [Validators.email]),
-    password: new FormControl('', Validators.required),
+    email: this.emailControl,
+    password:this.passwordControl,
   });
 
   ngOnInit(): void {
@@ -41,5 +45,11 @@ export class Login implements OnInit {
 
   demoLogin(event: Event) {
     event.preventDefault();
+    const demoUserPayload: UserLogin = {
+      email: 'test@user.com',
+      password: 'TestPass.123'
+    };
+
+    this.authService.login(demoUserPayload).subscribe();
   }
 }

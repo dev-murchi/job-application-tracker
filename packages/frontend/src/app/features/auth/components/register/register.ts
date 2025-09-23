@@ -3,30 +3,37 @@ import { Component, inject } from '@angular/core';
 import { FormGroup, FormControl, ReactiveFormsModule, Validators } from '@angular/forms'
 
 import { AuthService } from '../../../../core/services/auth';
-import { AlertService } from '../../../../shared/components/alert/alert-service';
 import { UserRegister } from '../../../../shared/types/user-register.data';
 import { SvgNameType } from '../../../../svg.config';
 import { SvgComponent } from '../../../../shared/components/svg/svg';
+import { CustomInput } from '../../../../shared/components/form-items/input/input';
 
 @Component({
   selector: 'app-register',
-  imports: [ReactiveFormsModule, SvgComponent],
+  imports: [ReactiveFormsModule, SvgComponent, CustomInput],
   templateUrl: './register.html',
   styleUrl: './register.css'
 })
 export class Register {
   private authService = inject(AuthService);
 
+  firstNameControl = new FormControl('', [Validators.required, Validators.minLength(3)]);
+  lastNameControl = new FormControl('', Validators.required);
+  emailControl = new FormControl('', [Validators.required, Validators.email]);
+  passwordControl = new FormControl('', [
+    Validators.required,
+    Validators.minLength(8),
+    Validators.pattern('^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).{8,}$'),
+    
+  ]);
+  locationControl = new FormControl('', Validators.required);
+
   registerForm = new FormGroup({
-    firstName: new FormControl('', Validators.required),
-    lastName: new FormControl('', Validators.required),
-    email: new FormControl('', [Validators.required, Validators.email]),
-    password: new FormControl('', [
-      Validators.required,
-      Validators.minLength(8),
-      Validators.pattern('^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).{8,}$')
-    ]),
-    location: new FormControl('', Validators.required),
+    firstName: this.firstNameControl,
+    lastName: this.lastNameControl,
+    email: this.emailControl,
+    password: this.passwordControl,
+    location: this.locationControl,
   });
 
   registerIcon: SvgNameType = 'registerIcon';

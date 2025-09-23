@@ -1,69 +1,47 @@
 <form [formGroup]="registerForm" (submit)="registerUser()" class="space-y-6">
-    <h2 class="text-xl font-bold text-center mb-4 text-brand-accent">Create Your Account</h2>
+    <h2 class="text-xl font-bold text-center mb-4 text-[var(--color-brand-accent)]">Create Your Account</h2>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
         <div>
-            <label for="firstName" class="block text-sm font-medium text-secondary mb-2">First Name</label>
-            <input type="text" id="firstName" formControlName="firstName" placeholder="John"
-                class="form-input w-full px-2 py-1 rounded-md focus:outline-none placeholder-stone-400" required>
-            @if (registerForm.get('firstName')?.invalid && registerForm.get('firstName')?.touched) {
-            <p class="text-sm text-red-600 mt-1">First Name is required.</p>
-            }
+            <app-input label="First Name" type="text" inputId="firstName" [control]="firstNameControl"
+                placeholder="First Name" [required]="true" />
         </div>
         <div>
-            <label for="lastName" class="block text-sm font-medium text-secondary mb-2">Last Name</label>
-            <input type="text" id="lastName" formControlName="lastName" placeholder="Doe"
-                class="form-input w-full px-2 py-1 rounded-md focus:outline-none placeholder-stone-400" required>
-            @if (registerForm.get('lastName')?.invalid && registerForm.get('lastName')?.touched) {
-            <p class="text-sm text-red-600 mt-1">Last Name is required.</p>
-            }
+            <app-input label="Last Name" type="text" inputId="lastName" [control]="lastNameControl"
+                placeholder="Last Name" [required]="true" />
         </div>
     </div>
 
     <div class="mb-4">
-        <label for="email" class="block text-sm font-medium text-secondary mb-2">Email Address</label>
-        <input type="email" id="email" name="email" formControlName="email" placeholder="you@example.com"
-            class="form-input w-full px-2 py-1 rounded-md focus:outline-none placeholder-stone-400" required>
-        @if (registerForm.get('email')?.invalid && registerForm.get('email')?.touched) {
-        @if (registerForm.get('email')?.errors?.['required']) {
-        <p class="text-sm text-red-600 mt-1">Email is required.</p>
-        }
-        @if (registerForm.get('email')?.errors?.['email']) {
-        <p class="text-sm text-red-600 mt-1">Please enter a valid email address.</p>
-        }
-        }
+        <app-input label="Email Address" type="email" inputId="email" [control]="emailControl"
+            placeholder="you@example.com" [required]="true" />
     </div>
     <div class="mb-4">
-        <label for="password" class="block text-sm font-medium text-secondary mb-2">Password</label>
-        <input type="password" id="password" formControlName="password" placeholder="********"
-            class="form-input w-full px-2 py-1 rounded-md focus:outline-none placeholder-stone-400" required>
-        @if (registerForm.get('password')?.invalid && registerForm.get('password')?.touched) {
-        @if (registerForm.get('password')?.errors?.['required']) {
-        <p class="text-sm text-red-600 mt-1">Password is required.</p>
-        }
-        @if (registerForm.get('password')?.errors?.['minlength']) {
-        <p class="text-sm text-red-600 mt-1">Password must be at least 8 characters long.</p>
-        }
-        @if (registerForm.get('password')?.errors?.['pattern']) {
-        <p class="text-sm text-red-600 mt-1">Password must contain at least one uppercase letter, one lowercase letter,
-            and one number.</p>
-        }
-        }
+        <app-input label="Password" type="password" inputId="password" [control]="passwordControl"
+            placeholder="********" [required]="true" />
     </div>
     <div class="mb-4">
-        <label for="location" class="block text-sm font-medium text-secondary mb-2">Location</label>
-        <input type="text" id="location" formControlName="location" placeholder="TX, USA"
-            class="form-input w-full px-2 py-1 rounded-md focus:outline-none placeholder-stone-400" required>
-        @if (registerForm.get('location')?.invalid && registerForm.get('location')?.touched) {
-        <p class="text-sm text-red-600 mt-1">Location is required.</p>
-        }
+        <app-input label="Location" type="text" inputId="location" [control]="locationControl" placeholder="TX, USB"
+            [required]="true" />
     </div>
 
 
     <div class="flex py-2">
-        <button type="submit" [disabled]="registerForm.invalid"
-            class="flex flex-row w-full justify-center items-center gap-2 px-2 py-2 cursor-pointer rounded-md bg-emerald-500 text-white hover:bg-emerald-600 disabled:bg-emerald-900 disabled:cursor-not-allowed font-medium shadow-md transform transition-all duration-300 ease-in-out">
-            <app-svg [svgName]="registerIcon" [class]="'h-5 w-5 mr-2 text-white'" fill="currentColor" />
+        <button type="submit" [disabled]="registerForm.invalid" class="flex flex-row w-full 
+            justify-center items-center 
+            gap-2 px-2 py-2 
+            cursor-pointer 
+            rounded-lg
+            text-[var(--color-text-on-brand)]
+            bg-[var(--color-brand-primary)]
+            hover:bg-[var(--color-brand-hover)]
+            disabled:bg-[var(--color-brand-disabled)] 
+            disabled:cursor-not-allowed 
+            font-medium 
+            shadow-md 
+            transform transition-all duration-300 ease-in-out">
+            <app-svg [svgName]="registerIcon" [class]="'h-5 w-5 mr-2 text-[var(--color-text-on-brand)]'"
+                fill="currentColor" />
             Register
         </button>
     </div>

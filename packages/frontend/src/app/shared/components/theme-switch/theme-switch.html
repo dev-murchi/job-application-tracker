@@ -1,11 +1,15 @@
-<div class="flex items-center bg-gray-500/10 rounded-full p-1 text-secondary gap-2">
+<div class="flex items-center bg-[var(--color-bg-active)]/25 rounded-lg p-1 text-[var(--color-text-secondary)] gap-2">
   <app-svg [svgName]="darkModeIcon"
-    class="flex items-center p-1 rounded-full hover:bg-gray-500/20 w-full cursor-pointer" fill="currentColor"
-    viewBox="0 0 24 24" (click)="changeMode('dark')" [class.text-white]="isDarkMode"
-    [class.selected-theme]="isDarkMode" />
+    class="flex items-center p-1 rounded-lg hover:bg-[var(--color-bg-active)] w-full cursor-pointer" fill="currentColor"
+    viewBox="0 0 24 24" (click)="changeMode('dark')"
+    [class.bg-[var(--color-bg-active)]]="isDarkMode"
+    [class.text-[var(--color-text-primary)]]="isDarkMode"
+    [class.text-[var(--color-text-secondary)]]="!isDarkMode" />
 
   <app-svg [svgName]="lightModeIcon"
-    class="flex items-center p-1 rounded-full hover:bg-gray-500/20 w-full cursor-pointer" fill="currentColor"
-    viewBox="0 0 24 24" (click)="changeMode('light')" [class.text-white]="!isDarkMode"
-    [class.selected-theme]="!isDarkMode" />
+    class="flex items-center p-1 rounded-lg hover:bg-[var(--color-bg-active)] w-full cursor-pointer" fill="currentColor"
+    viewBox="0 0 24 24" (click)="changeMode('light')"
+    [class.bg-[var(--color-bg-active)]]="!isDarkMode"
+    [class.text-[var(--color-text-primary)]]="!isDarkMode"
+    [class.text-[var(--color-text-secondary)]]="isDarkMode" />
 </div>

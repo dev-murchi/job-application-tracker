@@ -8,158 +8,161 @@ body {
   overflow-x: hidden;
 }
 
-/* Using a custom font and base styling */
 body {
   font-family: 'Poppins', sans-serif;
-  background-color: var(--bg-main);
-  color: var(--text-primary);
+  background-color: var(--color-bg-page);
+  color: var(--color-text-primary);
 }
 
-/* --- THEME VARIABLES (Tailwind equivalents) --- */
+
+/* :root,
+body[data-theme="dark"] {
+  --color-bg-page: var(--color-stone-900);
+  --color-bg-surface: var(--color-stone-800);
+  --color-bg-card: var(--color-stone-800);
+  --color-bg-input: var(--color-stone-800);
+  --color-bg-active: var(--color-stone-700);
+
+  --color-text-primary: var(--color-stone-100);
+  --color-text-secondary: var(--color-stone-400);
+  --color-text-on-brand: var(--color-white);
+  
+  --color-border-default: var(--color-stone-600);
+  
+  --color-brand-primary: var(--color-emerald-700);
+  --color-brand-hover: var(--color-emerald-800);
+  --color-brand-accent: var(--color-emerald-400);
+  --color-brand-accent-light: var(--color-emerald-300);
+
+  --color-status-success: var(--color-green-500);
+  --color-status-warning: var(--color-amber-500);
+  --color-status-error: var(--color-red-500);
+  --color-status-info: var(--color-sky-400);
+
+} */
+
+/* body[data-theme="light"] {
+  --color-bg-page: var(--color-gray-50);
+  --color-bg-surface: var(--color-white);
+  --color-bg-card: var(--color-white);
+  --color-bg-input: var(--color-gray-100);
+  --color-bg-active: var(--color-gray-200);
+
+  --color-text-primary: var(--color-gray-900);
+  --color-text-secondary: var(--color-gray-400);
+  --color-text-on-brand: var(--color-white);
+  --color-border-default: var(--color-gray-300);
+
+  --color-brand-primary: var(--color-emerald-700);
+  --color-brand-hover: var(--color-emerald-800);
+  --color-brand-accent: var(--color-emerald-600);
+  --color-brand-accent-light: var(--color-emerald-400);
+
+  --color-status-success: var(--color-green-500);
+  --color-status-warning: var(--color-amber-500);
+  --color-status-error: var(--color-red-500);
+  --color-status-info: var(--color-sky-400);
+} */
+
 :root,
 body[data-theme="dark"] {
-  /* Dark theme variables (default)  */
-  --bg-main: var(--dashboard-bg);
-  --bg-gradient-start: var(--color-stone-900);
-  --bg-gradient-via: var(--color-teal-900);
-  --bg-gradient-end: var(--color-emerald-700);
-  --bg-form: var(--color-stone-800);
-  --bg-input: var(--color-stone-800);
-  --bg-card: var(--color-stone-800);
-  --bg-sidebar: var(--color-stone-800);
-  --bg-sidebar-active: var(--color-slate-700);
-  --dashboard-bg: var(--color-stone-900);
-  --text-primary: var(--color-gray-50);
-  --text-secondary: var(--color-gray-400);
-  --text-on-accent: var(--color-white);
-  --text-sidebar: var(--color-gray-300);
-  --text-sidebar-active: var(--color-white);
-  --border-color: var(--color-gray-600);
-  --brand-green: var(--color-emerald-800);
-  --brand-green-hover: var(--color-emerald-900);
-  --brand-accent: var(--color-emerald-700);
-  --brand-accent2: var(--color-emerald-400);
-  --brand-accent3: var(--color-emerald-600);
+  /*
+    Backgrounds: Using a slightly warm, desaturated zinc palette.
+    This reduces glare and provides a softer contrast for eye comfort.
+  */
+  --color-bg-page: var(--color-zinc-900);
+  --color-bg-surface: var(--color-zinc-800);
+  --color-bg-card: var(--color-zinc-800);
+  --color-bg-input: var(--color-zinc-700);
+  --color-bg-active: var(--color-zinc-700);
 
-  --status-success: var(--color-green-600);
-  --status-warning: var(--color-amber-600);
-  --status-error: var(--color-red-600);
-  --status-info: var(--color-sky-600);
+  --color-text-primary: var(--color-zinc-100);
+  --color-text-secondary: var(--color-zinc-400);
+  --color-text-on-brand: var(--color-white);
 
+  --color-border-default: var(--color-zinc-700);
+
+  --color-brand-primary: var(--color-emerald-500);
+  --color-brand-hover: var(--color-emerald-400);
+  --color-brand-disabled: var(--color-emerald-800);
+  --color-brand-accent: var(--color-emerald-700);
+
+  --color-status-success: var(--color-green-500);
+  --color-status-warning: var(--color-amber-500);
+  --color-status-error: var(--color-red-500);
+  --color-status-info: var(--color-sky-400);
 }
 
 body[data-theme="light"] {
-  --bg-main: var(--dashboard-bg);
-  --bg-gradient-start: var(--color-stone-900);
-  --bg-gradient-via: var(--color-teal-900);
-  --bg-gradient-end: var(--color-emerald-700);
-  --bg-form: var(--color-white);
-  --bg-input: var(--color-gray-100);
-  --bg-card: var(--color-white);
-  --bg-sidebar: var(--color-white);
-  --bg-sidebar-active: var(--color-slate-200);
-  ;
-  --dashboard-bg: var(--color-slate-50);
-  --text-primary: var(--color-gray-900);
-  --text-secondary: var(--color-gray-500);
-  --text-on-accent: var(--color-white);
-  --text-sidebar: var(--color-gray-700);
-  --text-sidebar-active: var(--color-gray-900);
-  --border-color: var(--color-gray-300);
+  --color-bg-page: var(--color-gray-100);
+  --color-bg-surface: var(--color-gray-50);
+  --color-bg-card: var(--color-gray-50);
+  --color-bg-input: var(--color-gray-100);
+  --color-bg-active: var(--color-gray-300);
+
+  --color-text-primary: var(--color-gray-900);
+  --color-text-secondary: var(--color-gray-500);
+  --color-text-on-brand: var(--color-white);
+
+  --color-border-default: var(--color-gray-300);
+
+  --color-brand-primary: var(--color-emerald-500);
+  --color-brand-hover: var(--color-emerald-600);
+  --color-brand-accent: var(--color-emerald-700);
+
+  --color-status-success: var(--color-green-500);
+  --color-status-warning: var(--color-amber-500);
+  --color-status-error: var(--color-red-500);
+  --color-status-info: var(--color-sky-500);
 }
 
-/* --- THEME-AWARE STYLES --- */
-.bg-gradient-solepleo {
-  background: linear-gradient(to bottom right, var(--bg-gradient-start), var(--bg-gradient-via), var(--bg-gradient-end));
+body[data-theme="light-stone"] {
+  --color-bg-page: var(--color-stone-100);
+  --color-bg-surface: var(--color-stone-50);
+  --color-bg-card: var(--color-stone-50);
+  --color-bg-input: var(--color-stone-100);
+  --color-bg-active: var(--color-stone-300);
+
+  --color-text-primary: var(--color-stone-900);
+  --color-text-secondary: var(--color-stone-500);
+  --color-text-on-brand: var(--color-white);
+
+  --color-border-default: var(--color-stone-300);
+
+  --color-brand-primary: var(--color-emerald-500);
+  --color-brand-hover: var(--color-emerald-600);
+  --color-brand-accent: var(--color-emerald-700);
+
+  --color-status-success: var(--color-green-500);
+  --color-status-warning: var(--color-amber-500);
+  --color-status-error: var(--color-red-500);
+  --color-status-info: var(--color-sky-500);
 }
 
-.form-container {
-  background-color: var(--bg-form);
-  color: var(--text-primary);
-}
 
-.form-input {
-  background-color: var(--bg-input);
-  border: 1px solid var(--border-color);
-  color: var(--text-primary);
-}
-
-.form-input:focus {
-  --tw-ring-color: var(--brand-accent);
-  border-color: var(--brand-accent);
-}
-
-.btn-brand {
-  background-color: var(--brand-green);
-  color: var(--text-on-accent);
-  transition: background-color 0.2s ease-in-out;
-}
-
-.btn-brand:hover {
-  background-color: var(--brand-green-hover);
-}
-
-.text-brand-accent {
-  color: var(--brand-accent);
-}
-
-.sidebar {
-  background-color: var(--bg-sidebar);
-  color: var(--text-sidebar);
-}
-
-.topbar {
-  background-color: var(--bg-sidebar);
-  color: var(--text-sidebar);
-}
-
-.sidebar-item {
-  cursor: pointer;
-}
-
-.sidebar-item:hover {
-  background-color: var(--bg-sidebar-active);
-  color: var(--text-sidebar-active);
-}
-
-.sidebar-item.active {
-  background-color: var(--bg-sidebar-active);
-  color: var(--text-sidebar-active);
+.main-content {
+  background-color: var(--color-bg-page);
 }
 
 .card {
-  background-color: var(--bg-card);
+  background-color: var(--color-bg-card);
 }
 
-.main-content-bg {
-  background-color: var(--dashboard-bg);
+.sidebar {
+  background-color: var(--color-bg-surface);
 }
 
-/* Simple page transition */
-.page {
-  animation: fadeIn 0.3s ease-in-out;
+.topbar {
+  background-color: var(--color-bg-surface);
 }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.form-container {
+  background-color: var(--color-bg-surface);
+  color: var(--color-text-primary);
 }
 
-.text-primary {
-  color: var(--text-primary);
-}
-
-.text-secondary {
-  color: var(--text-secondary);
-}
-
-.bg-brand-accent {
-  background-color: var(--brand-accent);
+.input-field {
+  background-color: var(--color-bg-input);
+  border: 1px solid var(--color-border-default);
+  color: var(--color-text-primary);
 }

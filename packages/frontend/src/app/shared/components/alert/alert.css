@@ -1,35 +1,39 @@
 @keyframes borderSlide {
-    0% {
-        transform: scaleX(1);
-        transform-origin: left;
-    }
+  0% {
+    transform: scaleX(1);
+    transform-origin: left;
+  }
 
-    100% {
-        transform: scaleX(0);
-        transform-origin: left;
-    }
+  100% {
+    transform: scaleX(0);
+    transform-origin: left;
+  }
 }
 
 .toast-border-animate {
-    animation: borderSlide 3s linear infinite;
+  animation: borderSlide 3s linear infinite;
 }
 
-.text-alert-success {
-    color: var(--status-success);
+.text-status-success {
+  color: var(--color-status-success);
 }
-.text-alert-error {
-    color: var(--status-error);
+
+.text-status-error {
+  color: var(--color-status-error);
 }
-.text-alert-warning {
-    color: var(--status-warning);
+
+.text-status-warning {
+  color: var(--color-status-warning);
 }
 
 .bg-alert-success {
-    background-color: var(--status-success);
+  background-color: var(--color-status-success);
 }
+
 .bg-alert-error {
-    background-color: var(--status-error);
+  background-color: var(--color-status-error);
 }
+
 .bg-alert-warning {
-    background-color: var(--status-warning);
+  background-color: var(--color-status-warning);
 }

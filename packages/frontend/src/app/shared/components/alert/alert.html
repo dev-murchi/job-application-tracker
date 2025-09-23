@@ -1,18 +1,17 @@
 <div class="fixed inset-0 z-[100] flex flex-col items-center justify-start pointer-events-none">
   <div class="absolute left-1/2 top-8 -translate-x-1/2 w-full max-w-xs md:max-w-md flex flex-col items-center space-y-2 pointer-events-auto">
     @for (alert of alerts(); track alert.id) {
-      <div class="relative w-full text-sm card rounded-md shadow-lg overflow-hidden" role="alert"
-        tabindex="-1"
-        [class.text-alert-success]="alert.type === 'success'"
-        [class.text-alert-warning]="alert.type === 'warn'"
-        [class.text-alert-error]="alert.type === 'error'">
-        <div class="flex p-4">
+      <div class="relative w-full text-sm card rounded-lg shadow-lg overflow-hidden" role="alert"
+        tabindex="-1">
+        <div class="flex p-4"
+          [class.text-status-success]="alert.type === 'success'"
+          [class.text-status-error]="alert.type === 'error'">
           <div class="shrink-0">
             @if(alert.type === 'success') {
-              <app-svg [svgName]="successIcon" fill="currentColor" width="16" height="16" />
+              <app-svg [svgName]="successIcon" fill="currentColor" width="16" height="16"/>
             }
-            @else {
-              <app-svg [svgName]="errorIcon" fill="currentColor" width="16" height="16" />
+            @else if (alert.type === 'error') {
+              <app-svg [svgName]="errorIcon" fill="currentColor" width="16" height="16"/>
             }
           </div>
           <div class="ms-3">
@@ -21,7 +20,7 @@
             </p>
           </div>
           <div class="ms-auto">
-            <app-svg [svgName]="closeIcon" class="rounded-md focus:outline-hidden focus:opacity-100 cursor-pointer"
+            <app-svg [svgName]="closeIcon" class="rounded-lg focus:outline-hidden focus:opacity-100 cursor-pointer"
               fill="currentColor" width="16" height="16" (click)="hideAlert(alert.id)" />
           </div>
         </div>

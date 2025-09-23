@@ -4,10 +4,18 @@ import { UsersService } from '../../../../core/services/users';
 import { AlertService } from '../../../../shared/components/alert/alert-service';
 import { SvgComponent } from '../../../../shared/components/svg/svg';
 import { SvgNameType } from '../../../../svg.config';
+import { CustomInput } from '../../../../shared/components/form-items/input/input';
+
+type ProfileForm = FormGroup<{
+  firstName: FormControl<string | null>;
+  lastName: FormControl<string | null>;
+  email: FormControl<string | null>;
+  location: FormControl<string | null>;
+}>;
 
 @Component({
   selector: 'app-user-profile',
-  imports: [ReactiveFormsModule, SvgComponent],
+  imports: [ReactiveFormsModule, SvgComponent, CustomInput],
   templateUrl: './user-profile.html',
   styleUrl: './user-profile.css'
 })
@@ -18,16 +26,22 @@ export class UserProfileComponent {
   editIcon: SvgNameType = 'editIcon';
   sendIcon: SvgNameType = 'sendIcon';
   cancelIcon: SvgNameType = 'cancelIcon';
+  readonly defaultAvatar = 'images/default-avatar.png';
 
   editMode = signal<boolean>(false);
 
   readonly currentUser = this.usersService.currentUser;
 
-  readonly profileForm = new FormGroup({
-    firstName: new FormControl('', Validators.required),
-    lastName: new FormControl('', Validators.required),
-    email: new FormControl('', [Validators.required, Validators.email]),
-    location: new FormControl('', Validators.required),
+  firstNameControl = new FormControl('', [Validators.required, Validators.minLength(3)]);
+  lastNameControl = new FormControl('', Validators.required);
+  emailControl = new FormControl('', [Validators.required, Validators.email]);
+  locationControl = new FormControl('', Validators.required);
+
+  readonly profileForm : ProfileForm = new FormGroup({
+    firstName: this.firstNameControl,
+    lastName: this.lastNameControl,
+    email: this.emailControl,
+    location: this.locationControl,
   });
 
 
@@ -93,6 +107,7 @@ export class UserProfileComponent {
   }
 
   resetForm(event: Event) {
+    event.preventDefault();
     const user = this.currentUser();
     if (user) {
       this.patchFormWithUser(user);
