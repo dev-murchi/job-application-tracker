@@ -85,19 +85,20 @@ export class UserProfileComponent {
       location: this.profileForm.value.location!,
     };
 
-    this.disableForm();
+    this.profileForm.disable();
     this.usersService.updateProfile(payload).subscribe({
       next: () => {
+        this.editMode.set(false);
         this.profileForm.markAsPristine();
         this.profileForm.markAsUntouched();
       },
       error: (err) => {
-        this.enableForm();
+        this.profileForm.enable()
       },
     });
   }
 
-  enableForm() {
+  editForm() {
     this.editMode.set(true);
     this.profileForm.enable();
   }
