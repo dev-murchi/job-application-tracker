@@ -25,6 +25,10 @@ export const svgConfig =
   loginIcon: 'images/send-icon.svg',
   demoIcon: 'images/hands-free-icon.svg',
   registerIcon: 'images/app-registration-icon.svg',
+  paginationFirstPageIcon: 'images/first-page-icon.svg',
+  paginationLastPageIcon: 'images/last-page-icon.svg',
+  paginationNextPageIcon: 'images/chevron-forward-icon.svg',
+  paginationPrevPageIcon: 'images/chevron-backward-icon.svg',
 };
 
 export type SvgNameType = keyof typeof svgConfig;

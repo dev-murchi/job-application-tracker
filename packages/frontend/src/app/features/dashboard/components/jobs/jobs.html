@@ -1,1 +1,49 @@
-<p>jobs works!</p>
+<div class="max-w-4xl mx-auto flex flex-col space-y-6 ">
+    @if(data()?.totalJobs){
+
+    <div class="overflow-x-auto">
+        <table class="table-auto w-full whitespace-nowrap divide-y divide-[var(--color-border-default)]">
+            <thead>
+                <tr class="text-left text-sm font-semibold text-[var(--color-text-secondary)] capitalize">
+                    <th class="p-4">Company</th>
+                    <th class="p-4">Position </th>
+                    <th class="p-4">Location</th>
+                    <th class="p-4">Status</th>
+                    <th class="p-4 rounded-r-xl">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-[var(--color-border-default)]" id="applications-table-body">
+                @for(job of data()?.jobs; track $index){
+
+                <tr class="border-b border-[var(--color-border-default)] table-row-hover capitalize">
+                    <td class="p-3 rounded-l-xl">a{{job.company}}</td>
+                    <td class="p-3">{{job.position}}</td>
+                    <td class="p-3">{{job.jobLocation}}</td>
+                    <td class="p-3">
+                        <span
+                            class="px-3 py-1 text-xs rounded-full bg-emerald-100 text-emerald-800">{{job.status}}</span>
+                    </td>
+                    <td class="p-3 flex flex-row flex-center items-center gap-1">
+                        <button
+                            class="text-[var(--color-brand-accent)] hover:underline transition-colors duration-200 cursor-pointer py-1 px-2 bg-transparent rounded-lg capitalize">edit</button>
+                        <button
+                            class="text-[var(--color-brand-accent)] hover:underline transition-colors duration-200 cursor-pointer py-1 px-2 bg-transparent rounded-lg capitalize">delete</button>
+                    </td>
+                </tr>
+                }
+
+            </tbody>
+        </table>
+    </div>
+
+    <app-pagination class="block mt-10" [currentPage]="data()?.page!" [totalPages]="data()?.numOfPages!"
+        (requestedPage)="requestedPageHandler($event)" />
+    }
+    @else {
+    <div class="mt-8">
+        <h2 class="text-xl md:text-2xl font-medium text-primary">No jobs to list...</h2>
+    </div>
+    }
+
+
+</div>

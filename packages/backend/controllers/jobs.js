@@ -48,13 +48,18 @@ const getAllJobs = async (req, res) => {
   const limit = Number(req.query.limit) || 10;
   const skip = (page - 1) * limit;
 
+  const totalJobs = await Job.countDocuments(queryObject);
+
+  if (totalJobs <= skip) {
+    throw new BadRequestError('Requested page does not exist: page number is out of range for the available jobs.');
+  }
+
+  const numOfPages = Math.ceil(totalJobs / limit);
+
   const jobs = await Job.find(queryObject)
     .sort(sortOptions[sort] || '-createdAt')
     .skip(skip)
     .limit(limit);
-
-  const totalJobs = await Job.countDocuments(queryObject);
-  const numOfPages = Math.ceil(totalJobs / limit);
 
   res.status(StatusCodes.OK).json({ jobs, page, numOfPages, totalJobs });
 };

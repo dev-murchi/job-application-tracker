@@ -1,0 +1,29 @@
+<div class="flex flex-row items-center justify-end gap-2 text-[var(--color-text-primary)]">
+
+  <button (click)="firstPageClick()"
+    class="size-8 flex justify-center items-center p-1 text-sm border-1 border-[var(--color-border-default)] bg-transparend disabled:text-[var(--color-text-secondary)] rounded-lg cursor-pointer disabled:cursor-not-allowed"
+    [disabled]="!prevActive()">
+    <app-svg [svgName]="firstPageButtonIcon" fill="currentColor" />
+  </button>
+
+  <button (click)="prevPageClick()"
+    class="size-8 flex justify-center items-center p-1 text-sm border-1 border-[var(--color-border-default)] bg-transparend disabled:text-[var(--color-text-secondary)] rounded-lg cursor-pointer disabled:cursor-not-allowed"
+    [disabled]="!prevActive()">
+    <app-svg [svgName]="prevPageButtonIcon" fill="currentColor" />
+  </button>
+
+  <span class="text-sm">{{currentPage()}} of {{totalPages()}}</span>
+
+  <button (click)="nextPageClick()"
+    class="size-8 flex justify-center items-center p-1 text-sm border-1 border-[var(--color-border-default)] bg-transparend disabled:text-[var(--color-text-secondary)] rounded-lg cursor-pointer disabled:cursor-not-allowed"
+    [disabled]="!nextActive()">
+    <app-svg [svgName]="nextPageButtonIcon" fill="currentColor" />
+  </button>
+
+  <button (click)="lastPageClick()"
+    class="size-8 flex justify-center items-center p-1 text-sm border-1 border-[var(--color-border-default)] bg-transparend disabled:text-[var(--color-text-secondary)] rounded-lg cursor-pointer disabled:cursor-not-allowed"
+    [disabled]="!nextActive()">
+    <app-svg [svgName]="lastPageButtonIcon" fill="currentColor" />
+  </button>
+
+</div>
