@@ -10,8 +10,7 @@
   </div>
 
   <div class="flex items-start my-8 gap-x-4">
-    <img [src]="currentUser()?.avatar ?? defaultAvatar" alt="Profile Picture"
-      class="size-20 rounded-lg object-cover" />
+    <img [src]="currentUser()?.avatar ?? defaultAvatar" alt="Profile Picture" class="size-20 rounded-lg object-cover" />
     <div>
       <h3 class="text-md md:text-lg font-medium text-primary">{{currentUser()?.name}} {{currentUser()?.lastName}}</h3>
     </div>
@@ -23,21 +22,20 @@
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
       <div>
         <app-input label="First Name" type="text" inputId="firstName" [control]="firstNameControl"
-          placeholder="First Name" [required]="true" />
+          placeholder="First Name" />
       </div>
       <div>
-        <app-input label="Last Name" type="text" inputId="lastName" [control]="lastNameControl" placeholder="Last Name"
-          [required]="true" />
+        <app-input label="Last Name" type="text" inputId="lastName" [control]="lastNameControl"
+          placeholder="Last Name" />
       </div>
 
       <div>
         <app-input label="Email Address" type="email" inputId="email" [control]="emailControl"
-          placeholder="you@example.com" [required]="true" />
+          placeholder="you@example.com" />
       </div>
 
       <div>
-        <app-input label="Location" type="text" inputId="location" [control]="locationControl" placeholder="TX, USB"
-          [required]="true" />
+        <app-input label="Location" type="text" inputId="location" [control]="locationControl" placeholder="TX, USB" />
       </div>
 
     </div>
@@ -51,7 +49,8 @@
           Cancel
         </button>
       </div>
-      <app-submit-button [icon]="sendIcon" text="Update Profile" [isDisabled]="profileForm.invalid" class="flex flex-row sm:max-w-sm px-2 hover:scale-105" />
+      <app-submit-button [icon]="sendIcon" text="Update Profile" [isDisabled]="profileForm.invalid"
+        class="flex flex-row sm:max-w-sm px-2 hover:scale-105" />
     </div>
     }
 

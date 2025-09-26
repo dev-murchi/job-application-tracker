@@ -4,29 +4,29 @@
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
         <div>
             <app-input label="First Name" type="text" inputId="firstName" [control]="firstNameControl"
-                placeholder="First Name" [required]="true" />
+                placeholder="First Name" />
         </div>
         <div>
             <app-input label="Last Name" type="text" inputId="lastName" [control]="lastNameControl"
-                placeholder="Last Name" [required]="true" />
+                placeholder="Last Name" />
         </div>
     </div>
 
     <div class="mb-4">
         <app-input label="Email Address" type="email" inputId="email" [control]="emailControl"
-            placeholder="you@example.com" [required]="true" />
+            placeholder="you@example.com" />
     </div>
     <div class="mb-4">
         <app-input label="Password" type="password" inputId="password" [control]="passwordControl"
-            placeholder="********" [required]="true" />
+            placeholder="********" />
     </div>
     <div class="mb-4">
-        <app-input label="Location" type="text" inputId="location" [control]="locationControl" placeholder="TX, USB"
-            [required]="true" />
+        <app-input label="Location" type="text" inputId="location" [control]="locationControl" placeholder="TX, USB" />
     </div>
 
 
     <div class="flex py-2">
-        <app-submit-button [icon]="registerIcon" text="Create Account" [isDisabled]="registerForm.invalid" class="flex flex-row w-full" />
+        <app-submit-button [icon]="registerIcon" text="Create Account" [isDisabled]="registerForm.invalid"
+            class="flex flex-row w-full" />
     </div>
 </form>

@@ -23,7 +23,7 @@ export class Login implements OnInit {
 
   loginForm = new FormGroup({
     email: this.emailControl,
-    password:this.passwordControl,
+    password: this.passwordControl,
   });
 
   ngOnInit(): void {

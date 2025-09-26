@@ -8,11 +8,10 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
   styleUrl: './input.css'
 })
 export class CustomInput {
-  
+
   label = input<string>('label');
   type = input<string>('text');
   inputId = input<string>(`id-${Date.now()}`);
-  required = input<boolean>(true);
   control = input<FormControl<any>>()
   placeholder = input<string>('');
 
@@ -21,9 +20,9 @@ export class CustomInput {
   ngOnInit() {
     const ctrl = this.control();
     if (ctrl) {
+      this.errorOccured.set(ctrl.invalid && ctrl.dirty);
       ctrl.valueChanges.subscribe(() => {
-        const { invalid, dirty, touched } = ctrl
-        this.errorOccured.set(invalid && (dirty || touched));
+        this.errorOccured.set(ctrl.invalid && ctrl.dirty);
       });
     }
   }
