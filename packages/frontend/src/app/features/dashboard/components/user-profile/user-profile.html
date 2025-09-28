@@ -2,7 +2,7 @@
 
   <div class="flex justify-between items-end my-8 block">
     <h2 class="text-xl md:text-2xl font-medium text-primary">Profile</h2>
-    <button type="button" (click)="editForm()"
+    <button type="button" (click)="enableFormEditing()"
       class="flex items-center pl-2 pr-4 py-1 gap-x-2 bg-emerald-500 text-white cursor-pointer rounded-lg hover:bg-emerald-600 focus:outline-none hover:scale-105">
       <app-svg [svgName]="editIcon" [class]="'h-4 w-4'" fill="currentColor" />
       Edit
@@ -21,21 +21,18 @@
   <form [formGroup]="profileForm" (submit)="updateProfile();" (reset)="resetForm($event)">
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
       <div>
-        <app-input label="First Name" type="text" inputId="firstName" [control]="firstNameControl"
-          placeholder="First Name" />
+        <app-input [form]="profileForm" [inputElement]="firstNameIput" />
       </div>
       <div>
-        <app-input label="Last Name" type="text" inputId="lastName" [control]="lastNameControl"
-          placeholder="Last Name" />
+        <app-input [form]="profileForm" [inputElement]="lastNameIput" />
       </div>
 
       <div>
-        <app-input label="Email Address" type="email" inputId="email" [control]="emailControl"
-          placeholder="you@example.com" />
+        <app-input [form]="profileForm" [inputElement]="emailInput" />
       </div>
 
       <div>
-        <app-input label="Location" type="text" inputId="location" [control]="locationControl" placeholder="TX, USB" />
+        <app-input [form]="profileForm" [inputElement]="locationIput" />
       </div>
 
     </div>

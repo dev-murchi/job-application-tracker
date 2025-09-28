@@ -1,50 +1,61 @@
-import { inject, Injectable, signal } from '@angular/core';
-import { Observable, of, throwError } from 'rxjs';
-import { catchError, filter, map, tap } from 'rxjs/operators';
+import { computed, inject, Injectable, signal } from '@angular/core';
 import { UserApi } from '../../api/user-api';
-import { AlertService } from '../../shared/components/alert/alert-service';
 import { UserProfile } from '../../shared/types/user-profile.data';
-import { AuthService } from './auth';
+
+export interface UserProfileState {
+  profile: UserProfile | null;
+  status: 'pending' | 'loading' | 'fetched' | 'updated' | 'error';
+  error: string | null;
+}
 
 @Injectable({
   providedIn: 'root'
 })
 export class UsersService {
   private readonly userApi = inject(UserApi);
-  private readonly alertService = inject(AlertService);
 
-  private userProfile = signal<UserProfile | null>(null);
-  public readonly currentUser = this.userProfile.asReadonly();
+  private readonly state = signal<UserProfileState>({ profile: null, status: 'pending', error: null });
 
-  getProfile(): Observable<UserProfile> {
-    const profile = this.userProfile();
-    if (profile) {
-      return of(profile);
+  readonly currentUser = computed(() => this.state().profile);
+  readonly isLoading = computed(() => this.state().status === 'loading');
+  readonly error = computed(() => this.state().error);
+  readonly isUpdated = computed(() => this.state().status === 'updated');
+
+  getProfile(): void {
+    const currentState = this.state();
+    if (currentState.status === 'loading' || currentState.status === 'fetched' || currentState.status === 'updated') {
+      return;
     }
 
-    return this.userApi.getProfile().pipe(
-      filter((profile: UserProfile | null): profile is UserProfile => !!profile),
-      map(data => data),
-      tap(data => {
-        this.userProfile.set(data);
-      }),
-    );
+    this.state.set({ profile: null, status: 'loading', error: null });
+
+    this.userApi.getProfile().subscribe({
+      next: (profile) => {
+        if (profile) {
+          this.state.set({ profile, status: 'fetched', error: null });
+        } else {
+          this.state.set({ profile: null, status: 'error', error: 'User profile not found.' });
+        }
+      },
+      error: (err) => {
+        this.state.set({ profile: null, status: 'error', error: 'Failed to load profile.' });
+        console.error(err);
+      }
+    });
   }
 
-  updateProfile(payload: Partial<UserProfile>): Observable<any> {
-    return this.userApi.updateProfile(payload).pipe(
-      tap((updatedProfile) => {
-        this.userProfile.set(updatedProfile);
-        this.alertService.show('Profile updated successfully!', 'success');
-      }),
-      catchError((err) => {
-        this.alertService.show('Failed to update profile.', 'error');
-        return throwError(() => err);
-      })
-    );
+  updateProfile(payload: Partial<UserProfile>) {
+    this.userApi.updateProfile(payload).subscribe({
+      next: (profile) => {
+        this.state.set({ profile, status: 'updated', error: null });
+      },
+      error: () => {
+        this.state.update(s => ({ ...s, status: 'error', error: 'Failed to update profile.' }));
+      }
+    });
   }
 
   clearCache(): void {
-    this.userProfile.set(null);
+    this.state.set({ profile: null, status: 'pending', error: null });
   }
 }

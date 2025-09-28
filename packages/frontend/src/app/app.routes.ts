@@ -4,7 +4,6 @@ import { authRoutes } from './features/auth/auth.routes';
 import { authGuard } from './core/guards/auth-guard';
 import { dashboardRoutes } from './features/dashboard/dashboard.routes';
 import { NotFoundPage } from './features/not-found-page/not-found-page';
-import { dashboardResolver } from './features/dashboard/dashboard-resolver';
 
 export const routes: Routes = [
   {
@@ -19,7 +18,6 @@ export const routes: Routes = [
   {
     path: 'dashboard',
     canActivate: [authGuard],
-    resolve: [dashboardResolver],
     children: dashboardRoutes
   },
   {

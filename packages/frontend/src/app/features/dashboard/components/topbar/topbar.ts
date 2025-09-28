@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { ThemeSwitch } from '../../../../shared/components/theme-switch/theme-switch';
 import { SvgComponent } from '../../../../shared/components/svg/svg';
 import { SvgNameType } from '../../../../svg.config';
@@ -13,7 +13,7 @@ import { NavLink as NavLinkComponent } from '../../../../shared/components/nav-l
   templateUrl: './topbar.html',
   styleUrl: './topbar.css'
 })
-export class Topbar {
+export class Topbar implements OnInit {
   showDropdown = false;
 
   readonly profileNavigtion: NavLink = { 
@@ -30,6 +30,10 @@ export class Topbar {
   private readonly usersService = inject(UsersService);
 
   readonly userProfile = this.usersService.currentUser;
+  
+  ngOnInit() {
+    this.usersService.getProfile();
+  }
 
   logout() {
     this.authService.logout().subscribe();

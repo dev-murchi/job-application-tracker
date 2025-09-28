@@ -1,18 +1,13 @@
-import { Component, inject, OnInit, OnDestroy, effect, signal } from '@angular/core';
-import { FormGroup, FormControl, Validators, ReactiveFormsModule } from '@angular/forms';
+import { Component, effect, inject, OnInit, signal } from '@angular/core';
+import { FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { UsersService } from '../../../../core/services/users';
 import { AlertService } from '../../../../shared/components/alert/alert-service';
+import { SubmitButton } from "../../../../shared/components/buttons/submit-button/submit-button";
+import { InputControlService } from '../../../../shared/components/form-helpers/input-control-service';
+import { InputElementText } from '../../../../shared/components/form-helpers/input-element-text';
+import { CustomInput } from '../../../../shared/components/form-items/input/input';
 import { SvgComponent } from '../../../../shared/components/svg/svg';
 import { SvgNameType } from '../../../../svg.config';
-import { CustomInput } from '../../../../shared/components/form-items/input/input';
-import { SubmitButton } from "../../../../shared/components/buttons/submit-button/submit-button";
-
-type ProfileForm = FormGroup<{
-  firstName: FormControl<string | null>;
-  lastName: FormControl<string | null>;
-  email: FormControl<string | null>;
-  location: FormControl<string | null>;
-}>;
 
 @Component({
   selector: 'app-user-profile',
@@ -20,49 +15,90 @@ type ProfileForm = FormGroup<{
   templateUrl: './user-profile.html',
   styleUrl: './user-profile.css'
 })
-export class UserProfileComponent {
+export class UserProfileComponent implements OnInit {
   private readonly usersService = inject(UsersService);
   private readonly alertService = inject(AlertService);
 
+  readonly defaultAvatar = 'images/default-avatar.png';
+  readonly firstNameIput = new InputElementText({
+    value: '',
+    key: 'firstNameControl',
+    label: 'First Name',
+    type: 'text',
+    order: 1,
+    placeholder: 'first name',
+    validators: [Validators.required, Validators.minLength(3)]
+  });
+  readonly lastNameIput = new InputElementText({
+    value: '',
+    key: 'lastNameControl',
+    label: 'Last Name',
+    type: 'text',
+    order: 2,
+    placeholder: 'last name',
+    validators: [Validators.required]
+  });
+  readonly emailInput = new InputElementText({
+    value: '',
+    key: 'emailControl',
+    label: 'Email',
+    type: 'email',
+    order: 3,
+    placeholder: 'you@email.com',
+    validators: [Validators.required, Validators.email]
+  });
+  readonly locationIput = new InputElementText({
+    value: '',
+    key: 'locationControl',
+    label: 'Location',
+    type: 'text',
+    order: 4,
+    placeholder: 'Tx, USB',
+    validators: [Validators.required]
+  });
+  readonly currentUser = this.usersService.currentUser;
+  readonly isLoading = this.usersService.isLoading;
+  readonly isUpdated = this.usersService.isUpdated;
+  readonly error = this.usersService.error;
+
+  readonly profileForm: FormGroup;
   editIcon: SvgNameType = 'editIcon';
   sendIcon: SvgNameType = 'sendIcon';
   cancelIcon: SvgNameType = 'cancelIcon';
-  readonly defaultAvatar = 'images/default-avatar.png';
-
   editMode = signal<boolean>(false);
 
-  readonly currentUser = this.usersService.currentUser;
-
-  firstNameControl = new FormControl('', [Validators.required, Validators.minLength(3)]);
-  lastNameControl = new FormControl('', Validators.required);
-  emailControl = new FormControl('', [Validators.required, Validators.email]);
-  locationControl = new FormControl('', Validators.required);
-
-  readonly profileForm : ProfileForm = new FormGroup({
-    firstName: this.firstNameControl,
-    lastName: this.lastNameControl,
-    email: this.emailControl,
-    location: this.locationControl,
-  });
-
-
   constructor() {
-    this.disableForm();
+    const ics = inject(InputControlService);
+    this.profileForm = new FormGroup({
+      [`${this.firstNameIput.key}`]: ics.toFormControl(this.firstNameIput),
+      [`${this.lastNameIput.key}`]: ics.toFormControl(this.lastNameIput),
+      [`${this.emailInput.key}`]: ics.toFormControl(this.emailInput),
+      [`${this.locationIput.key}`]: ics.toFormControl(this.locationIput),
+    })
+
+    this.profileForm.disable();
+
     effect(() => {
-      const user = this.usersService.currentUser();
+      if (this.error()) {
+        this.alertService.show('Failed to update profile.', 'error');
+      }
+
+      const user = this.currentUser();
       if (user) {
         this.patchFormWithUser(user);
+        this.profileForm.markAsPristine();
+        this.profileForm.markAsUntouched();
+      }
+
+      if (this.isUpdated()) {
+        this.disableFormEditing();
+        this.alertService.show('Profile updated successfully!', 'success');
       }
     });
   }
 
-  private patchFormWithUser(user: any) {
-    this.profileForm.patchValue({
-      firstName: user.name ?? '',
-      lastName: user.lastName ?? '',
-      email: user.email ?? '',
-      location: user.location ?? '',
-    });
+  ngOnInit() {
+    this.usersService.getProfile();
   }
 
   updateProfile(): void {
@@ -79,31 +115,21 @@ export class UserProfileComponent {
     }
 
     const payload = {
-      name: this.profileForm.value.firstName!,
-      lastName: this.profileForm.value.lastName!,
-      email: this.profileForm.value.email!,
-      location: this.profileForm.value.location!,
+      name: this.profileForm.value[this.firstNameIput.key]!,
+      lastName: this.profileForm.value[this.lastNameIput.key]!,
+      email: this.profileForm.value[this.emailInput.key]!,
+      location: this.profileForm.value[this.locationIput.key]!,
     };
 
-    this.profileForm.disable();
-    this.usersService.updateProfile(payload).subscribe({
-      next: () => {
-        this.editMode.set(false);
-        this.profileForm.markAsPristine();
-        this.profileForm.markAsUntouched();
-      },
-      error: (err) => {
-        this.profileForm.enable()
-      },
-    });
+    this.usersService.updateProfile(payload);
   }
 
-  editForm() {
+  enableFormEditing() {
     this.editMode.set(true);
     this.profileForm.enable();
   }
 
-  disableForm() {
+  disableFormEditing() {
     this.editMode.set(false);
     this.profileForm.disable();
   }
@@ -115,7 +141,16 @@ export class UserProfileComponent {
       this.patchFormWithUser(user);
       this.profileForm.markAsPristine();
       this.profileForm.markAsUntouched();
-      this.disableForm();
+      this.disableFormEditing();
     }
+  }
+
+  private patchFormWithUser(user: any) {
+    this.profileForm.patchValue({
+      [`${this.firstNameIput.key}`]: user.name ?? '',
+      [`${this.lastNameIput.key}`]: user.lastName ?? '',
+      [`${this.emailInput.key}`]: user.email ?? '',
+      [`${this.locationIput.key}`]: user.location ?? '',
+    });
   }
 }

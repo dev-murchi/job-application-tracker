@@ -1,11 +1,13 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { UserLogin } from '../../../../shared/types/user-login.data';
 import { AuthService } from '../../../../core/services/auth';
-import { SvgComponent } from '../../../../shared/components/svg/svg';
-import { SvgNameType } from '../../../../svg.config';
-import { CustomInput } from '../../../../shared/components/form-items/input/input';
 import { SubmitButton } from "../../../../shared/components/buttons/submit-button/submit-button";
+import { InputControlService } from '../../../../shared/components/form-helpers/input-control-service';
+import { InputElementText } from '../../../../shared/components/form-helpers/input-element-text';
+import { CustomInput } from '../../../../shared/components/form-items/input/input';
+import { SvgComponent } from '../../../../shared/components/svg/svg';
+import { UserLogin } from '../../../../shared/types/user-login.data';
+import { SvgNameType } from '../../../../svg.config';
 
 @Component({
   selector: 'app-login',
@@ -21,10 +23,37 @@ export class Login implements OnInit {
   emailControl = new FormControl('', [Validators.email]);
   passwordControl = new FormControl('', Validators.required);
 
-  loginForm = new FormGroup({
-    email: this.emailControl,
-    password: this.passwordControl,
-  });
+
+  readonly loginForm: FormGroup;
+
+  emailInput = new InputElementText({
+    value: '',
+    key: 'loginEmailControl',
+    label: 'Email',
+    type: 'email',
+    order: 1,
+    placeholder: 'you@email.com',
+    validators: [Validators.email]
+  })
+
+  passwordInput = new InputElementText({
+    value: '',
+    key: 'loginPasswordControl',
+    label: 'Password',
+    type: 'password',
+    order: 2,
+    placeholder: '********',
+    validators: [Validators.required]
+  })
+
+  constructor() {
+    const ics = inject(InputControlService);
+
+    this.loginForm = new FormGroup({
+      [`${this.emailInput.key}`]: ics.toFormControl(this.emailInput),
+      [`${this.passwordInput.key}`]: ics.toFormControl(this.passwordInput),
+    })
+  }
 
   ngOnInit(): void {
     this.loginForm.reset();
@@ -33,8 +62,8 @@ export class Login implements OnInit {
   loginUser() {
     if (this.loginForm.valid) {
       const payload: UserLogin = {
-        email: this.loginForm.value.email!,
-        password: this.loginForm.value.password!,
+        email: this.loginForm.value[this.emailInput.key]!,
+        password: this.loginForm.value[this.passwordInput.key]!,
       };
 
       this.authService.login(payload).subscribe();

@@ -1,5 +1,6 @@
 import { Component, input, signal } from '@angular/core';
-import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import {  FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { InputElementBase } from '../../form-helpers/input-element-base';
 
 @Component({
   selector: 'app-input',
@@ -9,16 +10,13 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
 })
 export class CustomInput {
 
-  label = input<string>('label');
-  type = input<string>('text');
-  inputId = input<string>(`id-${Date.now()}`);
-  control = input<FormControl<any>>()
-  placeholder = input<string>('');
-
   errorOccured = signal(false);
 
+  readonly form = input.required<FormGroup>();
+  readonly inputElement = input.required<InputElementBase<any>>();
+
   ngOnInit() {
-    const ctrl = this.control();
+    const ctrl = this.form().get(this.inputElement().key);
     if (ctrl) {
       this.errorOccured.set(ctrl.invalid && ctrl.dirty);
       ctrl.valueChanges.subscribe(() => {

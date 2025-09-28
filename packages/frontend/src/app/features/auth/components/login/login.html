@@ -2,11 +2,10 @@
   <h2 class="text-xl font-bold text-center text-[var(--color-brand-accent)] mb-8">Welcome Back</h2>
   <div class="mb-4">
 
-    <app-input label="Email Address" type="email" inputId="email" [control]="emailControl"
-      placeholder="you@example.com" />
+    <app-input [form]="loginForm" [inputElement]="emailInput" />
   </div>
   <div class="mb-4">
-    <app-input label="Password" type="password" inputId="password" [control]="passwordControl" placeholder="********" />
+    <app-input [form]="loginForm" [inputElement]="passwordInput"   />
   </div>
   <div class="flex justify-end text-sm">
     <a href="#" class="text-sm text-[var(--color-brand-accent)] hover:underline">Forgot

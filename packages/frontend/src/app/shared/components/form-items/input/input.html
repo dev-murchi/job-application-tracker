@@ -1,26 +1,29 @@
-<label for="{{inputId()}}" class="block text-sm font-medium text-[var(--color-text-secondary)] mb-2">{{label()}}</label>
+<ng-container [formGroup]="form()">
+  <label for="{{inputElement().key}}"
+    class="block text-sm font-medium text-[var(--color-text-secondary)] mb-2">{{inputElement().label}}</label>
 
-<input [type]="type()" [id]="inputId()" [formControl]="control()!"
-  [placeholder]="placeholder()" class="input-field w-full px-2 py-2 rounded-lg text-sm focus:outline-none focus:border-[var(--color-brand-accent)] placeholder-stone-400">
+  <input [type]="inputElement().type" [id]="inputElement().key" [formControlName]="inputElement().key" [placeholder]="inputElement().placeholder"
+    class="input-field w-full px-2 py-2 rounded-lg text-sm focus:outline-none focus:border-[var(--color-brand-accent)] placeholder-stone-400">
 
-@if(errorOccured()) {
+  @if(errorOccured()) {
 
-@if(control()?.hasError('required')){
-<p class="text-sm text-red-600 mt-1">{{label()}} is required</p>
-}
+  @if(form().get(inputElement().key)?.hasError('required')){
+  <p class="text-sm text-red-600 mt-1">{{inputElement().label}} is required</p>
+  }
 
-@if(control()?.hasError('email')){
-<p class="text-sm text-red-600 mt-1">Please enter valid email address.</p>
-}
+  @if(form().get(inputElement().key)?.hasError('email')){
+  <p class="text-sm text-red-600 mt-1">Please enter valid email address.</p>
+  }
 
-@if(control()?.hasError('minlength')){
-<p class="text-sm text-red-600 mt-1">
-  {{label()}} must be at least {{control()?.errors?.['minlength']?.requiredLength}} characters long.
-</p>
-}
+  @if(form().get(inputElement().key)?.hasError('minlength')){
+  <p class="text-sm text-red-600 mt-1">
+    {{inputElement().label}} must be at least {{form().get(inputElement().key)?.errors?.['minlength']?.requiredLength}} characters long.
+  </p>
+  }
 
-@if(control()?.hasError('pattern')){
-<p class="text-sm text-red-600 mt-1">{{label()}} format is invalid.</p>
-}
+  @if(form().get(inputElement().key)?.hasError('pattern')){
+  <p class="text-sm text-red-600 mt-1">{{inputElement().label}} format is invalid.</p>
+  }
+  }
 
-}
+</ng-container>
