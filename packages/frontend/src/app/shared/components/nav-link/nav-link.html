@@ -1,6 +1,12 @@
 <a class="nav-link flex flex-row w-full {{cssClass()}}" [class.justify-start]="icon() && text()"
     [class.justify-center]="icon() && !text()" [routerLink]="link()" routerLinkActive="is-active"
-    [routerLinkActiveOptions]="{exact: true}">
+    [routerLinkActiveOptions]="{
+      exact: true,
+      paths: 'exact',
+      queryParams: 'ignored',
+      matrixParams: 'ignored',
+      fragment: 'ignored',
+    }">
 
     @if(icon()) {
     <app-svg [svgName]="icon()!" fill="currentColor"></app-svg>

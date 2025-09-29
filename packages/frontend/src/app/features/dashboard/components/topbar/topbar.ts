@@ -16,10 +16,10 @@ import { NavLink as NavLinkComponent } from '../../../../shared/components/nav-l
 export class Topbar implements OnInit {
   showDropdown = false;
 
-  readonly profileNavigtion: NavLink = { 
-    link: '/dashboard/profile', 
-    text: 'Profile', 
-    icon: 'accountCircleIcon' 
+  readonly profileNavigation: NavLink = {
+    link: '/dashboard/profile',
+    text: 'Profile',
+    icon: 'accountCircleIcon',
   };
 
   dropDownIcon: SvgNameType = 'arrowDropDownIcon';
@@ -30,7 +30,7 @@ export class Topbar implements OnInit {
   private readonly usersService = inject(UsersService);
 
   readonly userProfile = this.usersService.currentUser;
-  
+
   ngOnInit() {
     this.usersService.getProfile();
   }

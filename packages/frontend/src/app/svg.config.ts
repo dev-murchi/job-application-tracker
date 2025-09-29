@@ -29,6 +29,7 @@ export const svgConfig =
   paginationLastPageIcon: 'images/last-page-icon.svg',
   paginationNextPageIcon: 'images/chevron-forward-icon.svg',
   paginationPrevPageIcon: 'images/chevron-backward-icon.svg',
+  clearIcon: 'images/clear-all-icon.svg',
 };
 
 export type SvgNameType = keyof typeof svgConfig;

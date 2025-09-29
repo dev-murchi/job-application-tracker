@@ -12,9 +12,12 @@ export class JobsService {
 
   private readonly jobsApi = inject(JobsApi);
   private cachedResults = new Map<string, JobQueryResult>();
-  private _queryResult = signal<JobQueryResult | undefined>(undefined);
 
-  readonly queryResult = computed(() => this._queryResult());
+  readonly jobList = signal<{ data: JobQueryResult | null, isLoading: boolean, error: string | null }>({
+    data: null,
+    isLoading: true,
+    error: null
+  });
 
   private static sortKeys(obj: any): any {
     if (Array.isArray(obj)) {
@@ -44,14 +47,16 @@ export class JobsService {
     );
   }
 
-  getAll(query: JobQuery) {
+  getJobs(query: JobQuery) {
     const key = this.normalizeQuery(query);
     const cachedResult = this.cachedResults.get(key);
 
     if (cachedResult) {
-      this._queryResult.set(cachedResult);
+      this.jobList.set({ data: cachedResult, isLoading: false, error: null });
       return;
     }
+
+    this.jobList.set({ data: null, isLoading: true, error: null });
 
     this.jobsApi.getJobs(query)
       .pipe(
@@ -62,16 +67,17 @@ export class JobsService {
           typeof data.totalJobs === 'number' && data.totalJobs >= 0 &&
           typeof data.numOfPages === 'number' && data.numOfPages >= 0
         )),
-        take(1),
-        catchError(error => {
-          console.error(error);
+        catchError(response => {
+          console.error(response);
           return of(undefined);
         })
       )
       .subscribe((data) => {
         if (data) {
           this.cachedResults = new Map(this.cachedResults).set(key, data);
-          this._queryResult.set(data);
+          this.jobList.set({ data, isLoading: false, error: null });
+        } else {
+          this.jobList.set({ data: null, isLoading: false, error: 'No data returned' });
         }
       });
   }

@@ -1,48 +1,77 @@
 <div class="max-w-4xl mx-auto flex flex-col space-y-6 ">
-    @if(data()?.totalJobs){
 
-    <div class="overflow-x-auto">
-        <table class="table-auto w-full whitespace-nowrap divide-y divide-[var(--color-border-default)]">
-            <thead>
-                <tr class="text-left text-sm font-semibold text-[var(--color-text-secondary)] capitalize">
-                    <th class="p-4">Company</th>
-                    <th class="p-4">Position </th>
-                    <th class="p-4">Location</th>
-                    <th class="p-4">Status</th>
-                    <th class="p-4 rounded-r-xl">Actions</th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-[var(--color-border-default)]" id="applications-table-body">
-                @for(job of data()?.jobs; track $index){
-
-                <tr class="border-b border-[var(--color-border-default)] table-row-hover capitalize">
-                    <td class="p-3 rounded-l-xl">a{{job.company}}</td>
-                    <td class="p-3">{{job.position}}</td>
-                    <td class="p-3">{{job.jobLocation}}</td>
-                    <td class="p-3">
-                        <span
-                            class="px-3 py-1 text-xs rounded-full bg-emerald-100 text-emerald-800">{{job.status}}</span>
-                    </td>
-                    <td class="p-3 flex flex-row flex-center items-center gap-1">
-                        <button
-                            class="text-[var(--color-brand-accent)] hover:underline transition-colors duration-200 cursor-pointer py-1 px-2 bg-transparent rounded-lg capitalize">edit</button>
-                        <button
-                            class="text-[var(--color-brand-accent)] hover:underline transition-colors duration-200 cursor-pointer py-1 px-2 bg-transparent rounded-lg capitalize">delete</button>
-                    </td>
-                </tr>
-                }
-
-            </tbody>
-        </table>
+    <div class="mt-8 mb-12">
+        <app-job-search-form (jobSearchEvent)="handleSearchFormData($event)" [initialSearchText]="initialSearchText()"
+            [initialJobStatus]="initialJobStatus()" [initialJobType]="initialJobType()"
+            [initialSortOption]="initialSortOption()" [debounceDelay]="searchFormDebounce()" />
     </div>
 
-    <app-pagination class="block mt-10" [currentPage]="data()?.page!" [totalPages]="data()?.numOfPages!"
-        (requestedPage)="requestedPageHandler($event)" />
+
+    @if(jobList().isLoading) {
+        <div class="flex justify-center items-center py-8">
+            <span class="text-xl md:text-2xl font-medium text-primary">Loading jobs...</span>
+        </div>
+    }
+    @else if (jobList().error) {
+        <div class="flex justify-center items-center py-8">
+            <span class="text-xl md:text-2xl font-medium text-primary">{{ jobList().error }}</span>
+        </div>
     }
     @else {
-    <div class="mt-8">
-        <h2 class="text-xl md:text-2xl font-medium text-primary">No jobs to list...</h2>
-    </div>
+        @if(jobList().data){
+            @if (jobList().data?.totalJobs) {
+
+            <div class="overflow-x-auto mt-8">
+                <table class="table-auto w-full whitespace-nowrap divide-y divide-[var(--color-border-default)] rounded-lg">
+                    <thead class="bg-[var(--color-border-default)] rounded-t-lg">
+                        <tr class="text-left text-sm font-semibold text-[var(--color-text-secondary)] uppercase">
+                            <th class="p-4">Company</th>
+                            <th class="p-4">Position </th>
+                            <th class="p-4">Location</th>
+                            <th class="p-4">Type</th>
+                            <th class="p-4">Status</th>
+                            <th class="p-4">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-[var(--color-border-default)]" id="applications-table-body">
+                        @for(job of jobList().data?.jobs; track $index){
+
+                        <tr class="border-b border-[var(--color-border-default)] table-row-hover capitalize">
+                            <td class="p-3 rounded-l-xl">a{{job.company}}</td>
+                            <td class="p-3">{{job.position}}</td>
+                            <td class="p-3">{{job.jobLocation}}</td>
+                            <td class="p-3">{{job.jobType}}</td>
+                            <td class="p-3">
+                                <span
+                                    class="px-3 py-1 text-xs rounded-full bg-emerald-100 text-emerald-800">{{job.status}}</span>
+                            </td>
+                            <td class="p-3 flex flex-row flex-center items-center gap-1">
+                                <button
+                                    class="text-[var(--color-brand-accent)] hover:underline transition-colors duration-200 cursor-pointer py-1 px-2 bg-transparent rounded-lg capitalize">edit</button>
+                                <button
+                                    class="text-[var(--color-brand-accent)] hover:underline transition-colors duration-200 cursor-pointer py-1 px-2 bg-transparent rounded-lg capitalize">delete</button>
+                            </td>
+                        </tr>
+                        }
+
+                    </tbody>
+                </table>
+            </div>
+
+            <app-pagination class="block mt-10" [currentPage]="jobList().data?.page!"
+                [totalPages]="jobList().data?.numOfPages!" (requestedPage)="requestedPageHandler($event)" />
+            }
+            @else {
+                <div class="flex justify-center items-center py-8">
+                    <span class="text-xl md:text-2xl font-medium text-primary">No jobs found.</span>
+                </div>
+            }
+        }
+        @else {
+            <div class="flex justify-center items-center py-8">
+                <span class="text-xl md:text-2xl font-medium text-primary">No job data available.</span>
+            </div>
+        }
     }
 
 
