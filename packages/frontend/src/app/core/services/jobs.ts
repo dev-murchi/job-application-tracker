@@ -1,6 +1,6 @@
 import { inject, Injectable, signal, computed } from '@angular/core';
 import { JobsApi } from '../../api/jobs-api';
-import { filter, tap, take, catchError } from 'rxjs/operators';
+import { filter, tap, take, catchError, map } from 'rxjs/operators';
 import { of } from 'rxjs';
 import { JobDetail } from '../../shared/types/job-detail.data';
 import { JobQuery, JobQueryResult } from '../../shared/types/job-query.data';
@@ -12,8 +12,15 @@ export class JobsService {
 
   private readonly jobsApi = inject(JobsApi);
   private cachedResults = new Map<string, JobQueryResult>();
+  private cachedJobs = new Map<string, JobDetail>();
 
   readonly jobList = signal<{ data: JobQueryResult | null, isLoading: boolean, error: string | null }>({
+    data: null,
+    isLoading: true,
+    error: null
+  });
+
+  readonly jobDetail = signal<{ data: JobDetail | null, isLoading: boolean, error: string | null }>({
     data: null,
     isLoading: true,
     error: null
@@ -80,6 +87,33 @@ export class JobsService {
           this.jobList.set({ data: null, isLoading: false, error: 'No data returned' });
         }
       });
+  }
+
+  getJob(id: string) {
+    const cachedJob = this.cachedJobs.get(id);
+
+    if(cachedJob) {
+      this.jobDetail.set({ data: cachedJob, isLoading: false, error: null });
+      return;
+    }
+
+    this.jobDetail.set({ data: null, isLoading: true, error: null });
+
+    this.jobsApi.getJob(id).pipe(
+      tap(data => console.log({ data })),
+      map(data => data.job),
+      catchError(response => {
+        console.error(response);
+        return of(undefined);
+      })
+    ).subscribe((data) => {
+      if (data) {
+        this.cachedJobs.set(id, data);
+        this.jobDetail.set({ data: data, isLoading: false, error: null });
+      } else {
+        this.jobDetail.set({ data: null, isLoading: false, error: 'No data returned' });
+      }
+    });
   }
 
   create(payload: JobDetail) {

@@ -1,0 +1,57 @@
+<div class="max-w-4xl mx-auto flex flex-col space-y-6">
+
+  <a routerLink="/dashboard/jobs"
+    class="inline-flex items-center gap-2 text-sm text-[var(--color-brand-accent)] hover:underline hover:text-emerald-700 transition-colors w-fit mt-2">
+    <app-svg [svgName]="backToPageIcon" fill="currentColor" />
+    Back to Jobs
+  </a>
+
+  @if(job().isLoading) {
+  <div class="flex justify-center items-center py-8">
+    <span class="text-xl md:text-2xl font-medium text-primary">Loading job...</span>
+  </div>
+  }
+
+  @else {
+
+  <div class="card rounded-lg shadow-md">
+
+    <div class="px-4 py-6 border-b border-[var(--color-border-default)]">
+      <div class="flex flex-row gap-2 justify-between items-center">
+        <h2 class="text-lg md:text-lg font-medium text-primary capitalize">Job Details</h2>
+        <a [routerLink]="['/dashboard/jobs', job().data?._id, 'edit']"
+          class="inline-flex items-center gap-2 px-3 py-2 rounded text-xs md:text-sm cursor-pointer rounded-lg bg-emerald-500 text-white hover:bg-emerald-600 focus:outline-none hover:scale-105">
+          <app-svg [svgName]="'editIcon'" fill="currentColor" class="h-4 w-4" />
+          Edit
+        </a>
+      </div>
+    </div>
+
+    <div class="px-4 py-6">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4">
+        <div>
+          <span class="block text-sm text-[var(--color-text-secondary)] mb-1">Company</span>
+          <span class="font-medium text-[var(--color-text-primary)] break-words">{{ job().data?.company }}</span>
+        </div>
+        <div>
+          <span class="block text-sm text-[var(--color-text-secondary)] mb-1">Position</span>
+          <span class="font-medium text-[var(--color-text-primary)] break-words">{{ job().data?.position }}</span>
+        </div>
+        <div>
+          <span class="block text-sm text-[var(--color-text-secondary)] mb-1">Status</span>
+          <span class="font-medium text-[var(--color-text-primary)] capitalize">{{ job().data?.status }}</span>
+        </div>
+        <div>
+          <span class="block text-sm text-[var(--color-text-secondary)] mb-1">Job Type</span>
+          <span class="font-medium text-[var(--color-text-primary)] capitalize">{{ job().data?.jobType }}</span>
+        </div>
+        <div>
+          <span class="block text-sm text-[var(--color-text-secondary)] mb-1">Location</span>
+          <span class="font-medium text-[var(--color-text-primary)] break-words">{{ job().data?.jobLocation }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  }
+</div>

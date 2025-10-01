@@ -40,4 +40,7 @@ export class JobsApi {
   getJobStatistics() {
     return this.http.get<JobDetail>(`${this.apiurl}/stats`);
   }
+  getJob(id: string) {
+    return this.http.get<{ job: JobDetail }>(`${this.apiurl}/${id}`);
+  }
 }
