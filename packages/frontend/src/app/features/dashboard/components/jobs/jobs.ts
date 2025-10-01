@@ -2,7 +2,7 @@ import { Component, inject, DestroyRef, signal } from '@angular/core';
 import { JobsService } from '../../../../core/services/jobs';
 import { Pagination } from '../../../../shared/components/pagination/pagination';
 import { JobQuery } from '../../../../shared/types/job-query.data';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { JobSearchForm, JobSearchFormOutput } from "./components/job-search-form/job-search-form";
 import { JobStatus } from '../../../../shared/types/job-status';
@@ -11,7 +11,7 @@ import { JobSortOption } from '../../../../shared/types/job-sort-option';
 
 @Component({
   selector: 'app-jobs',
-  imports: [Pagination, JobSearchForm],
+  imports: [Pagination, JobSearchForm, RouterLink],
   templateUrl: './jobs.html',
   styleUrl: './jobs.css'
 })

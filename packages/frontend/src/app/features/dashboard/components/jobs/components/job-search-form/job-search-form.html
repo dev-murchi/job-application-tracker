@@ -1,60 +1,65 @@
-<div class="card rounded-lg">
-  <h2 class="text-xl md:text-2xl font-medium text-primary mb-8">Search Form</h2>
-  <form [formGroup]="form">
-    <div class="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-8 gap-4 md:gap-col-6 items-end">
+<div>
+  <div class="px-4 py-6">
+    <h2 class="text-xl md:text-2xl font-medium text-primary capitalize">Search Form</h2>
+  </div>
 
-      <!-- searchField -->
-      <div class="col-span-1 md:col-span-4">
-        <app-input [form]="form" [inputElement]="searchBox" />
-      </div>
+  <div class="px-4 py-6">
+    <form [formGroup]="form">
+      <div class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-8 gap-y-4 gap-x-2 md:gap-col-6 items-end">
 
-      <!-- jobStatusField  -->
-      <div class="col-span-1">
-        <label class="block text-sm font-medium text-[var(--color-text-secondary)] mb-2">
-          {{ statusSelection.label }}
-        </label>
-        <select [formControlName]="statusSelection.key"
-          class="cursor-pointer input-field w-full px-2 py-2 rounded-lg text-sm focus:outline-none focus:border-[var(--color-brand-accent)] placeholder-stone-400">
-          @for (option of statusSelection.options; track option.value) {
-          <option [value]="option.value">{{ option.key }}</option>
-          }
-        </select>
-      </div>
+        <!-- searchField -->
+        <div class="col-span-3 md:col-span-4">
+          <app-input [form]="form" [inputElement]="searchBox" />
+        </div>
 
-      <!--  jobTypeField -->
-      <div class="col-span-1">
-        <label class="block text-sm font-medium text-[var(--color-text-secondary)] mb-2">
-          {{ typeSelection.label }}
-        </label>
-        <select [formControlName]="typeSelection.key"
-          class="cursor-pointer input-field w-full px-2 py-2 rounded-lg text-sm focus:outline-none focus:border-[var(--color-brand-accent)] placeholder-stone-400">
-          @for (option of typeSelection.options; track option.value) {
-          <option [value]="option.value">{{ option.key }}</option>
-          }
-        </select>
-      </div>
+        <!-- jobStatusField  -->
+        <div class="col-span-1">
+          <label class="block text-xs md:text-sm font-medium text-[var(--color-text-secondary)] mb-2">
+            {{ statusSelection.label }}
+          </label>
+          <select [formControlName]="statusSelection.key"
+            class="cursor-pointer input-field w-full px-2 py-2 rounded-lg text-xs md:text-sm focus:outline-none focus:border-[var(--color-brand-accent)] placeholder-stone-400">
+            @for (option of statusSelection.options; track option.value) {
+            <option [value]="option.value">{{ option.key }}</option>
+            }
+          </select>
+        </div>
 
-      <!-- sortField  -->
-      <div class="col-span-1">
-        <label class="block text-sm font-medium text-[var(--color-text-secondary)] mb-2">
-          {{ sortSelection.label }}
-        </label>
-        <select [formControlName]="sortSelection.key"
-          class="cursor-pointer input-field w-full px-2 py-2 rounded-lg text-sm focus:outline-none focus:border-[var(--color-brand-accent)] placeholder-stone-400">
-          @for (option of sortSelection.options; track option.value) {
-          <option [value]="option.value">{{ option.key }}</option>
-          }
-        </select>
-      </div>
+        <!--  jobTypeField -->
+        <div class="col-span-1">
+          <label class="block text-xs md:text-sm font-medium text-[var(--color-text-secondary)] mb-2">
+            {{ typeSelection.label }}
+          </label>
+          <select [formControlName]="typeSelection.key"
+            class="cursor-pointer input-field w-full px-2 py-2 rounded-lg text-xs md:text-sm focus:outline-none focus:border-[var(--color-brand-accent)] placeholder-stone-400">
+            @for (option of typeSelection.options; track option.value) {
+            <option [value]="option.value">{{ option.key }}</option>
+            }
+          </select>
+        </div>
 
-      <!-- Reset Button -->
-      <div class="col-span-1">
-        <button type="button" (click)="resetForm()"
-          class="text-md h-9 flex flex-row w-full justify-center items-center px-2 py-1 cursor-pointer rounded-lg bg-[var(--color-status-info)] text-[var(--color-text-on-brand)] gap-x-2">
-          <app-svg [svgName]="clearIcon" fill="currentColor" class="size-6" />
-          Clear
-        </button>
+        <!-- sortField  -->
+        <div class="col-span-1">
+          <label class="block text-xs md:text-sm font-medium text-[var(--color-text-secondary)] mb-2">
+            {{ sortSelection.label }}
+          </label>
+          <select [formControlName]="sortSelection.key"
+            class="cursor-pointer input-field w-full px-2 py-2 rounded-lg text-xs md:text-sm focus:outline-none focus:border-[var(--color-brand-accent)] placeholder-stone-400">
+            @for (option of sortSelection.options; track option.value) {
+            <option [value]="option.value">{{ option.key }}</option>
+            }
+          </select>
+        </div>
+
+        <!-- Clear Form Button -->
+        <div class="col-span-3 md:col-span-1">
+          <button type="button" (click)="clearFormValues()"
+            class="text-md h-9 flex flex-row w-full justify-center items-center px-2 py-1 cursor-pointer rounded-lg bg-[var(--color-status-info)] text-[var(--color-text-on-brand)] gap-x-2">
+            <app-svg [svgName]="clearIcon" fill="currentColor" class="size-6" />
+            Clear
+          </button>
+        </div>
       </div>
-    </div>
-  </form>
+    </form>
+  </div>
 </div>

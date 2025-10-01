@@ -131,7 +131,7 @@ export class JobSearchForm implements OnInit {
     });
   }
 
-  resetForm(): void {
+  clearFormValues(): void {
     this.form.reset(this.initialFormState, { emitEvent: false });
     this.jobSearchEvent.emit({ value: this.formValueToJobSearchData(this.initialFormState), operation: 'reset' });
   }

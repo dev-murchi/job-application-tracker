@@ -1,78 +1,100 @@
 <div class="max-w-4xl mx-auto flex flex-col space-y-6 ">
 
-    <div class="mt-8 mb-12">
-        <app-job-search-form (jobSearchEvent)="handleSearchFormData($event)" [initialSearchText]="initialSearchText()"
-            [initialJobStatus]="initialJobStatus()" [initialJobType]="initialJobType()"
-            [initialSortOption]="initialSortOption()" [debounceDelay]="searchFormDebounce()" />
+    <div class="card rounded-lg shadow-md">
+        <app-job-search-form class="block md:pb-6" (jobSearchEvent)="handleSearchFormData($event)"
+            [initialSearchText]="initialSearchText()" [initialJobStatus]="initialJobStatus()"
+            [initialJobType]="initialJobType()" [initialSortOption]="initialSortOption()"
+            [debounceDelay]="searchFormDebounce()" />
     </div>
 
-
     @if(jobList().isLoading) {
-        <div class="flex justify-center items-center py-8">
-            <span class="text-xl md:text-2xl font-medium text-primary">Loading jobs...</span>
-        </div>
+    <div class="flex justify-center items-center py-8">
+        <span class="text-xl md:text-2xl font-medium text-primary">Loading jobs...</span>
+    </div>
+
     }
     @else if (jobList().error) {
-        <div class="flex justify-center items-center py-8">
-            <span class="text-xl md:text-2xl font-medium text-primary">{{ jobList().error }}</span>
-        </div>
+    <div class="flex justify-center items-center py-8">
+        <span class="text-xl md:text-2xl font-medium text-primary">No jobs found.</span>
+    </div>
+
     }
     @else {
-        @if(jobList().data){
-            @if (jobList().data?.totalJobs) {
+    @if(jobList().data){
+    @if (jobList().data?.totalJobs) {
+    <div class="card rounded-lg overflow-x-auto shadow-md">
+        <div class="px-4 py-6">
+            <table
+                class="table-auto w-full text-left whitespace-nowrap divide-y divide-[var(--color-border-default)] rounded-lg">
+                <thead class="bg-[var(--color-border-default)] rounded-t-lg">
+                    <tr class="text-xs font-normal text-[var(--color-text-secondary)] capitalize">
+                        <th scope="col" class="px-4 py-3">Company</th>
+                        <th scope="col" class="px-4 py-3">Position </th>
+                        <th scope="col" class="px-4 py-3">Location</th>
+                        <th scope="col" class="px-4 py-3">Type</th>
+                        <th scope="col" class="px-4 py-3">Status</th>
+                        <th scope="col" class="px-4 py-3">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-[var(--color-border-default)]" id="applications-table-body">
+                    @for(job of jobList().data?.jobs; track $index){
 
-            <div class="overflow-x-auto mt-8">
-                <table class="table-auto w-full whitespace-nowrap divide-y divide-[var(--color-border-default)] rounded-lg">
-                    <thead class="bg-[var(--color-border-default)] rounded-t-lg">
-                        <tr class="text-left text-sm font-semibold text-[var(--color-text-secondary)] uppercase">
-                            <th class="p-4">Company</th>
-                            <th class="p-4">Position </th>
-                            <th class="p-4">Location</th>
-                            <th class="p-4">Type</th>
-                            <th class="p-4">Status</th>
-                            <th class="p-4">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-[var(--color-border-default)]" id="applications-table-body">
-                        @for(job of jobList().data?.jobs; track $index){
+                    <tr
+                        class="border-b border-[var(--color-border-default)] table-row-hover text-sm font-normal capitalize">
+                        <th class="px-4 py-3 font-medium whitespace-nowrap">{{job.company}}</th>
+                        <td class="px-4 py-3">{{job.position}}</td>
+                        <td class="px-4 py-3 max-w-[12rem]">{{job.jobLocation}}</td>
+                        <td class="px-4 py-3">{{job.jobType}}</td>
+                        <td class="px-4 py-3">
+                            @switch (job.status) {
+                            @case ("interview") {
+                            <span
+                                class="px-3 py-1 text-xs rounded-full bg-sky-500 text-white font-normal">{{job.status}}</span>
+                            }
+                            @case ("declined") {
+                            <span
+                                class="px-3 py-1 text-xs rounded-full bg-red-500 text-white font-normal">{{job.status}}</span>
+                            }
+                            @case ("pending") {
+                            <span
+                                class="px-3 py-1 text-xs rounded-full bg-amber-500 text-white font-normal">{{job.status}}</span>
+                            }
+                            @default {
+                            <span
+                                class="px-3 py-1 text-xs rounded-full bg-[var(--color-bg-active)] text-white font-normal">{{job.status}}</span>
+                            }
+                            }
 
-                        <tr class="border-b border-[var(--color-border-default)] table-row-hover capitalize">
-                            <td class="p-3 rounded-l-xl">a{{job.company}}</td>
-                            <td class="p-3">{{job.position}}</td>
-                            <td class="p-3">{{job.jobLocation}}</td>
-                            <td class="p-3">{{job.jobType}}</td>
-                            <td class="p-3">
-                                <span
-                                    class="px-3 py-1 text-xs rounded-full bg-emerald-100 text-emerald-800">{{job.status}}</span>
-                            </td>
-                            <td class="p-3 flex flex-row flex-center items-center gap-1">
-                                <button
-                                    class="text-[var(--color-brand-accent)] hover:underline transition-colors duration-200 cursor-pointer py-1 px-2 bg-transparent rounded-lg capitalize">edit</button>
-                                <button
-                                    class="text-[var(--color-brand-accent)] hover:underline transition-colors duration-200 cursor-pointer py-1 px-2 bg-transparent rounded-lg capitalize">delete</button>
-                            </td>
-                        </tr>
-                        }
+                        </td>
+                        <td class="px-4 py-3 flex flex-row flex-center items-center gap-1">
+                            <a routerLink="/dashboard/jobs/{{job._id}}"
+                                class="text-[var(--color-brand-accent)] hover:underline transition-colors duration-200 cursor-pointer py-1 px-2 bg-transparent rounded-lg">View</a>
+                        </td>
+                    </tr>
 
-                    </tbody>
-                </table>
-            </div>
-
-            <app-pagination class="block mt-10" [currentPage]="jobList().data?.page!"
+                    }
+                </tbody>
+            </table>
+        </div>
+        <div class="px-4 py-6">
+            <app-pagination class="block" [currentPage]="jobList().data?.page!"
                 [totalPages]="jobList().data?.numOfPages!" (requestedPage)="requestedPageHandler($event)" />
-            }
-            @else {
-                <div class="flex justify-center items-center py-8">
-                    <span class="text-xl md:text-2xl font-medium text-primary">No jobs found.</span>
-                </div>
-            }
-        }
-        @else {
-            <div class="flex justify-center items-center py-8">
-                <span class="text-xl md:text-2xl font-medium text-primary">No job data available.</span>
-            </div>
-        }
+        </div>
+    </div>
+
     }
+    @else {
+    <div class="flex justify-center items-center py-8">
+        <span class="text-xl md:text-2xl font-medium text-primary">No jobs found.</span>
+    </div>
 
+    }
+    }
+    @else {
+    <div class="flex justify-center items-center py-8">
+        <span class="text-xl md:text-2xl font-medium text-primary">No jobs found.</span>
+    </div>
 
+    }
+    }
 </div>
