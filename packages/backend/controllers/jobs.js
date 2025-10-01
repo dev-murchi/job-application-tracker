@@ -180,10 +180,23 @@ const showStats = async (req, res) => {
   res.status(StatusCodes.OK).json({ defaultStats, monthlyApplications });
 };
 
+const getJob = async (req, res) => {
+  const { id: jobId } = req.params;
+
+  const job = await Job.findOne({ _id: jobId });
+
+  if(!job) {
+    throw new NotFoundError('job not found');
+  }
+  
+  res.status(StatusCodes.OK).json({ job });
+ }
+
 module.exports = {
   createJob,
   deleteJob,
   getAllJobs,
   updateJob,
   showStats,
+  getJob,
 };
