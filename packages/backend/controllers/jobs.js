@@ -6,7 +6,7 @@ const mongoose = require('mongoose');
 const { format } = require('date-fns');
 
 const createJob = async (req, res) => {
-  const { position, company, jobType, jobLocation } = req.body;
+  const { position, company, jobType, jobLocation, status } = req.body;
 
   if (!position || !company) {
     throw new BadRequestError('Please provide all values');
@@ -18,6 +18,7 @@ const createJob = async (req, res) => {
     createdBy: req.user.userId,
     ...(jobType && { jobType }),
     ...(jobLocation && { jobLocation }),
+    ...(status && { status }),
   };
 
   const job = await Job.create(data);
@@ -115,7 +116,7 @@ const updateJob = async (req, res) => {
     runValidators: true,
   });
 
-  res.status(StatusCodes.OK).json({ updatedJob });
+  res.status(StatusCodes.OK).json({ job: updatedJob });
 };
 
 const deleteJob = async (req, res) => {
