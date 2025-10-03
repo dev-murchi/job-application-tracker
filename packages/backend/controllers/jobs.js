@@ -6,7 +6,7 @@ const mongoose = require('mongoose');
 const { format } = require('date-fns');
 
 const createJob = async (req, res) => {
-  const { position, company, jobType, jobLocation, status } = req.body;
+  const { position, company, jobType, jobLocation, status, companyWebsite, jobPostingUrl } = req.body;
 
   if (!position || !company) {
     throw new BadRequestError('Please provide all values');
@@ -16,9 +16,11 @@ const createJob = async (req, res) => {
     company,
     position,
     createdBy: req.user.userId,
+    companyWebsite,
     ...(jobType && { jobType }),
     ...(jobLocation && { jobLocation }),
     ...(status && { status }),
+    ...(jobPostingUrl && { jobPostingUrl }),
   };
 
   const job = await Job.create(data);
@@ -88,7 +90,7 @@ const getAllJobs = async (req, res) => {
 
 const updateJob = async (req, res) => {
   const { id: jobId } = req.params;
-  const { company, position, status, jobType, jobLocation } = req.body;
+  const { company, position, status, jobType, jobLocation, companyWebsite, jobPostingUrl } = req.body;
 
   if (!position || !company) {
     throw new BadRequestError('Please provide all values');
@@ -106,9 +108,11 @@ const updateJob = async (req, res) => {
   const data = {
     company,
     position,
+    companyWebsite,
     ...(status && { status }),
     ...(jobType && { jobType }),
     ...(jobLocation && { jobLocation }),
+    ...(jobPostingUrl && { jobPostingUrl }),
   };
 
   const updatedJob = await Job.findOneAndUpdate({ _id: jobId }, data, {
@@ -153,6 +157,8 @@ const showStats = async (req, res) => {
     pending: stats.pending || 0,
     interview: stats.interview || 0,
     declined: stats.declined || 0,
+    offered: stats.offered || 0,
+    accepted: stats.accepted || 0,
   };
 
   let monthlyApplications = await Job.aggregate([

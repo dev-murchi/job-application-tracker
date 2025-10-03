@@ -27,6 +27,14 @@ const JobSchema = new mongoose.Schema(
       default: 'remote',
       required: true,
     },
+    companyWebsite: {
+      type: String,
+      required: true,
+    },
+    jobPostingUrl: {
+      type: String,
+      required: true,
+    },
     createdBy: {
       type: mongoose.Types.ObjectId,
       ref: 'User',
