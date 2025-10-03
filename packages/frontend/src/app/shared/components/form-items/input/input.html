@@ -1,9 +1,22 @@
-<ng-container [formGroup]="form()">
+<div [formGroup]="form()">
   <label for="{{inputElement().key}}"
     class="block text-sm font-medium text-[var(--color-text-secondary)] mb-2">{{inputElement().label}}</label>
 
-  <input [type]="inputElement().type" [id]="inputElement().key" [formControlName]="inputElement().key" [placeholder]="inputElement().placeholder"
-    class="input-field w-full px-2 py-2 rounded-lg text-sm focus:outline-none focus:border-[var(--color-brand-accent)] placeholder-stone-400">
+  @switch (inputElement().controlType) {
+    @case ('select') {
+      <select [id]="inputElement().key" [formControlName]="inputElement().key"
+        class="input-field w-full px-2 py-2 rounded-lg text-sm focus:outline-none focus:border-[var(--color-brand-accent)] placeholder-stone-400 cursor-pointer">
+        @for (option of inputElement().options; track option.value) {
+        <option [value]="option.value">{{ option.key }}</option>
+        }
+      </select>
+    }
+    @default {
+      <input [type]="inputElement().type" [id]="inputElement().key" [formControlName]="inputElement().key"
+        [placeholder]="inputElement().placeholder"
+        class="input-field w-full px-2 py-2 rounded-lg text-sm focus:outline-none focus:border-[var(--color-brand-accent)] placeholder-stone-400">
+    }
+  }
 
   @if(errorOccured()) {
 
@@ -17,7 +30,8 @@
 
   @if(form().get(inputElement().key)?.hasError('minlength')){
   <p class="text-sm text-red-600 mt-1">
-    {{inputElement().label}} must be at least {{form().get(inputElement().key)?.errors?.['minlength']?.requiredLength}} characters long.
+    {{inputElement().label}} must be at least {{form().get(inputElement().key)?.errors?.['minlength']?.requiredLength}}
+    characters long.
   </p>
   }
 
@@ -26,4 +40,4 @@
   }
   }
 
-</ng-container>
+</div>

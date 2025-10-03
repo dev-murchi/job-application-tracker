@@ -12,17 +12,21 @@ export class JobsApi {
   private readonly http = inject(HttpClient);
 
   createJob(payload: JobDetail) {
-    return this.http.post<JobDetail>(`${this.apiurl}`, payload);
+    return this.http.post<{ job: JobDetail }>(`${this.apiurl}`, payload);
   }
 
-  getJobs(query?: JobQuery): Observable<JobQueryResult> {
-    const params: any = {};
-    if (query?.status) params.status = query.status;
-    if (query?.jobType) params.jobType = query.jobType;
-    if (query?.sort) params.sort = query.sort;
-    if (query?.search) params.search = query.search;
-    if (query?.page) params.page = query.page;
-    if (query?.limit) params.limit = query.limit;
+  getJobs(query: JobQuery = {} as JobQuery): Observable<JobQueryResult> {
+
+    const { status, jobType, sort, search, page, limit } = query;
+
+    const params = {
+      ...(status && { status }),
+      ...(jobType && { jobType }),
+      ...(sort && { sort }),
+      ...(search && { search }),
+      ...(page && { page }),
+      ...(limit && { limit }),
+    };
 
     return this.http.get<JobQueryResult>(`${this.apiurl}`, {
       params: params
@@ -30,7 +34,7 @@ export class JobsApi {
   }
 
   updateJob(jobId: string, payload: Partial<JobDetail>) {
-    return this.http.patch<JobDetail>(`${this.apiurl}/${jobId}`, payload);
+    return this.http.patch<{ job: JobDetail }>(`${this.apiurl}/${jobId}`, payload);
   }
 
   deleteJob(jobId: string) {

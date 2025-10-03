@@ -30,6 +30,8 @@ export const svgConfig =
   paginationNextPageIcon: 'images/chevron-forward-icon.svg',
   paginationPrevPageIcon: 'images/chevron-backward-icon.svg',
   clearIcon: 'images/clear-all-icon.svg',
+  deleteIcon: 'images/delete-icon.svg',
+  visibilityIcon: 'images/visibility-icon.svg',
 };
 
 export type SvgNameType = keyof typeof svgConfig;

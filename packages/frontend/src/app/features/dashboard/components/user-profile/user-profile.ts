@@ -103,7 +103,7 @@ export class UserProfileComponent implements OnInit {
 
   updateProfile(): void {
 
-    if (!this.profileForm.valid) {
+    if (this.profileForm.invalid) {
       this.profileForm.markAllAsTouched();
       this.alertService.show('Please fix the errors in the form before updating.', 'error');
       return;

@@ -1,7 +1,17 @@
-<div (click)="toggle()"
-  class="flex items-center bg-[var(--color-bg-active)]/25 rounded-lg p-1 pr-1 py-1 text-[var(--color-text-secondary)] gap-2">
-  <app-svg [svgName]="isDarkMode ? darkModeIcon : lightModeIcon"
-    class="flex items-center p-1 rounded-lg hover:bg-[var(--color-bg-active)] w-full cursor-pointer"
-    [class.text-[var(--color-brand-primary)]]="!isDarkMode" [class.text-[var(--color-text-primary)]]="isDarkMode"
-    fill="currentColor" viewBox="0 0 24 24" />
-</div>
+<button 
+  type="button"
+  (click)="toggle()"
+  class="inline-flex items-center justify-center min-w-10 min-h-10 p-2 rounded-lg bg-[var(--color-bg-active)]/25 hover:bg-[var(--color-bg-active)] hover:scale-105 active:scale-95 transition-all duration-200 ease-in-out focus:outline-none cursor-pointer">
+  
+  @if (theme().isDarkMode) {
+    <app-svg 
+      [svgName]="theme().icon" 
+      class="w-5 h-5 text-[var(--color-text-primary)] pointer-events-none" 
+      fill="currentColor" />
+  } @else {
+    <app-svg 
+      [svgName]="theme().icon" 
+      class="w-5 h-5 text-[var(--color-brand-primary)] pointer-events-none" 
+      fill="currentColor" />
+  }
+</button>

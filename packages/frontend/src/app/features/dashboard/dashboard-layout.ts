@@ -15,7 +15,7 @@ export class DashboardLayout {
   sidebarItems: NavLink[] = [
     { text: 'Dashboard', link: '/dashboard', icon: 'dashboardIcon' },
     { text: 'Add Job', link: '/dashboard/create-job', icon: 'addJobApplicationIcon' },
-    { text: 'All Jobs', link: '/dashboard/all-jobs', icon: 'appliedJobsIcon' },
+    { text: 'All Jobs', link: '/dashboard/jobs', icon: 'appliedJobsIcon' },
     { text: 'Statistics', link: '/dashboard/stats', icon: 'monitoringIcon' },
   ];
 

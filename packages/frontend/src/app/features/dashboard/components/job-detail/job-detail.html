@@ -1,10 +1,7 @@
 <div class="max-w-4xl mx-auto flex flex-col space-y-6">
 
-  <a routerLink="/dashboard/jobs"
-    class="inline-flex items-center gap-2 text-sm text-[var(--color-brand-accent)] hover:underline hover:text-emerald-700 transition-colors w-fit mt-2">
-    <app-svg [svgName]="backToPageIcon" fill="currentColor" />
-    Back to Jobs
-  </a>
+  <app-nav-link class="nav-link" link="/dashboard/jobs" text="Back to Jobs" [icon]="backToPageIcon"
+    [cssClass]="'hover:bg-transparent hover:underline mt-4'" />
 
   @if(job().isLoading) {
   <div class="flex justify-center items-center py-8">
@@ -17,41 +14,52 @@
   <div class="card rounded-lg shadow-md">
 
     <div class="px-4 py-6 border-b border-[var(--color-border-default)]">
-      <div class="flex flex-row gap-2 justify-between items-center">
-        <h2 class="text-lg md:text-lg font-medium text-primary capitalize">Job Details</h2>
-        <a [routerLink]="['/dashboard/jobs', job().data?._id, 'edit']"
-          class="inline-flex items-center gap-2 px-3 py-2 rounded text-xs md:text-sm cursor-pointer rounded-lg bg-emerald-500 text-white hover:bg-emerald-600 focus:outline-none hover:scale-105">
-          <app-svg [svgName]="'editIcon'" fill="currentColor" class="h-4 w-4" />
-          Edit
-        </a>
+      <div class="flex flex-col sm:flex-row gap-6 sm:justify-between items-start sm:items-center">
+        <h2 class="text-xl md:text-2xl font-medium text-primary capitalize">Job Details</h2>
+        <div class="flex flex-row justify-end items-center gap-2">
+          <a [routerLink]="['/dashboard/jobs', job().data?._id, 'edit']"
+            class="flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-lg bg-[var(--color-brand-primary)] text-[var(--color-text-on-brand)] hover:bg-[var(--color-brand-hover)]">
+            <app-svg [svgName]="'editIcon'" class="size-4" fill="currentColor" />
+            <span>Edit</span>
+          </a>
+        </div>
       </div>
     </div>
 
-    <div class="px-4 py-6">
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4">
-        <div>
-          <span class="block text-sm text-[var(--color-text-secondary)] mb-1">Company</span>
-          <span class="font-medium text-[var(--color-text-primary)] break-words">{{ job().data?.company }}</span>
-        </div>
-        <div>
-          <span class="block text-sm text-[var(--color-text-secondary)] mb-1">Position</span>
-          <span class="font-medium text-[var(--color-text-primary)] break-words">{{ job().data?.position }}</span>
-        </div>
-        <div>
-          <span class="block text-sm text-[var(--color-text-secondary)] mb-1">Status</span>
-          <span class="font-medium text-[var(--color-text-primary)] capitalize">{{ job().data?.status }}</span>
-        </div>
-        <div>
-          <span class="block text-sm text-[var(--color-text-secondary)] mb-1">Job Type</span>
-          <span class="font-medium text-[var(--color-text-primary)] capitalize">{{ job().data?.jobType }}</span>
-        </div>
-        <div>
-          <span class="block text-sm text-[var(--color-text-secondary)] mb-1">Location</span>
-          <span class="font-medium text-[var(--color-text-primary)] break-words">{{ job().data?.jobLocation }}</span>
-        </div>
+    <div class="px-4 py-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div>
+        <span class="block text-sm text-[var(--color-text-secondary)] mb-1">Company</span>
+        <span class="font-medium text-[var(--color-text-primary)] break-words">{{ job().data?.company }}</span>
+      </div>
+      <div>
+        <span class="block text-sm text-[var(--color-text-secondary)] mb-1">Position</span>
+        <span class="font-medium text-[var(--color-text-primary)] break-words">{{ job().data?.position }}</span>
+      </div>
+      <div>
+        <span class="block text-sm text-[var(--color-text-secondary)] mb-1">Status</span>
+        @if(job().data?.status) {
+          @switch(job().data?.status) {
+            @case('pending') {
+              <span class="px-3 py-1 text-xs rounded-full capitalize bg-yellow-100 text-yellow-800">{{ job().data?.status }}</span>
+            }
+            @case('interview') {
+              <span class="px-3 py-1 text-xs rounded-full capitalize bg-blue-100 text-blue-800">{{ job().data?.status }}</span>
+            }
+            @case('declined') {
+              <span class="px-3 py-1 text-xs rounded-full capitalize bg-red-100 text-red-800">{{ job().data?.status }}</span>
+            }
+          }
+        }
+      </div>
+      <div>
+        <span class="block text-sm text-[var(--color-text-secondary)] mb-1">Job Type</span>
+        <span class="font-medium text-[var(--color-text-primary)] capitalize">{{ job().data?.jobType }}</span>
+      </div>
+      <div>
+        <span class="block text-sm text-[var(--color-text-secondary)] mb-1">Location</span>
+        <span class="font-medium text-[var(--color-text-primary)] break-words">{{ job().data?.jobLocation }}</span>
       </div>
     </div>
   </div>
-
   }
 </div>

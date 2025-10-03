@@ -2,7 +2,7 @@ import { JobStatus } from "./job-status";
 import { JobType } from "./job-type";
 
 export interface JobDetail {
-  _id: string;
+  _id?: string;
   company: string;
   position: string;
   status: JobStatus;

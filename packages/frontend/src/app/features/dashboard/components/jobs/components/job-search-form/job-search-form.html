@@ -14,28 +14,12 @@
 
         <!-- jobStatusField  -->
         <div class="col-span-1">
-          <label class="block text-xs md:text-sm font-medium text-[var(--color-text-secondary)] mb-2">
-            {{ statusSelection.label }}
-          </label>
-          <select [formControlName]="statusSelection.key"
-            class="cursor-pointer input-field w-full px-2 py-2 rounded-lg text-xs md:text-sm focus:outline-none focus:border-[var(--color-brand-accent)] placeholder-stone-400">
-            @for (option of statusSelection.options; track option.value) {
-            <option [value]="option.value">{{ option.key }}</option>
-            }
-          </select>
+          <app-input [form]="form" [inputElement]="statusSelection"/>
         </div>
 
         <!--  jobTypeField -->
         <div class="col-span-1">
-          <label class="block text-xs md:text-sm font-medium text-[var(--color-text-secondary)] mb-2">
-            {{ typeSelection.label }}
-          </label>
-          <select [formControlName]="typeSelection.key"
-            class="cursor-pointer input-field w-full px-2 py-2 rounded-lg text-xs md:text-sm focus:outline-none focus:border-[var(--color-brand-accent)] placeholder-stone-400">
-            @for (option of typeSelection.options; track option.value) {
-            <option [value]="option.value">{{ option.key }}</option>
-            }
-          </select>
+          <app-input [form]="form" [inputElement]="typeSelection"/>
         </div>
 
         <!-- sortField  -->
@@ -54,7 +38,7 @@
         <!-- Clear Form Button -->
         <div class="col-span-3 md:col-span-1">
           <button type="button" (click)="clearFormValues()"
-            class="text-md h-9 flex flex-row w-full justify-center items-center px-2 py-1 cursor-pointer rounded-lg bg-[var(--color-status-info)] text-[var(--color-text-on-brand)] gap-x-2">
+            class="text-md flex flex-row w-full justify-center items-center px-2 py-2 cursor-pointer rounded-lg bg-[var(--color-status-info)] text-[var(--color-text-on-brand)] gap-x-2">
             <app-svg [svgName]="clearIcon" fill="currentColor" class="size-6" />
             Clear
           </button>

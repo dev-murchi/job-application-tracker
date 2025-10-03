@@ -18,6 +18,7 @@ export const dashboardRoutes: Routes = [
             { path: 'jobs', component: Jobs, data: { title: 'All Jobs' } },
             { path: 'profile', component: UserProfileComponent, data: { title: 'Profile' } },
             { path: 'stats', component: Statistics, data: { title: 'Stats' } },
+            { path: 'jobs/:jobId/edit', component: JobForm, data: { title: 'Job Edit' } },
             { path: 'jobs/:jobId', component: JobDetail, data: { title: 'Job Detail' } },
         ],
     },

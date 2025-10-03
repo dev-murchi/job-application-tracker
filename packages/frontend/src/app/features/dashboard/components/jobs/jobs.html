@@ -7,94 +7,81 @@
             [debounceDelay]="searchFormDebounce()" />
     </div>
 
-    @if(jobList().isLoading) {
+    @if (jobList().isLoading) {
     <div class="flex justify-center items-center py-8">
         <span class="text-xl md:text-2xl font-medium text-primary">Loading jobs...</span>
     </div>
-
     }
-    @else if (jobList().error) {
-    <div class="flex justify-center items-center py-8">
-        <span class="text-xl md:text-2xl font-medium text-primary">No jobs found.</span>
-    </div>
 
-    }
-    @else {
-    @if(jobList().data){
     @if (jobList().data?.totalJobs) {
     <div class="card rounded-lg overflow-x-auto shadow-md">
         <div class="px-4 py-6">
             <table
-                class="table-auto w-full text-left whitespace-nowrap divide-y divide-[var(--color-border-default)] rounded-lg">
+                class="table-auto w-full text-left whitespace-nowrap divide-y divide-[var(--color-border-default)] rounded-lg responsive-table">
                 <thead class="bg-[var(--color-border-default)] rounded-t-lg">
                     <tr class="text-xs font-normal text-[var(--color-text-secondary)] capitalize">
                         <th scope="col" class="px-4 py-3">Company</th>
-                        <th scope="col" class="px-4 py-3">Position </th>
+                        <th scope="col" class="px-4 py-3">Position</th>
                         <th scope="col" class="px-4 py-3">Location</th>
                         <th scope="col" class="px-4 py-3">Type</th>
                         <th scope="col" class="px-4 py-3">Status</th>
                         <th scope="col" class="px-4 py-3">Actions</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-[var(--color-border-default)]" id="applications-table-body">
-                    @for(job of jobList().data?.jobs; track $index){
-
-                    <tr
-                        class="border-b border-[var(--color-border-default)] table-row-hover text-sm font-normal capitalize">
-                        <th class="px-4 py-3 font-medium whitespace-nowrap">{{job.company}}</th>
-                        <td class="px-4 py-3">{{job.position}}</td>
-                        <td class="px-4 py-3 max-w-[12rem]">{{job.jobLocation}}</td>
-                        <td class="px-4 py-3">{{job.jobType}}</td>
-                        <td class="px-4 py-3">
+                <tbody class="divide-y divide-[var(--color-border-default)] text-sm text-[var(--color-text-primary]">
+                    @for(job of jobList().data?.jobs; track job._id) {
+                    <tr class="hover:bg-[var(--color-bg-active)]/50">
+                        <td class="px-4 py-3 capitalize" data-label="Company">{{job.company}}</td>
+                        <td class="px-4 py-3 capitalize" data-label="Position">{{job.position}}</td>
+                        <td class="px-4 py-3" data-label="Location">{{job.jobLocation}}</td>
+                        <td class="px-4 py-3 capitalize" data-label="Type">{{job.jobType}}</td>
+                        <td class="px-4 py-3 capitalize" data-label="Status">
                             @switch (job.status) {
-                            @case ("interview") {
-                            <span
-                                class="px-3 py-1 text-xs rounded-full bg-sky-500 text-white font-normal">{{job.status}}</span>
+                                @case ('pending') {
+                                    <span class="px-2 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-800">
+                                        {{job.status}}
+                                    </span>
+                                }
+                                @case ('interview') {
+                                    <span class="px-2 py-1 rounded-full text-xs font-semibold bg-sky-100 text-sky-800">
+                                        {{job.status}}
+                                    </span>
+                                }
+                                @case ('declined') {
+                                    <span class="px-2 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-800">
+                                        {{job.status}}
+                                    </span>
+                                }
                             }
-                            @case ("declined") {
-                            <span
-                                class="px-3 py-1 text-xs rounded-full bg-red-500 text-white font-normal">{{job.status}}</span>
-                            }
-                            @case ("pending") {
-                            <span
-                                class="px-3 py-1 text-xs rounded-full bg-amber-500 text-white font-normal">{{job.status}}</span>
-                            }
-                            @default {
-                            <span
-                                class="px-3 py-1 text-xs rounded-full bg-[var(--color-bg-active)] text-white font-normal">{{job.status}}</span>
-                            }
-                            }
-
                         </td>
-                        <td class="px-4 py-3 flex flex-row flex-center items-center gap-1">
-                            <a routerLink="/dashboard/jobs/{{job._id}}"
-                                class="text-[var(--color-brand-accent)] hover:underline transition-colors duration-200 cursor-pointer py-1 px-2 bg-transparent rounded-lg">View</a>
+                        <td class="px-4 py-3" data-label="Actions">
+                            <div class="flex items-center gap-3">
+                                <a [routerLink]="['/dashboard/jobs', job._id]"
+                                    class="p-2 gap-2 rounded-lg flex items-center bg-[var(--color-bg-active)]/70 hover:bg-[var(--color-bg-active) text-[var(--color-brand-accent)] hover:scale-110 active:scale-95 shadow-sm ">
+                                    <app-svg [svgName]="'visibilityIcon'" class="size-5" fill="currentColor" />
+                                </a>
+                                <button (click)="deleteJob(job._id!)"
+                                    class="p-2 rounded-lg flex items-center bg-[var(--color-bg-active)]/70 hover:bg-[var(--color-bg-active)] text-red-500 hover:scale-110 active:scale-95 cursor-pointer shadow-sm ">
+                                    <app-svg [svgName]="'deleteIcon'" class="size-5" fill="currentColor" />
+                                </button>
+                            </div>
                         </td>
                     </tr>
-
                     }
                 </tbody>
             </table>
         </div>
-        <div class="px-4 py-6">
-            <app-pagination class="block" [currentPage]="jobList().data?.page!"
-                [totalPages]="jobList().data?.numOfPages!" (requestedPage)="requestedPageHandler($event)" />
-        </div>
     </div>
-
-    }
-    @else {
+    } @else {
     <div class="flex justify-center items-center py-8">
         <span class="text-xl md:text-2xl font-medium text-primary">No jobs found.</span>
     </div>
+    }
 
-    }
-    }
-    @else {
-    <div class="flex justify-center items-center py-8">
-        <span class="text-xl md:text-2xl font-medium text-primary">No jobs found.</span>
+    @if(jobList().data?.numOfPages && jobList().data!.numOfPages > 1) {
+    <div class="flex justify-center items-center">
+        <app-pagination [currentPage]="jobList().data!.page" [totalPages]="jobList().data!.numOfPages"
+            (requestedPage)="requestedPageHandler($event)" />
     </div>
-
-    }
     }
 </div>

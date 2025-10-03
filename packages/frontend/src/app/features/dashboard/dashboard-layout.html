@@ -1,18 +1,18 @@
-<div class="page flex flex-col w-full max-w-screen h-screen main-content font-inter antialiase">
+<div class="page flex flex-col w-full max-w-screen h-screen main-content font-inter antialiased">
 
-    <app-topbar class="topbar h-20 hidden sm:flex"></app-topbar>
+    <app-topbar class="topbar h-16 hidden sm:flex"></app-topbar>
     <!-- Mobile Navbar encapsulated -->
     <app-mobile-navbar class="topbar sm:hidden w-full sticky" [items]="mobileMenuLinks"></app-mobile-navbar>
 
     <!-- Content area -->
-    <div class="flex flex-row w-full overflow-hidden m-0 py-4 px-3 gap-x-3 h-full">
+    <div class="flex flex-row flex-1 w-full overflow-hidden m-0 p-2 sm:p-4 gap-x-4 h-full">
         <!-- Sidebar for large screens -->
         <app-sidebar [items]="sidebarItems"
             class="hidden sm:flex sm:flex-col flex-shrink-0"></app-sidebar>
 
         <!-- Main content area -->
         <main class="flex flex-col w-full overflow-x-hidden overflow-y-auto rounded-lg">
-            <div class="flex-1 rounded-lg px-4 md:px-6">
+            <div class="flex-1 rounded-lg p-2 sm:p-4 md:p-6">
                 <router-outlet />
             </div>
         </main>

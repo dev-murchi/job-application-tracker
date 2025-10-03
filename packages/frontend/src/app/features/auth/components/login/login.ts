@@ -1,5 +1,5 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthService } from '../../../../core/services/auth';
 import { SubmitButton } from "../../../../shared/components/buttons/submit-button/submit-button";
 import { InputControlService } from '../../../../shared/components/form-helpers/input-control-service';
@@ -20,10 +20,6 @@ export class Login implements OnInit {
   loginIcon: SvgNameType = 'loginIcon';
   demoIcon: SvgNameType = 'demoIcon';
 
-  emailControl = new FormControl('', [Validators.email]);
-  passwordControl = new FormControl('', Validators.required);
-
-
   readonly loginForm: FormGroup;
 
   emailInput = new InputElementText({
@@ -33,7 +29,7 @@ export class Login implements OnInit {
     type: 'email',
     order: 1,
     placeholder: 'you@email.com',
-    validators: [Validators.email]
+    validators: [Validators.required, Validators.email]
   })
 
   passwordInput = new InputElementText({
@@ -52,6 +48,10 @@ export class Login implements OnInit {
     this.loginForm = new FormGroup({
       [`${this.emailInput.key}`]: ics.toFormControl(this.emailInput),
       [`${this.passwordInput.key}`]: ics.toFormControl(this.passwordInput),
+    })
+
+    this.loginForm.valueChanges.subscribe(val => {
+      console.log({form: this.loginForm, invalid: this.loginForm.invalid})
     })
   }
 

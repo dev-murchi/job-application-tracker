@@ -5,10 +5,11 @@ import { JobsService } from '../../../../core/services/jobs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { SvgComponent } from "../../../../shared/components/svg/svg";
 import { SvgNameType } from '../../../../svg.config';
+import { NavLink } from "../../../../shared/components/nav-link/nav-link";
 
 @Component({
   selector: 'app-job-detail',
-  imports: [CommonModule, RouterLink, SvgComponent],
+  imports: [CommonModule, RouterLink, SvgComponent, NavLink],
   templateUrl: './job-detail.html',
   styleUrl: './job-detail.css'
 })

@@ -8,10 +8,11 @@ import { JobSearchForm, JobSearchFormOutput } from "./components/job-search-form
 import { JobStatus } from '../../../../shared/types/job-status';
 import { JobType } from '../../../../shared/types/job-type';
 import { JobSortOption } from '../../../../shared/types/job-sort-option';
+import { SvgComponent } from "../../../../shared/components/svg/svg";
 
 @Component({
   selector: 'app-jobs',
-  imports: [Pagination, JobSearchForm, RouterLink],
+  imports: [Pagination, JobSearchForm, RouterLink, SvgComponent],
   templateUrl: './jobs.html',
   styleUrl: './jobs.css'
 })
@@ -68,6 +69,10 @@ export class Jobs {
 
   requestedPageHandler(pageNumber: number) {
     this.updateQueryParams({ ...this.searchQuery, page: pageNumber });
+  }
+
+  deleteJob(id: string){
+    console.log(`Delete operation for Job #${id}`);
   }
 
   handleSearchFormData(event: JobSearchFormOutput) {

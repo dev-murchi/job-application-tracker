@@ -16,56 +16,6 @@ body {
   color: var(--color-text-primary);
 }
 
-
-/* :root,
-body[data-theme="dark"] {
-  --color-bg-page: var(--color-stone-900);
-  --color-bg-surface: var(--color-stone-800);
-  --color-bg-card: var(--color-stone-800);
-  --color-bg-input: var(--color-stone-800);
-  --color-bg-active: var(--color-stone-700);
-
-  --color-text-primary: var(--color-stone-100);
-  --color-text-secondary: var(--color-stone-400);
-  --color-text-on-brand: var(--color-white);
-  
-  --color-border-default: var(--color-stone-600);
-  
-  --color-brand-primary: var(--color-emerald-700);
-  --color-brand-hover: var(--color-emerald-800);
-  --color-brand-accent: var(--color-emerald-400);
-  --color-brand-accent-light: var(--color-emerald-300);
-
-  --color-status-success: var(--color-green-500);
-  --color-status-warning: var(--color-amber-500);
-  --color-status-error: var(--color-red-500);
-  --color-status-info: var(--color-sky-400);
-
-} */
-
-/* body[data-theme="light"] {
-  --color-bg-page: var(--color-gray-50);
-  --color-bg-surface: var(--color-white);
-  --color-bg-card: var(--color-white);
-  --color-bg-input: var(--color-gray-100);
-  --color-bg-active: var(--color-gray-200);
-
-  --color-text-primary: var(--color-gray-900);
-  --color-text-secondary: var(--color-gray-400);
-  --color-text-on-brand: var(--color-white);
-  --color-border-default: var(--color-gray-300);
-
-  --color-brand-primary: var(--color-emerald-700);
-  --color-brand-hover: var(--color-emerald-800);
-  --color-brand-accent: var(--color-emerald-600);
-  --color-brand-accent-light: var(--color-emerald-400);
-
-  --color-status-success: var(--color-green-500);
-  --color-status-warning: var(--color-amber-500);
-  --color-status-error: var(--color-red-500);
-  --color-status-info: var(--color-sky-400);
-} */
-
 :root,
 body[data-theme="dark"] {
   /*
@@ -100,7 +50,7 @@ body[data-theme="light"] {
   --color-bg-surface: var(--color-gray-50);
   --color-bg-card: var(--color-gray-50);
   --color-bg-input: var(--color-gray-100);
-  --color-bg-active: var(--color-gray-300);
+  --color-bg-active: var(--color-gray-200);
 
   --color-text-primary: var(--color-gray-900);
   --color-text-secondary: var(--color-gray-500);
@@ -117,30 +67,6 @@ body[data-theme="light"] {
   --color-status-error: var(--color-red-500);
   --color-status-info: var(--color-sky-500);
 }
-
-body[data-theme="light-stone"] {
-  --color-bg-page: var(--color-stone-100);
-  --color-bg-surface: var(--color-stone-50);
-  --color-bg-card: var(--color-stone-50);
-  --color-bg-input: var(--color-stone-100);
-  --color-bg-active: var(--color-stone-300);
-
-  --color-text-primary: var(--color-stone-900);
-  --color-text-secondary: var(--color-stone-500);
-  --color-text-on-brand: var(--color-white);
-
-  --color-border-default: var(--color-stone-300);
-
-  --color-brand-primary: var(--color-emerald-500);
-  --color-brand-hover: var(--color-emerald-600);
-  --color-brand-accent: var(--color-emerald-700);
-
-  --color-status-success: var(--color-green-500);
-  --color-status-warning: var(--color-amber-500);
-  --color-status-error: var(--color-red-500);
-  --color-status-info: var(--color-sky-500);
-}
-
 
 .main-content {
   background-color: var(--color-bg-page);
