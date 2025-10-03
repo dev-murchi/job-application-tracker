@@ -59,6 +59,19 @@
         <span class="block text-sm text-[var(--color-text-secondary)] mb-1">Location</span>
         <span class="font-medium text-[var(--color-text-primary)] break-words">{{ job().data?.jobLocation }}</span>
       </div>
+      <div>
+        <span class="block text-sm text-[var(--color-text-secondary)] mb-1">Company Website</span>
+        <a href="{{ job().data?.companyWebsite }}" target="_blank" rel="noopener noreferrer" class="font-medium text-[var(--color-text-primary)] break-words">
+          {{ job().data?.companyWebsite }}
+        </a>
+        
+      </div>
+      <div>
+        <span class="block text-sm text-[var(--color-text-secondary)] mb-1">Job Posting URL</span>
+        <a href="{{ job().data?.jobPostingUrl }}" target="_blank" rel="noopener noreferrer" class="font-medium text-[var(--color-text-primary)] break-words">
+          {{ job().data?.jobPostingUrl }}
+        </a>
+      </div>
     </div>
   </div>
   }

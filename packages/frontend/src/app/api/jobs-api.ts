@@ -3,6 +3,7 @@ import { inject, Injectable } from '@angular/core';
 import { JobDetail } from '../shared/types/job-detail.data';
 import { Observable } from 'rxjs';
 import { JobQuery, JobQueryResult } from '../shared/types/job-query.data';
+import { JobStats } from '../shared/types/job-stats.data';
 
 @Injectable({
   providedIn: 'root'
@@ -42,7 +43,7 @@ export class JobsApi {
   }
 
   getJobStatistics() {
-    return this.http.get<JobDetail>(`${this.apiurl}/stats`);
+    return this.http.get<JobStats>(`${this.apiurl}/stats`);
   }
   getJob(id: string) {
     return this.http.get<{ job: JobDetail }>(`${this.apiurl}/${id}`);

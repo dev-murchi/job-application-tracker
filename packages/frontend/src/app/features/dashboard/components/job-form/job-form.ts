@@ -105,13 +105,12 @@ export class JobForm {
 
     effect(() => {
       const state = this.jobDetail();
-      console.log({s1: state})
 
       if (this.isEditMode) {
         if (state.isLoading) {
           console.log('Loading job detail...');
         }
-        else if(state.error) {
+        else if (state.error) {
           this.alertService.show(state.error, 'error');
         }
         // fetched
@@ -148,6 +147,8 @@ export class JobForm {
         locationControl: state.data.jobLocation,
         jobStatusControl: state.data.status,
         jobTypeControl: state.data.jobType,
+        companyWebsiteControl: state.data.companyWebsite,
+        jobPostingUrlControl: state.data.jobPostingUrl,
       };
       this.form.patchValue(patch);
     }

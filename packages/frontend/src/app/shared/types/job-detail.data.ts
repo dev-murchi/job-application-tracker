@@ -8,5 +8,7 @@ export interface JobDetail {
   status: JobStatus;
   jobType: JobType;
   jobLocation: string;
+  companyWebsite: string;
+  jobPostingUrl?: string;
   createdBy: string;
 }
