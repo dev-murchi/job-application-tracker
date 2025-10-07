@@ -1,9 +1,9 @@
-<aside class="sidebar h-full px-4 flex-shrink-0 flex flex-col shadow-md rounded-lg w-24" [class.w-64]="!isCollapsed">
+<aside class="sidebar h-full px-4 flex-shrink-0 flex flex-col shadow-md w-24" [class.w-64]="!isCollapsed">
 
     <nav class="flex-1 flex-col overflow-y-auto w-full items-left px-2 space-y-2 my-4">
         @for (item of items; track item.link) {
         <app-nav-link [link]="item.link" [text]="!isCollapsed ? item.text : undefined" [icon]="item.icon"
-            [cssClass]="'flex flex-row w-full justify-start text-sm px-3 py-2 gap-2 rounded-lg transition-[padding-left] duration-300 ease-in-out transition-all duration-200 ease-in-out hover:scale-105'">
+            [cssClass]="'flex flex-row w-full justify-start text-lg h-10 px-3 py-2 gap-2 rounded-lg transition-[padding-left] duration-300 ease-in-out transition-all duration-200 ease-in-out hover:scale-105'">
         </app-nav-link>
         }
     </nav>
@@ -11,8 +11,9 @@
     <div class="h-px bg-[var(--color-brand-accent)]"></div>
 
     <footer class="mt-auto h-16 flex items-center justify-center text-[var(--color-brand-accent)] py-4">
-        <button class="flex items-center p-2 rounded-lg cursor-pointer" [class.justify-center]="isCollapsed"
-            [class.justify-start]="!isCollapsed" [class.gap-2]="!isCollapsed" (click)="toggle()">
+        <button class="flex items-center p-2 h-10 rounded-lg cursor-pointer text-lg"
+            [class.justify-center]="isCollapsed" [class.justify-start]="!isCollapsed" [class.gap-2]="!isCollapsed"
+            (click)="toggle()">
             <app-svg [svgName]="isCollapsed? panelOpenIcon : panelCloseIcon" fill="currentColor"></app-svg>
             @if(!isCollapsed){
             <span>Collapse</span>

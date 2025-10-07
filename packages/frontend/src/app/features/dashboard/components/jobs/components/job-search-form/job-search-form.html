@@ -1,9 +1,5 @@
 <div>
   <div class="px-4 py-6">
-    <h2 class="text-xl md:text-2xl font-medium text-primary capitalize">Search Form</h2>
-  </div>
-
-  <div class="px-4 py-6">
     <form [formGroup]="form">
       <div class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-8 gap-y-4 gap-x-2 md:gap-col-6 items-end">
 
@@ -38,7 +34,7 @@
         <!-- Clear Form Button -->
         <div class="col-span-3 md:col-span-1">
           <button type="button" (click)="clearFormValues()"
-            class="text-md flex flex-row w-full justify-center items-center px-2 py-2 cursor-pointer rounded-lg bg-[var(--color-status-info)] text-[var(--color-text-on-brand)] gap-x-2">
+            class="text-md flex flex-row w-full justify-center items-center px-2 py-2 cursor-pointer rounded-lg bg-[var(--color-bg-active)]/70 hover:bg-[var(--color-bg-active)] text-[var(--color-text-primary)] gap-x-2 shadow-sm">
             <app-svg [svgName]="clearIcon" fill="currentColor" class="size-6" />
             Clear
           </button>
