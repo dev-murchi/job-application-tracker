@@ -1,12 +1,13 @@
-import { Injectable, inject } from '@angular/core';
-import { Observable, throwError } from 'rxjs';
+import { Injectable, computed, inject } from '@angular/core';
+import { firstValueFrom, Observable, of, throwError } from 'rxjs';
 import { Router } from '@angular/router';
-import { catchError, tap } from 'rxjs/operators';
+import { catchError, filter, map, tap } from 'rxjs/operators';
 import { AlertService } from '../../shared/components/alert/alert-service';
 import { AuthApi } from '../../api/auth-api';
 import { UserLogin } from '../../shared/types/user-login.data';
 import { UserRegister } from '../../shared/types/user-register.data';
 import { UsersService } from './users';
+import { toObservable } from '@angular/core/rxjs-interop';
 
 @Injectable({
   providedIn: 'root',
@@ -44,8 +45,33 @@ export class AuthService {
     );
   }
 
-  isLoggedIn(): boolean {
-    return !!localStorage.getItem('auth_token');
+  async validateAuthStatus(): Promise<boolean> {
+    // If we already have a profile, return immediately
+    const currentProfile = this.usersService.currentUser();
+    if (currentProfile) {
+      return true;
+    }
+
+    // If not loading and no profile, try to fetch it
+    if (!this.usersService.isLoading()) {
+      this.usersService.getProfile();
+    }
+
+    // Wait for the loading to complete and check if we got a profile
+    const stateSignal = computed(() => ({
+      isLoading: this.usersService.isLoading(),
+      error: this.usersService.error(),
+      profile: this.usersService.currentUser()
+    }));
+
+    const result = await firstValueFrom(
+      toObservable(stateSignal).pipe(
+        filter(state => !state.isLoading),
+        map(state => !!state.profile && !state.error)
+      )
+    );
+
+    return result;
   }
 
   logout(): Observable<any> {

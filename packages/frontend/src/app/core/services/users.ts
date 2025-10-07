@@ -33,8 +33,6 @@ export class UsersService {
       next: (profile) => {
         if (profile) {
           this.state.set({ profile, status: 'fetched', error: null });
-        } else {
-          this.state.set({ profile: null, status: 'error', error: 'User profile not found.' });
         }
       },
       error: (err) => {
@@ -50,7 +48,7 @@ export class UsersService {
         this.state.set({ profile, status: 'updated', error: null });
       },
       error: () => {
-        this.state.update(s => ({ ...s, status: 'error', error: 'Failed to update profile.' }));
+        this.state.set({ profile: null, status: 'error', error: 'Failed to update profile.' });
       }
     });
   }
