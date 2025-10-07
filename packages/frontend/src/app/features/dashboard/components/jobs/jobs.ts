@@ -9,10 +9,12 @@ import { JobStatus } from '../../../../shared/types/job-status';
 import { JobType } from '../../../../shared/types/job-type';
 import { JobSortOption } from '../../../../shared/types/job-sort-option';
 import { SvgComponent } from "../../../../shared/components/svg/svg";
+import { JobStatusBadge } from "../../../../shared/components/job-status-badge/job-status-badge";
+import { LoadingSpinner } from "../../../../shared/components/loading-spinner/loading-spinner";
 
 @Component({
   selector: 'app-jobs',
-  imports: [Pagination, JobSearchForm, RouterLink, SvgComponent],
+  imports: [Pagination, JobSearchForm, RouterLink, SvgComponent, JobStatusBadge, LoadingSpinner],
   templateUrl: './jobs.html',
   styleUrl: './jobs.css'
 })
@@ -69,10 +71,6 @@ export class Jobs {
 
   requestedPageHandler(pageNumber: number) {
     this.updateQueryParams({ ...this.searchQuery, page: pageNumber });
-  }
-
-  deleteJob(id: string){
-    console.log(`Delete operation for Job #${id}`);
   }
 
   handleSearchFormData(event: JobSearchFormOutput) {
