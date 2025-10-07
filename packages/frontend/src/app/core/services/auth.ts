@@ -46,32 +46,18 @@ export class AuthService {
   }
 
   async validateAuthStatus(): Promise<boolean> {
-    // If we already have a profile, return immediately
-    const currentProfile = this.usersService.currentUser();
-    if (currentProfile) {
+    if (this.usersService.currentUser().profile) {
       return true;
     }
 
-    // If not loading and no profile, try to fetch it
-    if (!this.usersService.isLoading()) {
-      this.usersService.getProfile();
-    }
+    this.usersService.getProfile();
 
-    // Wait for the loading to complete and check if we got a profile
-    const stateSignal = computed(() => ({
-      isLoading: this.usersService.isLoading(),
-      error: this.usersService.error(),
-      profile: this.usersService.currentUser()
-    }));
-
-    const result = await firstValueFrom(
-      toObservable(stateSignal).pipe(
+    return await firstValueFrom(
+      toObservable(this.usersService.currentUser).pipe(
         filter(state => !state.isLoading),
-        map(state => !!state.profile && !state.error)
+        map(state => !!state.profile)
       )
     );
-
-    return result;
   }
 
   logout(): Observable<any> {

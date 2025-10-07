@@ -7,7 +7,6 @@ export class InputElementText<T> extends InputElementBase<T> {
     key: string;
     type: string;
     label?: string;
-    order?: number;
     placeholder?: string;
     validators?: ValidatorFn[];
   }) {

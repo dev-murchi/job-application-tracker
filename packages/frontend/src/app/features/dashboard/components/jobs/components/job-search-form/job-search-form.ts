@@ -79,21 +79,20 @@ export class JobSearchForm implements OnInit {
     value: '',
     key: FORM_KEYS.SEARCH,
     label: 'Search',
-    order: 1,
     type: 'text',
     placeholder: 'Search for jobs..'
   });
 
   readonly statusSelection = new InputElementSelect<string>({
-    value: 'all', key: FORM_KEYS.STATUS, label: 'Status', type: 'select', order: 2, options: STATUS_OPTIONS
+    value: 'all', key: FORM_KEYS.STATUS, label: 'Status', type: 'select', options: STATUS_OPTIONS
   });
 
   readonly typeSelection = new InputElementSelect<string>({
-    value: 'all', key: FORM_KEYS.TYPE, label: 'Type', type: 'select', order: 3, options: TYPE_OPTIONS
+    value: 'all', key: FORM_KEYS.TYPE, label: 'Type', type: 'select', options: TYPE_OPTIONS
   });
 
   readonly sortSelection = new InputElementSelect<string>({
-    value: 'newest', key: FORM_KEYS.SORT, label: 'Sort', type: 'select', order: 4, options: SORT_OPTIONS
+    value: 'newest', key: FORM_KEYS.SORT, label: 'Sort', type: 'select', options: SORT_OPTIONS
   });
 
   readonly form: FormGroup;

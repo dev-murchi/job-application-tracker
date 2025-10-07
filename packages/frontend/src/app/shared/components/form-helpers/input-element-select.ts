@@ -7,7 +7,6 @@ export class InputElementSelect<T> extends InputElementBase<T> {
     key: string;
     type: string;
     label?: string;
-    order?: number;
     options?: { key: string; value: string }[];
     placeholder?: string;
     validators?: ValidatorFn[];

@@ -24,7 +24,6 @@ export class Register {
     key: 'firstNameControl',
     label: 'First Name',
     type: 'text',
-    order: 1,
     placeholder: 'first name',
     validators: [Validators.required, Validators.minLength(3)]
   });
@@ -34,7 +33,6 @@ export class Register {
     key: 'lastNameControl',
     label: 'Last Name',
     type: 'text',
-    order: 2,
     placeholder: 'last name',
     validators: [Validators.required]
   });
@@ -44,7 +42,6 @@ export class Register {
     key: 'registerEmailControl',
     label: 'Email',
     type: 'email',
-    order: 3,
     placeholder: 'you@email.com',
     validators: [Validators.required, Validators.email]
   })
@@ -54,7 +51,6 @@ export class Register {
     key: 'registerPasswordControl',
     label: 'Password',
     type: 'password',
-    order: 4,
     placeholder: '********',
     validators: [Validators.required, Validators.minLength(8), Validators.pattern('^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).{8,}$')]
   })
@@ -64,7 +60,6 @@ export class Register {
     key: 'locationControl',
     label: 'Location',
     type: 'text',
-    order: 5,
     placeholder: 'Tx, USB',
     validators: [Validators.required]
   });

@@ -27,7 +27,6 @@ export class Login implements OnInit {
     key: 'loginEmailControl',
     label: 'Email',
     type: 'email',
-    order: 1,
     placeholder: 'you@email.com',
     validators: [Validators.required, Validators.email]
   })
@@ -37,7 +36,6 @@ export class Login implements OnInit {
     key: 'loginPasswordControl',
     label: 'Password',
     type: 'password',
-    order: 2,
     placeholder: '********',
     validators: [Validators.required]
   })

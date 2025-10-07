@@ -4,7 +4,7 @@ import { UserProfile } from '../../shared/types/user-profile.data';
 
 export interface UserProfileState {
   profile: UserProfile | null;
-  status: 'pending' | 'loading' | 'fetched' | 'updated' | 'error';
+  status: 'loading' | 'fetched' | 'updated' | 'error';
   error: string | null;
 }
 
@@ -14,16 +14,21 @@ export interface UserProfileState {
 export class UsersService {
   private readonly userApi = inject(UserApi);
 
-  private readonly state = signal<UserProfileState>({ profile: null, status: 'pending', error: null });
+  private readonly state = signal<UserProfileState>({ profile: null, status: 'loading', error: null });
 
-  readonly currentUser = computed(() => this.state().profile);
-  readonly isLoading = computed(() => this.state().status === 'loading');
-  readonly error = computed(() => this.state().error);
-  readonly isUpdated = computed(() => this.state().status === 'updated');
+  readonly currentUser = computed(() => {
+    const state = this.state();
+    return {
+      profile: state.profile,
+      isLoading : state.status === 'loading',
+      isUpdated: state.status === 'updated',
+      error: state.error,
+    }
+  })
 
   getProfile(): void {
     const currentState = this.state();
-    if (currentState.status === 'loading' || currentState.status === 'fetched' || currentState.status === 'updated') {
+    if (currentState.profile) {
       return;
     }
 
@@ -48,12 +53,12 @@ export class UsersService {
         this.state.set({ profile, status: 'updated', error: null });
       },
       error: () => {
-        this.state.set({ profile: null, status: 'error', error: 'Failed to update profile.' });
+        this.state.update(old => ({ ...old, status: 'error', error: 'Failed to update profile.' }));
       }
     });
   }
 
   clearCache(): void {
-    this.state.set({ profile: null, status: 'pending', error: null });
+    this.state.set({ profile: null, status: 'loading', error: null });
   }
 }

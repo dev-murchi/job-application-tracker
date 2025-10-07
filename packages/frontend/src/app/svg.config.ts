@@ -32,6 +32,8 @@ export const svgConfig =
   clearIcon: 'images/clear-all-icon.svg',
   deleteIcon: 'images/delete-icon.svg',
   visibilityIcon: 'images/visibility-icon.svg',
+  warningIcon: 'images/warning-icon.svg',
+  locationIcon:'images/location-city-icon.svg',
 };
 
 export type SvgNameType = keyof typeof svgConfig;

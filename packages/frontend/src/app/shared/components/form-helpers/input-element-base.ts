@@ -6,7 +6,6 @@ export class InputElementBase<T> {
   key: string;
   type: string;
   label: string;
-  order: number;
   options: { key: string; value: string }[];
   placeholder?: string;
   validators?: ValidatorFn[];
@@ -19,7 +18,6 @@ export class InputElementBase<T> {
       type: string;
       key: string;
       label?: string;
-      order?: number;
       options?: { key: string; value: string }[];
       placeholder?: string;
       validators?: ValidatorFn[];
@@ -30,7 +28,6 @@ export class InputElementBase<T> {
     this.value = options.value;
     this.type = options.type;
     this.label = options.label || '';
-    this.order = options.order === undefined ? 1 : options.order;
     this.options = options.options || [];
     this.placeholder = options.placeholder || '';
     this.validators = options.validators || []

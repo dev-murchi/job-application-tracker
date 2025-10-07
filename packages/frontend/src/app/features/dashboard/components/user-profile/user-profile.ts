@@ -1,3 +1,4 @@
+import { CommonModule } from '@angular/common';
 import { Component, effect, inject, OnInit, signal } from '@angular/core';
 import { FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { UsersService } from '../../../../core/services/users';
@@ -8,10 +9,11 @@ import { InputElementText } from '../../../../shared/components/form-helpers/inp
 import { CustomInput } from '../../../../shared/components/form-items/input/input';
 import { SvgComponent } from '../../../../shared/components/svg/svg';
 import { SvgNameType } from '../../../../svg.config';
+import { LoadingSpinner } from "../../../../shared/components/loading-spinner/loading-spinner";
 
 @Component({
   selector: 'app-user-profile',
-  imports: [ReactiveFormsModule, SvgComponent, CustomInput, SubmitButton],
+  imports: [CommonModule, ReactiveFormsModule, SvgComponent, CustomInput, SubmitButton, LoadingSpinner],
   templateUrl: './user-profile.html',
   styleUrl: './user-profile.css'
 })
@@ -20,31 +22,35 @@ export class UserProfileComponent implements OnInit {
   private readonly alertService = inject(AlertService);
 
   readonly defaultAvatar = 'images/default-avatar.png';
+  readonly accountIcon: SvgNameType = 'accountCircleIcon';
+  readonly locationIcon: SvgNameType = 'locationIcon';
+  readonly editIcon: SvgNameType = 'editIcon';
+  readonly warningIcon: SvgNameType = 'warningIcon';
+  readonly cancelIcon: SvgNameType = 'cancelIcon';
+  readonly sendIcon: SvgNameType = 'sendIcon';
+
   readonly firstNameIput = new InputElementText({
     value: '',
     key: 'firstNameControl',
     label: 'First Name',
     type: 'text',
-    order: 1,
-    placeholder: 'first name',
-    validators: [Validators.required, Validators.minLength(3)]
+    placeholder: 'John',
+    validators: [Validators.required, Validators.minLength(3), Validators.maxLength(20)]
   });
   readonly lastNameIput = new InputElementText({
     value: '',
     key: 'lastNameControl',
     label: 'Last Name',
     type: 'text',
-    order: 2,
-    placeholder: 'last name',
-    validators: [Validators.required]
+    placeholder: 'Doe',
+    validators: [Validators.required, Validators.maxLength(20)]
   });
   readonly emailInput = new InputElementText({
     value: '',
     key: 'emailControl',
-    label: 'Email',
+    label: 'Email Address',
     type: 'email',
-    order: 3,
-    placeholder: 'you@email.com',
+    placeholder: 'your@email.com',
     validators: [Validators.required, Validators.email]
   });
   readonly locationIput = new InputElementText({
@@ -52,19 +58,12 @@ export class UserProfileComponent implements OnInit {
     key: 'locationControl',
     label: 'Location',
     type: 'text',
-    order: 4,
-    placeholder: 'Tx, USB',
-    validators: [Validators.required]
+    placeholder: 'San Francisco, CA',
+    validators: [Validators.required, Validators.maxLength(20)]
   });
   readonly currentUser = this.usersService.currentUser;
-  readonly isLoading = this.usersService.isLoading;
-  readonly isUpdated = this.usersService.isUpdated;
-  readonly error = this.usersService.error;
 
   readonly profileForm: FormGroup;
-  editIcon: SvgNameType = 'editIcon';
-  sendIcon: SvgNameType = 'sendIcon';
-  cancelIcon: SvgNameType = 'cancelIcon';
   editMode = signal<boolean>(false);
 
   constructor() {
@@ -79,18 +78,19 @@ export class UserProfileComponent implements OnInit {
     this.profileForm.disable();
 
     effect(() => {
-      if (this.error()) {
+      const user = this.currentUser();
+
+      if (user.error) {
         this.alertService.show('Failed to update profile.', 'error');
       }
 
-      const user = this.currentUser();
-      if (user) {
-        this.patchFormWithUser(user);
+      if (user.profile && !user.error) {
+        this.patchFormWithUser(user.profile);
         this.profileForm.markAsPristine();
         this.profileForm.markAsUntouched();
       }
 
-      if (this.isUpdated()) {
+      if (user.isUpdated) {
         this.disableFormEditing();
         this.alertService.show('Profile updated successfully!', 'success');
       }
