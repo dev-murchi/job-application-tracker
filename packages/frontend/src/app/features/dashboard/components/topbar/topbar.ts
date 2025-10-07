@@ -7,10 +7,11 @@ import { UsersService } from '../../../../core/services/users';
 import { NavLink } from '../../../../shared/types/nav-link.data';
 import { NavLink as NavLinkComponent } from '../../../../shared/components/nav-link/nav-link';
 import { RouterLink } from '@angular/router';
+import { ClickOutsideDirective } from '../../../../shared/directives/click-outside';
 
 @Component({
   selector: 'app-topbar',
-  imports: [NavLinkComponent, ThemeSwitch, SvgComponent, RouterLink],
+  imports: [NavLinkComponent, ThemeSwitch, SvgComponent, RouterLink, ClickOutsideDirective],
   templateUrl: './topbar.html',
   styleUrl: './topbar.css'
 })

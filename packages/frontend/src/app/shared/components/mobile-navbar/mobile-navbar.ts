@@ -5,11 +5,12 @@ import { SvgComponent } from '../svg/svg';
 import { SvgNameType } from '../../../svg.config';
 import { AuthService } from '../../../core/services/auth';
 import { NavLink } from '../../types/nav-link.data';
+import { ClickOutsideDirective } from "../../directives/click-outside";
 
 @Component({
   selector: 'app-mobile-navbar',
   standalone: true,
-  imports: [ThemeSwitch, NavLinkComponent, SvgComponent],
+  imports: [ThemeSwitch, NavLinkComponent, SvgComponent, ClickOutsideDirective],
   templateUrl: './mobile-navbar.html',
   styleUrls: ['./mobile-navbar.css']
 })

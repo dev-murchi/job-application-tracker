@@ -21,7 +21,8 @@
 
                 </button>
                 @if(showDropdown()) {
-                <div class="absolute flex-1 space-y-2 right-0 mt-4 w-48 rounded-lg shadow-xl p-2 z-50 card border-[var(--color-border-default)] border-2"
+                <div (clickOutside)="closeDropdown()"
+                    class="absolute flex-1 space-y-2 right-0 mt-4 w-48 rounded-lg shadow-xl p-2 z-50 card border-[var(--color-border-default)] border-2"
                     [class.hidden]="!showDropdown()">
                     <app-nav-link (click)="closeDropdown()" [link]="profileNavigation.link"
                         [text]="profileNavigation.text" [icon]="profileNavigation.icon!"
