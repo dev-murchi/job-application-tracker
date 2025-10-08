@@ -11,4 +11,6 @@ export interface JobDetail {
   companyWebsite: string;
   jobPostingUrl?: string;
   createdBy: string;
+  createdAt: string;
+  updatedAt: string;
 }

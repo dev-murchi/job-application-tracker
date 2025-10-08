@@ -1,20 +1,13 @@
-import { inject, Injectable, signal, computed } from '@angular/core';
+import { computed, inject, Injectable, signal } from '@angular/core';
 import { JobsApi } from '../../api/jobs-api';
 import { filter, tap, take, catchError, map } from 'rxjs/operators';
-import { of } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { JobDetail } from '../../shared/types/job-detail.data';
 import { JobQuery, JobQueryResult } from '../../shared/types/job-query.data';
-import { JobStats } from '../../shared/types/job-stats.data';
+import { initialJobsState, JobsState } from '../../jobs-state.data';
+import { JobsHelper } from '../../shared/utils/jobs-helper';
 
-interface LoadingState<T> {
-  data: T | null;
-  isLoading: boolean;
-  error: string | null;
-}
-
-interface JobDetailState extends LoadingState<JobDetail> {
-  operation: 'fetch' | 'create' | 'update' | null;
-}
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 
 @Injectable({
   providedIn: 'root'
@@ -22,285 +15,186 @@ interface JobDetailState extends LoadingState<JobDetail> {
 export class JobsService {
   private readonly jobsApi = inject(JobsApi);
 
-  private readonly cacheState = {
-    searchQueryResults: new Map<string, JobQueryResult>(),
-    jobs: new Map<string, JobDetail>(),
-    statistics: null as JobStats | null
-  };
 
-  private readonly initialJobListState: LoadingState<JobQueryResult> = {
-    data: null,
-    isLoading: true,
-    error: null
-  };
+  readonly #state = signal<JobsState>(initialJobsState);
 
-  private readonly initialJobDetailState: JobDetailState = {
-    data: null,
-    isLoading: true,
-    error: null,
-    operation: null
-  };
+  readonly jobList = computed(() => this.#state().queryResult);
+  readonly jobStatistics = computed(() => this.#state().statistics);
+  readonly jobDetail = computed(() => this.#state().detail);
 
-  private readonly initialJobStatisticsState: LoadingState<JobStats> = {
-    data: null,
-    isLoading: false,
-    error: null
-  };
-
-  readonly #jobList = signal<LoadingState<JobQueryResult>>(this.initialJobListState);
-  readonly #jobStatistics = signal<LoadingState<JobStats>>(this.initialJobStatisticsState);
-  readonly #jobDetail = signal<JobDetailState>(this.initialJobDetailState);
-
-  readonly jobList = this.#jobList.asReadonly();
-  readonly jobStatistics = this.#jobStatistics.asReadonly();
-  readonly jobDetail = this.#jobDetail.asReadonly();
-
-  private static sortKeys(obj: any): any {
-    if (Array.isArray(obj)) {
-      return obj.map(JobsService.sortKeys);
-    } else if (obj !== null && typeof obj === 'object') {
-      return Object.keys(obj)
-        .sort()
-        .reduce((result: any, key: string) => ({
-          ...result,
-          [key]: JobsService.sortKeys(obj[key])
-        }), {});
-    }
-    return obj;
+  private isCacheValid(timestamp: number): boolean {
+    return Date.now() - timestamp < CACHE_TTL;
   }
-
-
-  private normalizeQuery(query: JobQuery): string {
-    return JSON.stringify(JobsService.sortKeys(query));
-  }
-
-  private updateJobListState(update: Partial<LoadingState<JobQueryResult>>): void {
-    this.#jobList.update((old) => ({ ...old, ...update }));
-  }
-
-  private updateJobDetailState(update: Partial<JobDetailState>): void {
-    this.#jobDetail.update((old) => ({ ...old, ...update }));
-  }
-
-  private updateJobStatisticsState(update: Partial<LoadingState<JobStats>>): void {
-    this.#jobStatistics.update((old) => ({ ...old, ...update }));
-  }
-
-  private getCachedQueryResult(key: string): JobQueryResult | undefined {
-    return this.cacheState.searchQueryResults.get(key);
-  }
-
-  private setCachedQueryResult(key: string, data: JobQueryResult): void {
-    this.cacheState.searchQueryResults = new Map(this.cacheState.searchQueryResults).set(key, data);
-  }
-
-  private getCachedJob(id: string): JobDetail | undefined {
-    return this.cacheState.jobs.get(id);
-  }
-
-  private setCachedJob(id: string, job: JobDetail): void {
-    this.cacheState.jobs = new Map(this.cacheState.jobs).set(id, job);
-  }
-
-  private deleteCachedJob(id: string): void {
-    const newMap = new Map(this.cacheState.jobs);
-    newMap.delete(id);
-    this.cacheState.jobs = newMap;
-  }
-
-  private getCachedStatistics(): JobStats | null {
-    return this.cacheState.statistics;
-  }
-
-  private setCachedStatistics(stats: JobStats | null): void {
-    this.cacheState.statistics = stats;
-  }
-
-  private invalidateJobRelatedCaches(jobId?: string): void {
-    this.setCachedStatistics(null);
-    if (jobId) {
-      this.removeJobFromQueryCache(jobId);
-    }
-  }
-  private removeJobFromQueryCache(jobId: string): void {
-    const filteredEntries = Array.from(this.cacheState.searchQueryResults.entries())
-      .filter(([key, result]) =>
-        key !== '{}' && !result.jobs.some(job => job._id === jobId)
-      );
-
-    this.cacheState.searchQueryResults = new Map(filteredEntries);
-    this.cacheState.searchQueryResults.delete('{}');
-  }
-
 
   getJobs(query: JobQuery): void {
-    const key = this.normalizeQuery(query);
-    const cachedResult = this.getCachedQueryResult(key);
+    const key = JobsHelper.normalizeQuery(query);
+    const cached = this.#state().caches.queries.get(key);
 
-    if (cachedResult) {
-      this.updateJobListState({ data: cachedResult, isLoading: false, error: null });
+    if (cached && this.isCacheValid(cached.timestamp)) {
+      this.#state.update((s) => ({
+        ...s,
+        queryResult: { data: cached.data, isLoading: false, error: null },
+      }));
       return;
     }
 
-    this.updateJobListState({ data: null, isLoading: true, error: null });
+    this.#state.update((s) => ({
+      ...s,
+      queryResult: { data: s.queryResult.data, isLoading: true, error: null },
+    }));
 
     this.jobsApi.getJobs(query)
       .pipe(
-        tap(data => console.log({ jobsData: data })),
-        filter((data: JobQueryResult) => this.isValidJobQueryResult(data)),
-        catchError(() => {
-          this.updateJobListState({ data: null, isLoading: false, error: 'Failed to load jobs' });
-          return of(undefined);
-        })
+        filter((data: JobQueryResult) => this.isValidJobSearchQueryResult(data)),
+        tap((data) => {
+          this.#state.update((s) => ({
+            ...s,
+            queryResult: { data, isLoading: false, error: null },
+            caches: {
+              ...s.caches,
+              queries: new Map(s.caches.queries).set(key, { data, timestamp: Date.now() }),
+            },
+          }));
+        }),
+        catchError((err) => this.handleError('queryResult', 'Failed to load jobs', err)),
+        map(() => undefined) // Return void
       )
-      .subscribe((data) => {
-        if (data) {
-          this.setCachedQueryResult(key, data);
-          this.updateJobListState({ data, isLoading: false, error: null });
-        }
-      });
+      .subscribe();
   }
 
   getJob(id: string): void {
-    const cachedJob = this.getCachedJob(id);
+    const cached = this.#state().caches.jobs.get(id);
 
-    if (cachedJob) {
-      this.updateJobDetailState({ data: cachedJob, isLoading: false, error: null, operation: 'fetch' });
+    if (cached && this.isCacheValid(cached.timestamp)) {
+      this.#state.update((s) => ({
+        ...s,
+        detail: { data: cached.data, isLoading: false, error: null, operation: 'fetch' },
+      }));
       return;
     }
 
-    this.updateJobDetailState({ data: null, isLoading: true, error: null, operation: 'fetch' });
+    this.#state.update((s) => ({
+      ...s,
+      detail: { data: null, isLoading: true, error: null, operation: 'fetch' },
+    }));
 
     this.jobsApi.getJob(id).pipe(
-      tap(data => console.log({ getJobData: data })),
       map(response => response.job),
-      catchError(error => {
-        console.error('Failed to get job:', error);
-        this.updateJobDetailState({ data: null, isLoading: false, error: 'Failed to load job', operation: 'fetch' });
-        return of(undefined);
-      })
-    ).subscribe((job) => {
-      if (job) {
-        this.setCachedJob(id, job);
-        this.updateJobDetailState({ data: job, isLoading: false, error: null, operation: 'fetch' });
-      }
-    });
+      tap((job) => {
+        this.#state.update((s) => ({
+          ...s,
+          detail: { data: job, isLoading: false, error: null, operation: 'fetch' },
+          caches: JobsHelper.withUpdatedJobCache(s.caches, job),
+        }));
+      }),
+      catchError((err) => this.handleError('detail', 'Failed to load job', err)),
+      map(() => undefined)
+    ).subscribe();
   }
 
   create(payload: JobDetail): void {
-    this.updateJobDetailState({ data: null, isLoading: true, error: null, operation: 'create' });
+    this.#state.update((s) => ({
+      ...s,
+      detail: { data: null, isLoading: true, error: null, operation: 'create' },
+    }));
 
     this.jobsApi.createJob(payload).pipe(
-      tap(data => console.log({ createJobData: data })),
       map(response => response.job),
-      catchError(error => {
-        console.error('Failed to create job:', error);
-        this.updateJobDetailState({
-          data: null,
-          isLoading: false,
-          error: 'Failed to create job',
-          operation: 'create'
-        });
-        return of(undefined);
-      })
-    ).subscribe((job) => {
-      if (job) {
-        if (job._id) {
-          this.invalidateJobRelatedCaches();
-          this.updateJobDetailState({ data: job, isLoading: false, error: null, operation: 'create' });
-        } else {
-          this.updateJobDetailState({
-            data: null,
-            isLoading: false,
-            error: 'Job created but no ID returned',
-            operation: 'create'
-          });
-        }
-      }
-    });
+     tap((job) => {
+        this.#state.update((s) => ({
+          ...s,
+          detail: { data: job, isLoading: false, error: null, operation: 'create' },
+          caches: JobsHelper.withInvalidatedListCaches(s.caches), // Invalidate all list-related caches
+        }));
+      }),
+      catchError((err) => this.handleError('detail', 'Failed to create job', err)),
+      map(() => undefined)
+    ).subscribe();
   }
 
   update(id: string, payload: Partial<JobDetail>): void {
-    this.updateJobDetailState({ data: null, isLoading: true, error: null, operation: 'update' });
+     this.#state.update((s) => ({
+      ...s,
+      detail: { data: null, isLoading: true, error: null, operation: 'update' },
+    }));
 
     this.jobsApi.updateJob(id, payload).pipe(
-      tap(data => console.log({ updateJobData: data })),
       map(response => response.job),
-      catchError(error => {
-        console.error('Failed to update job:', error);
-        this.updateJobDetailState({
-          data: null,
-          isLoading: false,
-          error: 'Failed to update job',
-          operation: 'update'
-        });
-        return of(undefined);
-      })
-    ).subscribe((job) => {
-      if (job) {
-        this.invalidateJobRelatedCaches(id);
-        this.setCachedJob(id, job);
-        this.updateJobDetailState({ data: job, isLoading: false, error: null, operation: 'update' });
-      }
-    });
+      tap((job) => {
+        this.#state.update((s) => ({
+          ...s,
+          detail: { data: job, isLoading: false, error: null, operation: 'update' },
+          caches: JobsHelper.withInvalidatedListCaches(JobsHelper.withUpdatedJobCache(s.caches, job)),
+        }));
+      }),
+      catchError((err) => this.handleError('detail', 'Failed to update job', err)),
+       map(() => undefined)
+    ).subscribe();
   }
 
   delete(id: string): void {
+    this.#state.update((s) => ({
+      ...s,
+      detail: { data: null, isLoading: true, error: null, operation: 'delete' },
+    }));
     this.jobsApi.deleteJob(id).pipe(
-      tap(data => console.log({ deleteJobData: data })),
-      take(1),
-      catchError(error => {
-        console.error('Failed to delete job:', error);
-        return of(undefined);
-      })
-    ).subscribe((data) => {
-      if (data) {
-        this.invalidateJobRelatedCaches(id);
-        this.deleteCachedJob(id);
-      }
-    });
+      tap(() => {
+        this.#state.update((s) => ({
+          ...s,
+          detail: { data: null, isLoading: false, error: null, operation: 'delete' },
+          caches: JobsHelper.withRemovedJobCache(s.caches, id),
+        }));
+      }),
+      catchError((err) => this.handleError('detail', 'Failed to delete job', err)),
+      map(() => undefined)
+    ).subscribe();
   }
 
   getStatistics(): void {
-    const cachedStats = this.getCachedStatistics();
-
-    if (cachedStats) {
-      this.updateJobStatisticsState({ data: cachedStats, isLoading: false, error: null });
+    const cached = this.#state().caches.statistics;
+    if (cached) {
+      this.#state.update((s) => ({
+        ...s,
+        statistics: {data: cached.data, isLoading: false, error: null}
+      }))
       return;
     }
 
-    this.updateJobStatisticsState({ data: cachedStats, isLoading: true, error: null });
+     this.#state.update((s) => ({
+        ...s,
+        statistics: {data: s.statistics.data, isLoading: true, error: null}
+      }));
 
     this.jobsApi.getJobStatistics().pipe(
-      tap(data => console.log({ statisticsData: data })),
-      catchError(error => {
-        console.error('Failed to fetch job statistics:', error);
-        this.updateJobStatisticsState({
-          data: cachedStats,
-          isLoading: false,
-          error: 'Failed to fetch job statistics'
-        });
-        return of(undefined);
-      })
-    ).subscribe((stats) => {
-      if (stats) {
-        this.setCachedStatistics(stats);
-        this.updateJobStatisticsState({ data: stats, isLoading: false, error: null });
-      }
-    });
+      tap((stats)=> {
+        this.#state.update((s) => ({
+          ...s,
+          statistics: { data: stats, isLoading: false, error: null }
+        }))
+      }),
+      catchError((err) => this.handleError('detail', 'Failed to fetch job statistics', err)),
+    ).subscribe();
   }
 
-  clearAllCaches(): void {
-    this.cacheState.searchQueryResults = new Map();
-    this.cacheState.jobs = new Map();
-    this.cacheState.statistics = null;
-
-    this.#jobList.set(this.initialJobListState);
-    this.#jobDetail.set(this.initialJobDetailState);
-    this.#jobStatistics.set(this.initialJobStatisticsState);
+  clearAllState(): void {
+    this.#state.set(initialJobsState);
   }
 
-  private isValidJobQueryResult(data: JobQueryResult): boolean {
+  private handleError(
+    slice: 'queryResult' | 'detail' | 'statistics',
+    message: string,
+    error: any
+  ): Observable<void> {
+    console.error(message, error);
+    this.#state.update((s) => ({
+      ...s,
+      [slice]: { ...s[slice], isLoading: false, error: message },
+    }));
+    return of(undefined);
+  }
+
+
+  private isValidJobSearchQueryResult(data: JobQueryResult): boolean {
     return !!(data &&
       typeof data.page === 'number' && data.page > 0 &&
       typeof data.totalJobs === 'number' && data.totalJobs >= 0 &&
