@@ -41,7 +41,7 @@ body[data-theme="dark"] {
 
   --color-status-success: var(--color-green-500);
   --color-status-warning: var(--color-amber-500);
-  --color-status-error: var(--color-red-500);
+  --color-status-error: var(--color-red-600);
   --color-status-info: var(--color-sky-500);
 
   --text-job-status-pending: var(--color-amber-200);
@@ -79,7 +79,7 @@ body[data-theme="light"] {
 
   --color-status-success: var(--color-green-500);
   --color-status-warning: var(--color-amber-500);
-  --color-status-error: var(--color-red-500);
+  --color-status-error: var(--color-red-600);
   --color-status-info: var(--color-sky-500);
 
   --text-job-status-pending: var(--color-amber-700);

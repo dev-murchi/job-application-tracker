@@ -12,10 +12,10 @@
                     class="flex flex-row items-center gap-2 p-1 w-full hover:bg-[var(--color-bg-active)] focus:outline-none cursor-pointer text-[var(--color-text-secondary)] rounded-lg"
                     (click)="toggleDropdown()">
 
-                    <img src="{{userProfile()?.avatar ?? 'images/default-avatar.png'}}" alt="Avatar"
+                    <img src="{{user().profile?.avatar ?? 'images/default-avatar.png'}}" alt="Avatar"
                         class="object-cover size-8 rounded-lg" />
 
-                    <div class="h-4 text-sm flex items-center">{{userProfile()?.name}}</div>
+                    <div class="h-4 text-sm flex items-center">{{user().profile?.name}} {{user().profile?.lastName}}</div>
 
                     <app-svg [svgName]="dropDownIcon" class="rounded-lg" fill="currentColor" />
 
@@ -29,7 +29,7 @@
                         [cssClass]="'flex flex-row w-full text-sm p-2 gap-2 rounded-lg transition-[padding-left] duration-300 ease-in-out transition-all duration-200 ease-in-out hover:scale-105'" />
                     <div class="mt-8">
                         <button (click)="logout()"
-                            class="h-10 flex flex-row w-full items-center justify-center text-sm text-red-500 font-bold gap-2 p-2 rounded-lg border-1 outline-none hover:bg-red-500 hover:text-white cursor-pointer ">
+                            class="h-10 flex flex-row w-full items-center justify-center text-sm text-red-600 font-bold gap-2 p-2 rounded-lg border-1 outline-none hover:bg-red-600 hover:text-white cursor-pointer ">
                             <app-svg [svgName]="logoutIcon" fill="currentColor" />
                             <span>Logout</span>
                         </button>

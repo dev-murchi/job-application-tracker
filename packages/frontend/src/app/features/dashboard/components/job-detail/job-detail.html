@@ -1,78 +1,203 @@
+<ng-template #jobDetailItem let-iconName="iconName" let-label="label" let-value="value">
+  <div class="p-4 rounded-lg border border-[var(--color-border-default)]">
+    <div class="flex items-center gap-3 mb-2 text-[var(--color-text-secondary)]">
+      <app-svg [svgName]="iconName" class="size-5" fill="currentColor" />
+      <span class="text-sm font-medium">{{ label }}</span>
+    </div>
+    <p class="text-md font-semibold text-[var(--color-text-primary)] capitalize">{{ value }}</p>
+  </div>
+</ng-template>
+
+<ng-template #quickLinkItem let-url="url" let-iconName="iconName" let-title="title" let-text="text">
+  <a href="{{ url }}" target="_blank" rel="noopener noreferrer"
+    class="group p-4 rounded-lg border-2 border-[var(--color-border-default)] text-[var(--color-brand-accent)] transition-all duration-200">
+    <div class="flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div
+          class="size-10 rounded-lg bg-[var(--color-bg-active)]/50 flex items-center justify-center group-hover:scale-110 transition-transform">
+          <app-svg [svgName]="iconName" class="size-5 text-[var(--color-text-secondary)]" fill="currentColor" />
+        </div>
+        <div>
+          <p class="text-sm font-medium text-[var(--color-text-secondary)]">{{ title }}</p>
+          <p class="text-sm font-medium truncate max-w-[200px] hover:underline">{{ text }}</p>
+        </div>
+      </div>
+      <app-svg [svgName]="'visibilityIcon'" class="size-5 text-[var(--color-text-secondary)] transition-colors"
+        fill="currentColor" />
+    </div>
+  </a>
+</ng-template>
+
+
+
 <div class="max-w-4xl mx-auto flex flex-col space-y-6">
 
-  <app-nav-link class="nav-link" link="/dashboard/jobs" text="Back to Jobs" [icon]="backToPageIcon"
-    [cssClass]="'hover:bg-transparent hover:underline mt-4'" />
+  <app-nav-link class="nav-link" link="/dashboard/jobs" text="Back to All Jobs" [icon]="backToPageIcon"
+    [cssClass]="'hover:bg-transparent hover:underline'" />
 
+  <!-- Loading spinner  -->
   @if(job().isLoading) {
-  <div class="flex justify-center items-center py-8">
-    <span class="text-xl md:text-2xl font-medium text-primary">Loading job...</span>
-  </div>
+  <app-loading-spinner text="Loading job details..." />
   }
 
-  @else {
+  @else if(job().data) {
 
-  <div class="card rounded-lg shadow-md">
+  <!-- Main Job Card -->
+  <div class="card rounded-lg shadow-lg overflow-hidden">
 
-    <div class="px-4 py-6 border-b border-[var(--color-border-default)]">
-      <div class="flex flex-col sm:flex-row gap-6 sm:justify-between items-start sm:items-center">
-        <h2 class="text-xl md:text-2xl font-medium text-primary capitalize">Job Details</h2>
-        <div class="flex flex-row justify-end items-center gap-2">
+    <!-- Header -->
+    <div class="px-6 py-8 bg-[var(--color-brand-accent)] text-white">
+      <div class="flex flex-col md:flex-row lg:justify-between lg:items-start gap-6 space-y-4">
+        <div class="flex-1">
+
+          <div class="flex items-start gap-4">
+            <div class="size-16 rounded-xl bg-white/20 flex items-center justify-center flex-shrink-0">
+              <app-svg [svgName]="'appliedJobsIcon'" class="size-9 text-white" fill="currentColor" />
+            </div>
+            <div class="flex-1">
+              <h1 class="text-xl md:text-2xl font-bold text-[var(--color-text-on-brand)] mb-2 capitalize">{{
+                job().data?.position }}</h1>
+              <p class="text-md md:text-lg text-[var(--color-text-on-brand)] capitalize font-medium">{{
+                job().data?.company }}</p>
+              <!-- Status Badge -->
+              <app-job-status-badge [status]="job().data?.status" [icon]="statusBadgeIcon()" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex flex-row md:flex-col gap-3">
           <a [routerLink]="['/dashboard/jobs', job().data?._id, 'edit']"
-            class="flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-lg bg-[var(--color-brand-primary)] text-[var(--color-text-on-brand)] hover:bg-[var(--color-brand-hover)]">
+            class="flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-lg bg-[var(--color-brand-primary)] text-white transition-all duration-200 shadow-md hover:shadow-lg hover:scale-105">
             <app-svg [svgName]="'editIcon'" class="size-4" fill="currentColor" />
             <span>Edit</span>
           </a>
+          <button (click)="openDeleteConfirmation()"
+            class="flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-lg bg-red-600 text-white hover:bg-red-700 transition-all duration-200 shadow-md hover:shadow-lg">
+            <app-svg [svgName]="'deleteIcon'" class="size-4" fill="currentColor" />
+            <span>Delete</span>
+          </button>
         </div>
+      </div>
+
+
+    </div>
+
+    <!-- Details Grid -->
+    <div class="px-6 py-8">
+      <h2 class="text-xl font-semibold text-[var(--color-text-primary)] mb-6 flex items-center gap-2">
+        <div class="size-2 rounded-full bg-sky-500"></div>
+        Application Details
+      </h2>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+        <!-- Company -->
+        <ng-container *ngTemplateOutlet="jobDetailItem; context: { 
+            iconName: 'apartmentIcon',label: 'Company', value: job().data?.company 
+          }"></ng-container>
+
+        <!-- Position -->
+        <ng-container *ngTemplateOutlet="jobDetailItem; context: { 
+            iconName: 'appliedJobsIcon', label: 'Position', value: job().data?.position 
+          }"></ng-container>
+
+        <!-- Job Type -->
+        <ng-container *ngTemplateOutlet="jobDetailItem; context: { 
+            iconName: 'contractIcon', label: 'Employment Type', value: job().data?.jobType 
+          }"></ng-container>
+
+        <!-- Location -->
+        <ng-container *ngTemplateOutlet="jobDetailItem; context: { 
+            iconName: 'locationIcon', label: 'Location', value: job().data?.jobLocation 
+          }"></ng-container>
       </div>
     </div>
 
-    <div class="px-4 py-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-      <div>
-        <span class="block text-sm text-[var(--color-text-secondary)] mb-1">Company</span>
-        <span class="font-medium text-[var(--color-text-primary)] break-words">{{ job().data?.company }}</span>
-      </div>
-      <div>
-        <span class="block text-sm text-[var(--color-text-secondary)] mb-1">Position</span>
-        <span class="font-medium text-[var(--color-text-primary)] break-words">{{ job().data?.position }}</span>
-      </div>
-      <div>
-        <span class="block text-sm text-[var(--color-text-secondary)] mb-1">Status</span>
-        @if(job().data?.status) {
-          @switch(job().data?.status) {
-            @case('pending') {
-              <span class="px-3 py-1 text-xs rounded-full capitalize bg-yellow-100 text-yellow-800">{{ job().data?.status }}</span>
-            }
-            @case('interview') {
-              <span class="px-3 py-1 text-xs rounded-full capitalize bg-blue-100 text-blue-800">{{ job().data?.status }}</span>
-            }
-            @case('declined') {
-              <span class="px-3 py-1 text-xs rounded-full capitalize bg-red-100 text-red-800">{{ job().data?.status }}</span>
-            }
-          }
+    <!-- Links Section -->
+    <div class="px-6 pb-8">
+      <h2 class="text-xl font-semibold text-[var(--color-text-primary)] mb-6 flex items-center gap-2">
+        <div class="size-2 rounded-full bg-[var(--color-brand-primary)]"></div>
+        Quick Links
+      </h2>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- Company Website -->
+        <ng-container *ngTemplateOutlet="quickLinkItem; context: { 
+            url: job().data?.companyWebsite, 
+            iconName: 'linkIcon', 
+            title: 'Company Website', 
+            text: job().data?.companyWebsite 
+          }"></ng-container>
+
+        <!-- Job Posting URL -->
+        @if(job().data?.jobPostingUrl) {
+          <ng-container *ngTemplateOutlet="quickLinkItem; context: { 
+              url: job().data?.jobPostingUrl, 
+              iconName: 'linkIcon', 
+              title: 'Job Posting', 
+              text: job().data?.jobPostingUrl 
+            }"></ng-container>
+        } @else {
+        <div class="p-4 rounded-lg border border-[var(--color-border-default)] opacity-50">
+          <div class="flex items-center gap-3">
+            <div class="size-10 rounded-lg bg-gray-100 flex items-center justify-center">
+              <app-svg [svgName]="'appliedJobsIcon'" class="size-5 text-gray-400" fill="currentColor" />
+            </div>
+            <div>
+              <p class="text-sm font-medium text-[var(--color-text-secondary)]">Job Posting</p>
+              <p class="text-sm text-[var(--color-text-secondary)]">No URL provided</p>
+            </div>
+          </div>
+        </div>
         }
       </div>
-      <div>
-        <span class="block text-sm text-[var(--color-text-secondary)] mb-1">Job Type</span>
-        <span class="font-medium text-[var(--color-text-primary)] capitalize">{{ job().data?.jobType }}</span>
-      </div>
-      <div>
-        <span class="block text-sm text-[var(--color-text-secondary)] mb-1">Location</span>
-        <span class="font-medium text-[var(--color-text-primary)] break-words">{{ job().data?.jobLocation }}</span>
-      </div>
-      <div>
-        <span class="block text-sm text-[var(--color-text-secondary)] mb-1">Company Website</span>
-        <a href="{{ job().data?.companyWebsite }}" target="_blank" rel="noopener noreferrer" class="font-medium text-[var(--color-text-primary)] break-words">
-          {{ job().data?.companyWebsite }}
-        </a>
-        
-      </div>
-      <div>
-        <span class="block text-sm text-[var(--color-text-secondary)] mb-1">Job Posting URL</span>
-        <a href="{{ job().data?.jobPostingUrl }}" target="_blank" rel="noopener noreferrer" class="font-medium text-[var(--color-text-primary)] break-words">
-          {{ job().data?.jobPostingUrl }}
-        </a>
+    </div>
+
+    <!-- Metadata Footer -->
+    <div class="px-6 py-4 border-t border-[var(--color-border-default)]">
+      <div class="flex flex-wrap items-center justify-between gap-4 text-sm text-[var(--color-text-secondary)]">
+        <span class="flex items-center gap-2">
+          <app-svg [svgName]="'scheduleIcon'" class="size-4" fill="currentColor" />
+          Created {{ job().data?.createdAt | date:'mediumDate'}}
+        </span>
+        <span class="flex items-center gap-2">
+          <app-svg [svgName]="'editIcon'" class="size-4" fill="currentColor" />
+          Updated: {{ job().data?.updatedAt| date:'mediumDate'}}
+        </span>
       </div>
     </div>
   </div>
   }
 </div>
+
+<!-- Delete Confirmation Modal -->
+@if(showDeleteConfirm()) {
+<div class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+  (click)="closeDeleteConfirmation()">
+  <div class="card rounded-lg shadow-2xl max-w-md w-full p-6" (click)="$event.stopPropagation()">
+    <div class="flex items-start gap-4 mb-6">
+      <div class="size-12 rounded-lg bg-red-200 flex items-center justify-center flex-shrink-0">
+        <app-svg [svgName]="'warningIcon'" class="size-7 text-red-800" fill="currentColor" />
+      </div>
+      <div class="flex-1">
+        <h3 class="text-xl font-semibold text-[var(--color-text-primary)] mb-2">Delete Application?</h3>
+        <p class="text-sm text-[var(--color-text-secondary)]">
+          Are you sure you want to delete this job application? This action cannot be undone.
+        </p>
+      </div>
+    </div>
+
+    <div class="flex flex-col sm:flex-row justify-end gap-3">
+      <button (click)="closeDeleteConfirmation()"
+        class="px-3 py-2 rounded-lg border-2 border-[var(--color-border-default)] text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-active)] font-medium transition-all">
+        Cancel
+      </button>
+      <button (click)="confirmDelete()"
+        class="px-3 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 font-medium transition-all shadow-md hover:shadow-lg">
+        Delete Application
+      </button>
+    </div>
+  </div>
+</div>
+}

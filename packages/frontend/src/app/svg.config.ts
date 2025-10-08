@@ -34,6 +34,15 @@ export const svgConfig =
   visibilityIcon: 'images/visibility-icon.svg',
   warningIcon: 'images/warning-icon.svg',
   locationIcon:'images/location-city-icon.svg',
+  scheduleIcon: 'images/schedule-icon.svg',
+  segmentIcon: 'images/segment-icon.svg',
+  pendingActionsIcon: 'images/pending-actions-icon.svg',
+  applicationApprovedIcon: 'images/application-approved-icon.svg',
+  eventRejectedIcon: 'images/event-rejected-icon.svg',
+  apartmentIcon: 'images/apartment-icon.svg',
+  linkIcon: 'images/link-icon.svg',
+  contractIcon: 'images/contract-icon.svg',
+  workIcon: 'images/work-icon.svg',
 };
 
 export type SvgNameType = keyof typeof svgConfig;

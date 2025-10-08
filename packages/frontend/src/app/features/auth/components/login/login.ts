@@ -47,10 +47,6 @@ export class Login implements OnInit {
       [`${this.emailInput.key}`]: ics.toFormControl(this.emailInput),
       [`${this.passwordInput.key}`]: ics.toFormControl(this.passwordInput),
     })
-
-    this.loginForm.valueChanges.subscribe(val => {
-      console.log({form: this.loginForm, invalid: this.loginForm.invalid})
-    })
   }
 
   ngOnInit(): void {
@@ -66,7 +62,6 @@ export class Login implements OnInit {
 
       this.authService.login(payload).subscribe();
     } else {
-      console.log(this.loginForm);
       this.loginForm.markAllAsTouched();
     }
   }

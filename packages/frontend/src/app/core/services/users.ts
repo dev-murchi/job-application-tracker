@@ -20,7 +20,7 @@ export class UsersService {
     const state = this.state();
     return {
       profile: state.profile,
-      isLoading : state.status === 'loading',
+      isLoading: state.status === 'loading',
       isUpdated: state.status === 'updated',
       error: state.error,
     }

@@ -33,8 +33,7 @@ export class AuthService {
 
   login(loginData: UserLogin): Observable<any> {
     return this.authApi.login(loginData).pipe(
-      tap((response) => {
-        localStorage.setItem('auth_token', response.token);
+      tap(() => {
         this.alertService.show('Login successful!', 'success');
         this.router.navigate(['/dashboard']);
       }),
@@ -63,7 +62,6 @@ export class AuthService {
   logout(): Observable<any> {
     return this.authApi.logout().pipe(
       tap(() => {
-        localStorage.removeItem('auth_token');
         this.usersService.clearCache();
         this.alertService.show('You have been logged out.', 'success');
         this.router.navigate(['/']);

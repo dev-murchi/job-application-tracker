@@ -74,15 +74,18 @@ export class Jobs {
   }
 
   handleSearchFormData(event: JobSearchFormOutput) {
-    const query: JobQuery = {
-      search: event.value.search,
-      status: event.value.status,
-      jobType: event.value.type,
-      sort: event.value.sort
-    };
-
-    const queryParams = event.operation === 'search' ? query : null;
-    this.updateQueryParams(queryParams as any);
+    if (event.operation === 'search') {
+      const query: JobQuery = {
+        search: event.value.search || undefined,
+        status: event.value.status || undefined,
+        jobType: event.value.type || undefined,
+        sort: event.value.sort || undefined
+      };
+      this.updateQueryParams(query);
+    } else {
+      // Clear filters - navigate without query params
+      this.router.navigate([], { relativeTo: this.activeRoute });
+    }
   }
 
 }

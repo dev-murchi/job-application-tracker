@@ -31,7 +31,7 @@ export class Topbar implements OnInit {
   private readonly authService = inject(AuthService);
   private readonly usersService = inject(UsersService);
 
-  readonly userProfile = this.usersService.currentUser;
+  readonly user = this.usersService.currentUser;
 
   ngOnInit() {
     this.usersService.getProfile();
