@@ -33,6 +33,8 @@ const STATUS_OPTIONS: SelectOption[] = [
   { key: 'All', value: JobStatus.All },
   { key: 'Pending', value: JobStatus.Pending },
   { key: 'Interview', value: JobStatus.Interview },
+  { key: 'Offered', value: JobStatus.Offered },
+  { key: 'Accepted', value: JobStatus.Accepted },
   { key: 'Declined', value: JobStatus.Declined },
 ];
 

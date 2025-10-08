@@ -1,47 +1,149 @@
+<ng-template #selectionField let-config="config" let-isStatusField="isStatusField">
+  <div [formGroup]="form">
+    <label class="block text-sm font-medium text-[var(--color-text-secondary)] mb-2">
+      {{ config.label }}
+      <span class="text-red-600 ml-1">*</span>
+    </label>
+    <div class="relative">
+      <select [formControlName]="config.key"
+        class="cursor-pointer input-field w-full px-4 py-3 pr-10 rounded-lg text-sm font-medium focus:outline-none focus:border-transparent appearance-none">
+        @for (option of config.options; track option.value) {
+        <option [value]="option.value">{{ option.key }}</option>
+        }
+      </select>
+      <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+        <app-svg [svgName]="'arrowDropDownIcon'" class="size-5 text-[var(--color-text-secondary)]"
+          fill="currentColor" />
+      </div>
+    </div>
+  </div>
+</ng-template>
+
+
 <div class="max-w-4xl mx-auto flex flex-col space-y-6">
 
+  <!-- Breadcrumb Navigation -->
   @if (isEditMode && jobId) {
-  <app-nav-link class="nav-link" link="/dashboard/jobs/{{jobId}}" text="Back to Job" [icon]="backToPageIcon" [cssClass]="'hover:bg-transparent hover:underline mt-4'" />
+  <app-nav-link class="nav-link" link="/dashboard/jobs/{{jobId}}" text="Back to Job Details" [icon]="backToPageIcon"
+    [cssClass]="'hover:bg-transparent hover:underline'" />
   } @else {
-  <app-nav-link class="nav-link" link="/dashboard/jobs" text="Back to Jobs" [icon]="backToPageIcon" [cssClass]="'hover:bg-transparent hover:underline mt-4'" />
+  <app-nav-link class="nav-link" link="/dashboard/jobs" text="Back to All Jobs" [icon]="backToPageIcon"
+    [cssClass]="'hover:bg-transparent hover:underline'" />
   }
 
-  <div class="card rounded-lg shadow-md">
-    <!-- header -->
-    <div class="px-4 py-6 border-b border-[var(--color-border-default)]">
-      <h2 class="text-xl md:text-2xl font-medium text-primary">{{title()}}</h2>
+  <!-- Form Card -->
+  <div class="card rounded-lg shadow-lg">
+    <!-- Header with Icon -->
+    <div class="px-6 py-6 border-b border-[var(--color-border-default)] bg-[var(--color-brand-accent)] rounded-t-lg">
+      <div class="flex items-center gap-4">
+        <div class="size-12 rounded-lg bg-white/20 text-[var(--color-text-on-brand)] flex items-center justify-center">
+          <app-svg [svgName]="'addJobApplicationIcon'" class="size-7" fill="currentColor" />
+        </div>
+        <div>
+          <h2 class="text-2xl font-semibold text-[var(--color-text-on-brand)]">{{title()}}</h2>
+          <p class="text-sm text-[var(--color-text-on-brand)] mt-1">
+            {{ isEditMode ? 'Update job application details' : 'Add a new job application to track' }}
+          </p>
+        </div>
+      </div>
     </div>
 
-    <div class="px-4 py-6">
+    <!-- Info Banner -->
+    <div class="mx-6 mt-6 p-4 rounded-lg bg-[var(--color-bg-active)]/50 border border-[var(--color-border-default)]">
+      <div class="flex items-start gap-3">
+        <app-svg [svgName]="'warningIcon'" class="size-5 text-[var(--color-text-secondary)] mt-1 flex-shrink-0"
+          fill="currentColor" />
+        <div class="flex-1">
+          <p class="text-sm text-[var(--color-text-secondary)]font-medium">Track Your Application</p>
+          <p class="text-xs text-[var(--color-text-secondary)] mt-1">
+            Keep all your job applications organized. Update the status as you progress through interviews.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Loading spinner  -->
+    @if(isEditMode && jobDetail().isLoading) {
+    <app-loading-spinner text="Loading job detail..." />
+    }
+
+    @else {
+    <!-- Form Body -->
+    <div class="px-6 py-6">
       <form [formGroup]="form" class="flex flex-col gap-6" (submit)="onSubmit()">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <!-- Render all text inputs from inputConfigs for DRY, no loop -->
-          <div>
-            <app-input [form]="form" [inputElement]="inputConfigs.company" />
-          </div>
-          <div>
-            <app-input [form]="form" [inputElement]="inputConfigs.position" />
-          </div>
-          <div>
-            <app-input [form]="form" [inputElement]="inputConfigs.location" />
-          </div>
-          <div>
-            <app-input [form]="form" [inputElement]="statusSelection" />
-          </div>
-          <div>
-            <app-input [form]="form" [inputElement]="typeSelection" />
-          </div>
-          <div>
-            <app-input [form]="form" [inputElement]="inputConfigs.companyWebsite" />
-          </div>
-          <div>
-            <app-input [form]="form" [inputElement]="inputConfigs.jobPostingUrl" />
+
+        <!-- Section: Company & Position Information -->
+        <div>
+          <h3 class="text-lg font-semibold text-[var(--color-text-primary)] mb-4 flex items-center gap-2">
+            <div class="size-2 rounded-full bg-[var(--color-brand-primary)]"></div>
+            Company & Position Information
+          </h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <app-input [form]="form" [inputElement]="inputConfigs.company" />
+            </div>
+            <div>
+              <app-input [form]="form" [inputElement]="inputConfigs.position" />
+            </div>
+            <div>
+              <app-input [form]="form" [inputElement]="inputConfigs.companyWebsite" />
+            </div>
+            <div>
+              <app-input [form]="form" [inputElement]="inputConfigs.location" />
+            </div>
           </div>
         </div>
-        <div class="flex justify-end mt-4">
-          <app-submit-button text="Submit" [isDisabled]="form.invalid" class="w-full md:w-auto" />
+
+        <!-- Divider -->
+        <div class="border-t border-[var(--color-border-default)]"></div>
+
+        <!-- Section: Application Details -->
+        <div>
+          <h3 class="text-lg font-semibold text-[var(--color-text-primary)] mb-4 flex items-center gap-2">
+            <div class="size-2 rounded-full bg-sky-500"></div>
+            Application Details
+          </h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <ng-container *ngTemplateOutlet="selectionField; context: { config: statusSelection, isStatusField: true }">
+            </ng-container>
+
+            <ng-container *ngTemplateOutlet="selectionField; context: { config: typeSelection, isStatusField: false }">
+            </ng-container>
+          </div>
+        </div>
+
+        <!-- Divider -->
+        <div class="border-t border-[var(--color-border-default)]"></div>
+
+        <!-- Section: Additional Information -->
+        <div>
+          <h3 class="text-lg font-semibold text-[var(--color-text-primary)] mb-4 flex items-center gap-2">
+            <div class="size-2 rounded-full bg-[var(--color-brand-primary)]"></div>
+            Additional Information
+          </h3>
+          <div class="grid grid-cols-1 gap-6">
+            <div>
+              <app-input [form]="form" [inputElement]="inputConfigs.jobPostingUrl" />
+              <p class="text-xs text-[var(--color-text-secondary)] mt-2">
+                Add a link to the job posting for easy reference later
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div
+          class="flex flex-col sm:flex-row justify-between items-center gap-4 pt-6 border-t border-[var(--color-border-default)]">
+          <button type="button" (click)="cancelEdit()"
+            class="w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-2 rounded-lg border-1 border-[var(--color-border-default)] text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-active)] font-medium transition-all duration-200">
+            <app-svg [svgName]="'cancelIcon'" class="size-5" fill="currentColor" />
+            Cancel
+          </button>
+          <app-submit-button [text]="isEditMode ? 'Update Application' : 'Create Application'"
+            [isDisabled]="form.invalid || (form.pristine && isEditMode)" class="w-full sm:w-auto" />
         </div>
       </form>
     </div>
+    }
   </div>
 </div>

@@ -13,56 +13,85 @@ import { AlertService } from '../../../../shared/components/alert/alert-service'
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { SvgNameType } from '../../../../svg.config';
 import { NavLink } from "../../../../shared/components/nav-link/nav-link";
+import { CommonModule } from '@angular/common';
+import { SvgComponent } from '../../../../shared/components/svg/svg';
+import { LoadingSpinner } from "../../../../shared/components/loading-spinner/loading-spinner";
 
 @Component({
   selector: 'app-job-form',
-  imports: [ReactiveFormsModule, SubmitButton, CustomInput, NavLink],
+  imports: [CommonModule, ReactiveFormsModule, SubmitButton, CustomInput, NavLink, SvgComponent, LoadingSpinner],
   templateUrl: './job-form.html',
   styleUrl: './job-form.css'
 })
 export class JobForm {
-  title = signal('Add Job');
+  title = signal('Add Job Application');
   jobId: string | null = null;
   isEditMode = false;
   readonly backToPageIcon: SvgNameType = 'paginationPrevPageIcon';
+  readonly infoIcon: SvgNameType = 'warningIcon';
 
   // Define all input configs in a single object for DRY
   readonly inputConfigs = {
     company: new InputElementText({
-      value: '', key: 'companyControl', type: 'text', label: 'Company', placeholder: '', validators: [Validators.required]
+      value: '',
+      key: 'companyControl',
+      type: 'text',
+      label: 'Company Name',
+      placeholder: 'e.g., Google, Microsoft',
+      validators: [Validators.required, Validators.maxLength(50)]
     }),
     position: new InputElementText({
-      value: '', key: 'positionControl', type: 'text', label: 'Position', placeholder: '', validators: [Validators.required]
+      value: '',
+      key: 'positionControl',
+      type: 'text',
+      label: 'Job Position',
+      placeholder: 'e.g., Senior Software Engineer',
+      validators: [Validators.required, Validators.maxLength(100)]
     }),
     location: new InputElementText({
-      value: '', key: 'locationControl', type: 'text', label: 'Location', placeholder: '', validators: [Validators.required]
+      value: '',
+      key: 'locationControl',
+      type: 'text',
+      label: 'Job Location',
+      placeholder: 'e.g., San Francisco, CA or Remote',
+      validators: [Validators.required]
     }),
     companyWebsite: new InputElementText({
-      value: '', key: 'companyWebsiteControl', type: 'text', label: 'Company Website', placeholder: '', validators: [Validators.required]
+      value: '',
+      key: 'companyWebsiteControl',
+      type: 'url',
+      label: 'Company Website',
+      placeholder: 'https://company.com',
+      validators: [Validators.required]
     }),
     jobPostingUrl: new InputElementText({
-      value: '', key: 'jobPostingUrlControl', type: 'text', label: 'Job Posting URL', placeholder: '', validators: []
+      value: '',
+      key: 'jobPostingUrlControl',
+      type: 'url',
+      label: 'Job Posting URL (Optional)',
+      placeholder: 'https://jobs.company.com/position-id',
+      validators: []
     })
   };
 
   readonly statusSelection = new InputElementSelect<string>({
     value: JobStatus.Pending,
     key: 'jobStatusControl',
-    label: 'Status',
+    label: 'Application Status',
     type: 'select',
     options: [
-      { key: 'Pending', value: 'pending' },
-      { key: 'Interview', value: 'interview' },
-      { key: 'Offered', value: 'offered' },
-      { key: 'Accepted', value: 'accepted' },
-      { key: 'Declined', value: 'declined' },
+      { key: 'Pending', value: JobStatus.Pending },
+      { key: 'Interview Scheduled', value: JobStatus.Interview },
+      { key: 'Offer Received', value: JobStatus.Offered },
+      { key: 'Offer Accepted', value: JobStatus.Accepted },
+      { key: 'Application Declined', value: JobStatus.Declined },
     ]
   });
 
   readonly typeSelection = new InputElementSelect<string>({
     value: JobType.Fulltime,
     key: 'jobTypeControl',
-    label: 'Job Type',
+    label: 'Employment Type',
     type: 'select',
     options: [
       { key: 'Full-Time', value: JobType.Fulltime },
@@ -82,7 +111,7 @@ export class JobForm {
 
   constructor() {
     const ics = inject(InputControlService);
-    // Build form controls from inputConfigs array
+
     const controls = Object.values(this.inputConfigs).reduce((acc, input) => {
       acc[input.key] = ics.toFormControl(input);
       return acc;
@@ -98,7 +127,7 @@ export class JobForm {
       if (id) {
         this.jobId = id;
         this.isEditMode = true;
-        this.title.set('Edit Job');
+        this.title.set('Edit Job Application');
         this.jobsService.getJob(id);
       }
     });
@@ -119,6 +148,7 @@ export class JobForm {
         }
         // updated
         else if (state.operation === 'update' && state.data) {
+          this.alertService.show('Job application updated successfully!', 'success');
           this.router.navigate([`/dashboard/jobs/${state.data._id}`]);
         }
 
@@ -130,6 +160,7 @@ export class JobForm {
           }
           // data
           else if (state.data) {
+            this.alertService.show('Job application created successfully!', 'success');
             this.router.navigate([`/dashboard/jobs/${state.data._id}`]);
           }
         }
@@ -171,11 +202,11 @@ export class JobForm {
   onSubmit() {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
-      this.alertService.show('Please fill in all required fields.', 'error');
+      this.alertService.show('Please fill in all required fields correctly.', 'error');
       return;
     }
 
-    if (this.form.pristine) {
+    if (this.form.pristine && this.isEditMode) {
       this.alertService.show('No changes detected.', 'warn');
       return;
     }
@@ -186,6 +217,14 @@ export class JobForm {
       this.jobsService.update(this.jobId, payload);
     } else {
       this.jobsService.create(payload as any);
+    }
+  }
+
+  cancelEdit() {
+    if (this.jobId) {
+      this.router.navigate([`/dashboard/jobs/${this.jobId}`]);
+    } else {
+      this.router.navigate(['/dashboard/jobs']);
     }
   }
 }
