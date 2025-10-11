@@ -3,6 +3,7 @@ import { provideRouter } from '@angular/router';
 import { routes } from './app.routes';
 import { provideHttpClient } from '@angular/common/http';
 import { SvgService } from './core/services/svg-service';
+import { provideCharts, withDefaultRegisterables } from 'ng2-charts';
 
 export const appConfig: ApplicationConfig = {
   providers:[
@@ -13,6 +14,7 @@ export const appConfig: ApplicationConfig = {
     provideAppInitializer(() => {
       const service = inject(SvgService);
       return service.load();
-    })
+    }),
+    provideCharts(withDefaultRegisterables())
   ]
 };

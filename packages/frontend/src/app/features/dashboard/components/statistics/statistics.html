@@ -1,1 +1,171 @@
-<p>statistics works!</p>
+<ng-template #statisticsOverviewCard 
+let-value="value" let-label="label" let-subtitle="subtitle" 
+let-valueCss="valueCss" let-borderCss="borderCss">
+  <div class="h-full rounded-lg p-3 border {{borderCss}}">
+    <p class="text-sm font-medium text-[var(--color-text-secondary)] mb-1">{{ label }}</p>
+    <p class="text-3xl font-bold" class="{{valueCss}}">{{ value }}</p>
+    <p class="text-xs text-[var(--color-text-secondary)] mt-2">{{ subtitle }}</p>
+  </div>
+</ng-template>
+
+
+<ng-template #statusBreakdownItem let-value="value" let-label="label" let-valueCss="valueCss" let-backgroundClass="backgroundClass" let-dotClass="dotClass">
+  <div class="flex items-center justify-between p-3 rounded-lg transition-colors {{backgroundClass}}">
+    <div class="flex items-center gap-3">
+      <div
+        class="size-3 rounded-full {{dotClass}}"
+      ></div>
+      <span class="text-sm font-medium text-[var(--color-text-primary)]">{{ label }}</span>
+    </div>
+    <span class="text-lg font-bold {{valueCss}}" >{{ value }}</span>
+  </div>
+</ng-template>
+
+
+<div class="flex flex-col gap-6">
+  <!-- Header -->
+  <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 space-y-4">
+    <div>
+      <h1 class="text-2xl md:text-3xl font-semibold text-[var(--color-text-primary)]">Statistics</h1>
+      <p class="text-sm text-[var(--color-text-secondary)] mt-1">Comprehensive analysis of your job search</p>
+    </div>
+    <a [routerLink]="['/dashboard/jobs']"
+      class="flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg bg-[var(--color-brand-primary)] text-[var(--color-text-primary)] transition-colors hover:shadow-lg">
+      <app-svg [svgName]="'appliedJobsIcon'" class="size-5" fill="currentColor" />
+      <span>View All Jobs</span>
+    </a>
+  </div>
+
+  @if (jobStats().isLoading) {
+    <app-loading-spinner text="Loading statistics..." />
+  } @else if (jobStats().error) {
+  <div class="card rounded-lg p-6 text-center">
+    <p class="text-red-600">{{ jobStats().error }}</p>
+  </div>
+  } @else if (jobStats().data) {
+
+  <!-- Overview Metrics -->
+  <div class="card rounded-lg p-3 shadow-md">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <ng-container *ngTemplateOutlet="statisticsOverviewCard; context:{
+        value: totalApplications(),
+        label: 'Total Applications',
+        subtitle: 'All Time',
+        valueCss: 'text-[var(--color-text-primary)]',
+        borderCss:'border-[var(--color-text-primary)]'
+      }"></ng-container>
+
+      <ng-container *ngTemplateOutlet="statisticsOverviewCard; context:{
+        value: successRate() + '%',
+        label: 'Success Rate',
+        subtitle: 'Offers received/accepted',
+        valueCss: 'text-[var(--color-job-status-offered-text)]',
+        borderCss:'border-[var(--color-job-status-offered-text)]'
+      }"></ng-container>
+      
+      <ng-container *ngTemplateOutlet="statisticsOverviewCard; context:{
+        value: interviewRate() + '%',
+        label: 'Interview Rate',
+        subtitle: 'Applications to interviews',
+        valueCss: 'text-[var(--color-job-status-interview-text)]',
+        borderCss:'border-[var(--color-job-status-interview-text)]'
+      }"></ng-container>
+      
+      <ng-container *ngTemplateOutlet="statisticsOverviewCard; context:{
+        value: responseRate() + '%',
+        label: 'Response Rate',
+        subtitle: 'Applications with response',
+        valueCss: 'text-[var(--color-job-status-offered-text)]',
+        borderCss:'border-[var(--color-job-status-offered-text)]'
+      }"></ng-container>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- Status Breakdown -->
+    <div class="col-span-1 card px-4 py-4 rounded-lg shadow-md">
+      <h2 class="text-lg font-semibold text-[var(--color-text-primary)] mb-6">Status Breakdown</h2>
+      @if (statusBreakdown() && statusBreakdown().length > 0) {
+      <div class="space-y-4 w-full">
+        @for (stat of statusBreakdown(); track $index) {
+          @if (stat) {
+          <ng-template *ngTemplateOutlet="statusBreakdownItem; context: {
+            value: stat.value,
+            label: stat.label,
+            valueCss: stat.valueCss,
+            backgroundClass: stat.backgroundClass,
+            dotClass: stat.dotClass,
+          }"></ng-template>
+
+          }
+        }
+        </div>
+      }
+      @else {
+      <div class="text-sm text-gray-500">No statistics available.</div>
+      }
+
+    </div>
+
+    <!-- Application Trends -->
+    <div class="col-span-1 lg:col-span-2 card  py-4 rounded-lg shadow-md">
+      <app-activity-bar-chart
+      class="block px-4"
+        title="Application Trends"
+        subtitle="Monthly application volume over the last 6 months"
+        emptyStateMessage="No application data available"
+        chartTitle="Monthly Application Volume"
+        [chartData]="monthlyChartData()"
+        orientation="vertical"
+        [chartWidth]="800"
+        [chartHeight]="350"
+        [showChartTitle]="false"
+        [showGrid]="{x: true, y:true}">
+      </app-activity-bar-chart>
+
+      <!-- trend summary -->
+       @if(monthlyChartData().length > 1 && trendsSummary()){
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8 pt-4 border-t border-[var(--color-border-default)]">
+            <div class="text-center flex flex-col justify-between mb-4">
+              <p class="text-sm text-[var(--color-text-secondary)] mb-1">Average per Month</p>
+              <p class="text-2xl font-bold text-[var(--color-text-primary)]">
+                {{ trendsSummary()!.averagePerMonth }}x
+              </p>
+            </div>
+            <div class="text-center flex flex-col justify-between mb-4">
+              <p class="text-sm text-[var(--color-text-secondary)] mb-1">Most Active Month</p>
+              <p class="text-2xl font-bold text-[var(--color-text-primary)]">
+                {{ trendsSummary()!.mostActiveMonth }}
+              </p>
+            </div>
+            <div class="text-center flex flex-col justify-between mb-4">
+              <p class="text-sm text-[var(--color-text-secondary)] mb-1">Total Period</p>
+              <p class="text-2xl font-bold text-[var(--color-text-primary)]">{{ trendsSummary()!.totalPeriod }}</p>
+            </div>
+            <div class="text-center flex flex-col justify-between mb-4">
+              <p class="text-sm text-[var(--color-text-secondary)] mb-1">Average per Month</p>
+              <p class="text-2xl font-bold text-[var(--color-text-primary)]">
+                {{ trendsSummary()!.averagePerMonth }}x
+              </p>
+            </div>
+          </div>
+       }
+
+       @if (monthlyChartData().length === 0) {
+        <div class="flex flex-col items-center justify-center">
+          <a 
+            [routerLink]="'/dashboard/create-job'"
+            class="mt-6 px-4 py-2 bg-[var(--color-brand-primary)] text-[var(--color-text-on-brand)] rounded-lg hover:bg-[var(--color-brand-hover)] transition-colors">
+           Add Your First Job
+          </a>
+        </div>
+       }
+    </div>
+  </div>
+
+  } @else {
+  <div class="flex flex-col items-center justify-center py-12">
+    <p class="text-[var(--color-text-secondary)]">No statistics available</p>
+  </div>
+  }
+</div>

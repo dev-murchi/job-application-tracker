@@ -1,0 +1,19 @@
+<div class="flex items-center justify-between mb-6">
+  <div>
+    <h2 class="text-lg font-semibold text-[var(--color-text-primary)]">{{ title() }}</h2>
+    <p class="text-sm text-[var(--color-text-secondary)] mt-1">{{ subtitle() }}</p>
+  </div>
+</div>
+
+@if (chartData() && chartData().length > 0) {
+<app-bar-chart [data]="chartData()" [orientation]="orientation()" [title]="chartTitle()" [width]="chartWidth()"
+  [height]="chartHeight()" [showTitle]="showChartTitle()" [showGrid]="showGrid()">
+</app-bar-chart>
+
+} @else {
+<div class="flex flex-col items-center justify-center py-12">
+  <app-svg [svgName]="'monitoringIcon'" class="size-20 text-[var(--color-text-secondary)] opacity-30 mb-4"
+    fill="currentColor" />
+  <p class="text-[var(--color-text-secondary)]">{{ emptyStateMessage() }}</p>
+</div>
+}
