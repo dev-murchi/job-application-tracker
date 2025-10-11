@@ -10,9 +10,8 @@
 
 
 @if (mobileMenuOpen) {
-<div class="fixed inset-0 z-30 bg-neutral-900/90"></div>
-
-<div (clickOutside)="closeMenu()" class="sidebar fixed top-0 left-0 h-full flex flex-col w-64 z-40 py-4 px-2 transition-transform">
+<div class="fixed inset-0 bg-neutral-900/90"></div>
+<div (clickOutside)="closeMenu()" class="sidebar fixed top-0 left-0 h-full flex flex-col w-64 py-4 px-2">
     <header class="h-16 flex items-center justify-between text-[var(--color-brand-accent)] border-b-2 pr-2 gap-3 ">
         <app-svg [svgName]="logoImage" [mode]="'image'" class="h-12" fill="currentColor" />
         <app-svg [svgName]="closeIcon" class="p-1 h-8 cursor-pointer border-1 rounded-lg" fill="currentColor"

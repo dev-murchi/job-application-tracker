@@ -14,11 +14,11 @@ export class JobStatusBadge {
   icon = input<SvgNameType>();
 
   private readonly statusStyles: Partial<Record<JobStatus, { background: string; text: string }>> = {
-    [JobStatus.Pending]:   { background: 'bg-[var(--bg-job-status-pending)]',   text: 'text-[var(--text-job-status-pending)]' },
-    [JobStatus.Interview]: { background: 'bg-[var(--bg-job-status-interview)]', text: 'text-[var(--text-job-status-interview)]' },
-    [JobStatus.Offered]:   { background: 'bg-[var(--bg-job-status-offered)]',   text: 'text-[var(--text-job-status-offered)]' },
-    [JobStatus.Accepted]:  { background: 'bg-[var(--bg-job-status-accepted)]',  text: 'text-[var(--text-job-status-accepted)]' },
-    [JobStatus.Declined]:  { background: 'bg-[var(--bg-job-status-declined)]',  text: 'text-[var(--text-job-status-declined)]' },
+    [JobStatus.Pending]: { background: 'bg-[var(--color-job-status-pending-bg)]', text: 'text-[var(--color-job-status-pending-text)]' },
+    [JobStatus.Interview]: { background: 'bg-[var(--color-job-status-interview-bg)]', text: 'text-[var(--color-job-status-interview-text)]' },
+    [JobStatus.Offered]: { background: 'bg-[var(--color-job-status-offered-bg)]', text: 'text-[var(--color-job-status-offered-text)]' },
+    [JobStatus.Accepted]: { background: 'bg-[var(--color-job-status-accepted-bg)]', text: 'text-[var(--color-job-status-accepted-text)]' },
+    [JobStatus.Declined]: { background: 'bg-[var(--color-job-status-declined-bg)]', text: 'text-[var(--color-job-status-declined-text)]' },
   };
 
   private readonly defaultStyle = {
@@ -30,8 +30,8 @@ export class JobStatusBadge {
     const status = this.status();
     if (!status) return this.defaultStyle;
     return this.statusStyles[status] ?? {
-      background: 'bg-[var(--bg-job-status-interview)]',
-      text: 'text-[var(--text-job-status-interview)]',
+      background: 'bg-[var(--color-job-status-interview-bg)]',
+      text: 'text-[var(--color-job-status-interview-text)]',
     };
   });
 }

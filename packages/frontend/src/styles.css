@@ -44,17 +44,17 @@ body[data-theme="dark"] {
   --color-status-error: var(--color-red-600);
   --color-status-info: var(--color-sky-500);
 
-  --text-job-status-pending: var(--color-amber-200);
-  --text-job-status-interview: var(--color-sky-200);
-  --text-job-status-offered: var(--color-green-200);
-  --text-job-status-accepted: var(--color-emerald-200);
-  --text-job-status-declined: var(--color-red-200);
+  --color-job-status-pending-text: var(--color-amber-200);
+  --color-job-status-interview-text: var(--color-sky-200);
+  --color-job-status-offered-text: var(--color-green-200);
+  --color-job-status-accepted-text: var(--color-emerald-200);
+  --color-job-status-declined-text: var(--color-red-200);
 
-  --bg-job-status-pending: var(--color-amber-700);
-  --bg-job-status-interview: var(--color-sky-700);
-  --bg-job-status-offered: var(--color-green-700);
-  --bg-job-status-accepted: var(--color-emerald-600);
-  --bg-job-status-declined: var(--color-red-700);
+  --color-job-status-pending-bg: var(--color-amber-700);
+  --color-job-status-interview-bg: var(--color-sky-700);
+  --color-job-status-offered-bg: var(--color-green-700);
+  --color-job-status-accepted-bg: var(--color-emerald-600);
+  --color-job-status-declined-bg: var(--color-red-700);
 
   --color-bar-chart: var(--color-gray-700);
 
@@ -64,7 +64,7 @@ body[data-theme="light"] {
   --color-bg-page: var(--color-gray-100);
   --color-bg-surface: var(--color-gray-50);
   --color-bg-card: var(--color-gray-50);
-  --color-bg-input: var(--color-gray-100);
+  --color-bg-input: var(--color-gray-200);
   --color-bg-active: var(--color-gray-200);
 
   --color-text-primary: var(--color-gray-900);
@@ -82,17 +82,17 @@ body[data-theme="light"] {
   --color-status-error: var(--color-red-600);
   --color-status-info: var(--color-sky-500);
 
-  --text-job-status-pending: var(--color-amber-700);
-  --text-job-status-interview: var(--color-sky-700);
-  --text-job-status-offered: var(--color-green-700);
-  --text-job-status-accepted: var(--color-emerald-600);
-  --text-job-status-declined: var(--color-red-700);
+  --color-job-status-pending-text: var(--color-amber-700);
+  --color-job-status-interview-text: var(--color-sky-700);
+  --color-job-status-offered-text: var(--color-green-700);
+  --color-job-status-accepted-text: var(--color-emerald-600);
+  --color-job-status-declined-text: var(--color-red-700);
 
-  --bg-job-status-pending: var(--color-amber-200);
-  --bg-job-status-interview: var(--color-sky-200);
-  --bg-job-status-offered: var(--color-green-200);
-  --bg-job-status-accepted: var(--color-emerald-200);
-  --bg-job-status-declined: var(--color-red-200);
+  --color-job-status-pending-bg: var(--color-amber-200);
+  --color-job-status-interview-bg: var(--color-sky-200);
+  --color-job-status-offered-bg: var(--color-green-200);
+  --color-job-status-accepted-bg: var(--color-emerald-200);
+  --color-job-status-declined-bg: var(--color-red-200);
 
  --color-bar-chart: var(--color-gray-300);
 }
@@ -120,6 +120,5 @@ body[data-theme="light"] {
 
 .input-field {
   background-color: var(--color-bg-input);
-  border: 1px solid var(--color-border-default);
   color: var(--color-text-primary);
 }
