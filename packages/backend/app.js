@@ -54,8 +54,18 @@ const morganStream = {
 
 // Middleware setup
 const setupMiddleware = (app) => {
-  app.use(express.json());
-  app.use(express.urlencoded({ extended: true }));
+  app.use(express.json({ 
+    limit: config.requestSizeLimit,
+    parameterLimit: 100,
+    type: ['application/json', 'application/json-patch+json']
+  }));
+  
+  app.use(express.urlencoded({ 
+    extended: true,
+    limit: config.requestSizeLimit,
+    parameterLimit: 100
+  }));
+
   app.use(
     morgan(config.isProduction ? 'combined' : 'dev', { stream: morganStream })
   );

@@ -22,6 +22,12 @@ const ConfigSchema = z.object({
 
   // Logging Configuration
   logLevel: z.enum(['error', 'warn', 'info', 'http', 'debug']).default('info'),
+
+  // Request Size Limit - supports bytes notation (e.g., '10mb', '500kb', '1gb') or numbers
+  requestSizeLimit: z.union([
+    z.string().regex(/^\d+[kmgtpezy]?b?$/i, 'Invalid size format. Use formats like "10mb", "500kb", "1gb"'),
+    z.coerce.number().int().positive()
+  ]).default('100kb')
 });
 
 const loadAndValidate = (schema, rawConfig) => {
@@ -48,6 +54,7 @@ const rawConfig = {
   corsOrigin: process.env.CORS_ORIGIN,
   rateLimitWindowMs: process.env.RATE_LIMIT_WINDOW_MS,
   rateLimitMaxRequests: process.env.RATE_LIMIT_MAX_REQUESTS,
+  requestSizeLimit: process.env.REQUEST_SIZE_LIMIT,
 };
 
 
@@ -63,5 +70,6 @@ module.exports = {
   rateLimitWindowMs: config.rateLimitWindowMs,
   rateLimitMaxRequests: config.rateLimitMaxRequests,
   logLevel: config.logLevel,
+  requestSizeLimit: config.requestSizeLimit,
 };
 
