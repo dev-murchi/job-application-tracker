@@ -20,10 +20,15 @@ services:
     ports:
       - "3001:3001"
     environment:
+      NODE_ENV: ${SERVER_NODE_ENV}
+      PORT: ${SERVER_PORT}
       MONGO_URL: ${MONGO_URL}
       JWT_SECRET: ${JWT_SECRET}
       JWT_LIFETIME: ${JWT_LIFETIME}
       CORS_ORIGIN: ${CORS_ORIGIN}
+      RATE_LIMIT_WINDOW_MS: ${RATE_LIMIT_WINDOW_MS}
+      RATE_LIMIT_MAX_REQUESTS: ${RATE_LIMIT_MAX_REQUESTS}
+      LOG_LEVEL: ${LOG_LEVEL}
     depends_on:
       - mongodb
     networks:

@@ -16,14 +16,17 @@ const updateUser = async (req, res) => {
     throw new BadRequestError('No changes provided');
   }
 
-  const user = await User.findOne({ _id: req.user.userId });
+  const data = {
+    ...(name && { name }),
+    ...(lastName && { lastName }),
+    ...(email && { email }),
+    ...(location && { location }),
+  };
 
-  if (email) user.email = email;
-  if (name) user.name = name;
-  if (lastName) user.lastName = lastName;
-  if (location) user.location = location;
-
-  await user.save();
+  const user = await User.findOneAndUpdate({ _id: req.user.userId }, data, {
+    new: true,
+    runValidators: true,
+  });
 
   res.status(StatusCodes.OK).json(formatUserResponse(user));
 };

@@ -13,28 +13,21 @@ const formatUserResponse = (user) => ({
 
 // Main controller functions
 const register = async (req, res) => {
-  const { name, email, password } = req.body;
-
-  if (!name || !email || !password) {
-    throw new BadRequestError('please provide all values');
-  }
+  const { name, lastName, email, password, location } = req.body;
 
   const userAlreadyExists = await User.findOne({ email });
+
   if (userAlreadyExists) {
     throw new BadRequestError('Email already in use');
   }
 
-  const user = await User.create({ name, email, password });
+  const user = await User.create({ name, lastName, email, password, location });
 
   res.status(StatusCodes.CREATED).json(formatUserResponse(user));
 };
 
 const login = async (req, res) => {
   const { email, password } = req.body;
-
-  if (!email || !password) {
-    throw new BadRequestError('Please provide email and password');
-  }
 
   const user = await User.findOne({ email }).select('+password');
 

@@ -14,7 +14,7 @@ const JobSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ['interview', 'declined', 'pending', 'offered', 'accepted' ],
+      enum: ['interview', 'declined', 'pending', 'offered', 'accepted'],
       default: 'pending',
     },
     jobType: {
@@ -33,7 +33,6 @@ const JobSchema = new mongoose.Schema(
     },
     jobPostingUrl: {
       type: String,
-      required: true,
     },
     createdBy: {
       type: mongoose.Types.ObjectId,

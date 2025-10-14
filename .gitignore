@@ -16,6 +16,9 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
+*.log
+logs/
+packages/*/logs/
 
 # Build output
 dist/
@@ -30,5 +33,9 @@ packages/*/build
 *.sublime-workspace
 *.sublime-project
 
+# Backups
+backups/
+*.backup
+
 # Misc
-*.log
+.angular/

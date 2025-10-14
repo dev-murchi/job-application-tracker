@@ -1,9 +1,12 @@
 const express = require('express');
 const userController = require('../controllers/user');
-const authenticateUser = require('../middleware/auth');
+const { validateData, UserUpdateSchema } = require('../middleware/validation');
 
 const router = express.Router();
 router.get('/profile', userController.getCurrentUser);
-router.patch('/update', userController.updateUser);
+router.patch('/update', (req, res, next) => {
+  req.body = validateData(UserUpdateSchema, req.body);
+  next();
+}, userController.updateUser);
 
 module.exports = router;

@@ -1,4 +1,11 @@
-require('dotenv').config();
+let config;
+try {
+  config = require('./config');
+} catch (error) {
+  console.error(error);
+  process.exit(1);
+}
+
 require('express-async-errors');
 
 // Core dependencies
@@ -27,33 +34,15 @@ const jobsRouter = require('./routes/jobs');
 const logger = require('./utils/logger');
 const connectDB = require('./db/connect');
 
-// Configuration
-const config = {
-  port: process.env.PORT || 3001,
-  isProduction: process.env.NODE_ENV === 'production',
-  corsOrigin: process.env.CORS_ORIGIN || '*',
-  mongoUrl: process.env.MONGO_URL,
-};
-
 // Rate limiter configurations
-const rateLimiters = {
-  global: rateLimit({
-    windowMs: 15 * 60 * 1000,
-    max: 100,
-    message:
-      'Too many requests from this IP, please try again after 15 minutes',
-    standardHeaders: true,
-    legacyHeaders: false,
-  }),
-  auth: rateLimit({
-    windowMs: 15 * 60 * 1000,
-    max: 5,
-    message:
-      'Too many login/register attempts, please try again after 15 minutes',
-    standardHeaders: true,
-    legacyHeaders: false,
-  }),
-};
+const appLevelRateLimit = rateLimit({
+  windowMs: config.rateLimitWindowMs,
+  max: config.rateLimitMaxRequests,
+  message:
+    'Too many requests from this IP, please try again after 15 minutes',
+  standardHeaders: true,
+  legacyHeaders: false,
+});
 
 // Initialize express app
 const app = express();
@@ -80,31 +69,82 @@ const setupMiddleware = (app) => {
     })
   );
   app.use(cookieParser());
-  app.use(rateLimiters.global);
+
+  if (config.isProduction) {
+    app.use(appLevelRateLimit);
+  }
 };
 
 // Route setup
 const setupRoutes = (app) => {
   app.get('/', (req, res) => res.send('home'));
-  app.use('/api/v1/auth', rateLimiters.auth, authRouter);
+  app.use('/api/v1/auth', authRouter);
   app.use('/api/v1/users', authenticateUser, userRouter);
   app.use('/api/v1/jobs', authenticateUser, jobsRouter);
   app.use(notFoundMiddleware);
   app.use(errorHandlerMiddleware);
 };
 
+// Server reference for graceful shutdown
+let server;
+
 // Server startup
 const startServer = async () => {
   try {
     await connectDB(config.mongoUrl);
     logger.info('CONNECTED TO DB!!!');
-    app.listen(config.port, () =>
+    server = app.listen(config.port, () =>
       logger.info(`Server is listening on port ${config.port}...`)
     );
   } catch (error) {
     logger.error(error.stack || error);
+    process.exit(1);
   }
 };
+
+// Graceful shutdown handler
+const gracefulShutdown = async (signal) => {
+  logger.info(`${signal} received. Starting graceful shutdown...`);
+
+  if (server) {
+    server.close(async () => {
+      logger.info('HTTP server closed');
+
+      try {
+        await require('mongoose').connection.close();
+        logger.info('MongoDB connection closed');
+        process.exit(0);
+      } catch (error) {
+        logger.error('Error during shutdown:', error);
+        process.exit(1);
+      }
+    });
+
+    // Force shutdown after 30 seconds
+    setTimeout(() => {
+      logger.error('Forced shutdown after timeout');
+      process.exit(1);
+    }, 30000);
+  } else {
+    process.exit(0);
+  }
+};
+
+// Handle shutdown signals
+process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+
+// Handle uncaught exceptions
+process.on('uncaughtException', (error) => {
+  logger.error('Uncaught Exception:', error);
+  gracefulShutdown('UNCAUGHT_EXCEPTION');
+});
+
+// Handle unhandled promise rejections
+process.on('unhandledRejection', (reason, promise) => {
+  logger.error('Unhandled Rejection at:', promise, 'reason:', reason);
+  gracefulShutdown('UNHANDLED_REJECTION');
+});
 
 // Initialize application
 setupMiddleware(app);
