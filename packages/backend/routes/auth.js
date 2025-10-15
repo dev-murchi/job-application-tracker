@@ -2,12 +2,13 @@ const express = require('express');
 const authController = require('../controllers/auth');
 const rateLimit = require('express-rate-limit');
 const { validateData, UserRegisterationSchema, UserLoginSchema } = require('../middleware/validation');
+const config = require('../config');
 
 const router = express.Router();
 
-if (process.env.NODE_ENV === 'production') {
+if (config.isProduction) {
   const routerRateLimit = rateLimit({
-    windowMs: 15 * 60 * 1000,
+    windowMs: config.rateLimitWindowMs,
     max: 5,
     message:
       'Too many login/register attempts, please try again after 15 minutes',

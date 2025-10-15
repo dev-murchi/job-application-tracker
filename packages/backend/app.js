@@ -1,10 +1,4 @@
-let config;
-try {
-  config = require('./config');
-} catch (error) {
-  console.error(error);
-  process.exit(1);
-}
+const config = require('./config');
 
 require('express-async-errors');
 

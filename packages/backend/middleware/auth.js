@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 const { UnauthenticatedError } = require('../errors');
+const config = require('../config');
 
 const authenticateUser = async (req, res, next) => {
   const token = req.cookies.token;
@@ -7,7 +8,7 @@ const authenticateUser = async (req, res, next) => {
     throw new UnauthenticatedError('Authentication Invalid');
   }
   try {
-    const payload = jwt.verify(token, process.env.JWT_SECRET);
+    const payload = jwt.verify(token, config.jwtSecret);
     req.user = { userId: payload.userId };
     next();
   } catch (error) {

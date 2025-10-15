@@ -70,7 +70,7 @@ const errorHandlerMiddleware = (err, req, res, next) => {
   };
 
   // Only include sensitive information in development
-  if (config.nodeEnv === 'development') {
+  if (config.isDevelopment) {
     response.error = {
       name: err.name,
       stack: err.stack,
@@ -79,7 +79,7 @@ const errorHandlerMiddleware = (err, req, res, next) => {
   }
 
   // For production, provide generic error messages for 5xx errors
-  if (config.nodeEnv === 'production' && customError.statusCode >= 500) {
+  if (config.isProduction && customError.statusCode >= 500) {
     response.message = 'Internal server error. Please try again later.';
   }
 
