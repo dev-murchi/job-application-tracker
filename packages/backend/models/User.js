@@ -2,41 +2,49 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const validator = require('validator');
+const config = require('../config');
 
-const UserSchema = mongoose.Schema({
-  name: {
-    type: String,
-    required: [true, 'Please provide name'],
-    minlength: 3,
-    maxlength: 20,
-    trim: true,
-  },
-  email: {
-    type: String,
-    required: [true, 'Please provide email'],
-    validate: {
-      validator: validator.isEmail,
-      message: 'Please provide a valid email',
+const UserSchema = new mongoose.Schema(
+  {
+    name: {
+      type: String,
+      required: [true, 'Please provide name'],
+      minlength: 3,
+      maxlength: 20,
+      trim: true,
     },
-    unique: true,
+    email: {
+      type: String,
+      required: [true, 'Please provide email'],
+      validate: {
+        validator: validator.isEmail,
+        message: 'Please provide a valid email',
+      },
+      unique: true,
+    },
+    password: {
+      type: String,
+      required: [true, 'Please provide password'],
+      minlength: 6,
+      select: false,
+    },
+    lastName: {
+      type: String,
+      trim: true,
+      maxlength: 20,
+    },
+    location: {
+      type: String,
+      trim: true,
+      maxlength: 20,
+    },
   },
-  password: {
-    type: String,
-    required: [true, 'Please provide password'],
-    minlength: 6,
-    select: false,
-  },
-  lastName: {
-    type: String,
-    trim: true,
-    maxlength: 20,
-  },
-  location: {
-    type: String,
-    trim: true,
-    maxlength: 20,
-  },
-});
+  { timestamps: true, autoIndex: !config.isProduction }
+);
+
+UserSchema.index({ email: 1 }, { unique: true, background: true, name: 'email_unique_idx' });
+
+UserSchema.index({ email: 1, createdAt: -1 }, { background: true, name: 'email_created_idx' });
 
 UserSchema.pre('save', async function (next) {
   if (!this.isModified('password')) return;

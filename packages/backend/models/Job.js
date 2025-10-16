@@ -1,10 +1,11 @@
 const mongoose = require('mongoose');
+const config = require('../config');
 
 const JobSchema = new mongoose.Schema(
   {
     company: {
       type: String,
-      required: [true, 'Please provide company'],
+      required: [true, 'Please provide company name'],
       maxlength: 50,
     },
     position: {
@@ -40,7 +41,25 @@ const JobSchema = new mongoose.Schema(
       required: [true, 'Please provide user'],
     },
   },
-  { timestamps: true }
+  { timestamps: true, autoIndex: !config.isProduction }
 );
+
+JobSchema.index({ createdBy: 1 }, { background: true, name: 'created_by_idx' });
+
+JobSchema.index({ createdBy: 1, createdAt: -1 }, { background: true, name: 'user_created_desc_idx' });
+
+JobSchema.index({ createdBy: 1, createdAt: 1 }, { background: true, name: 'user_created_asc_idx' });
+
+JobSchema.index({ createdBy: 1, status: 1, createdAt: -1 }, { background: true, name: 'user_status_created_idx' });
+
+JobSchema.index({ createdBy: 1, jobType: 1, createdAt: -1 }, { background: true, name: 'user_jobtype_created_idx' });
+
+JobSchema.index({ company: 'text', position: 'text' }, {
+  background: true, name: 'search_text_idx', weights: { position: 2, company: 1 }
+});
+
+JobSchema.index({ createdBy: 1, company: 1, position: 1 }, { background: true, name: 'user_company_position_idx' });
+
+JobSchema.index({ createdBy: 1, status: 1 }, { background: true, name: 'user_status_idx' });
 
 module.exports = mongoose.model('Job', JobSchema);
