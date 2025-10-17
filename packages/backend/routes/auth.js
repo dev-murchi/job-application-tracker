@@ -7,16 +7,8 @@ const config = require('../config');
 const router = express.Router();
 
 if (config.isProduction) {
-  const routerRateLimit = rateLimit({
-    windowMs: config.rateLimitWindowMs,
-    max: 5,
-    message:
-      'Too many login/register attempts, please try again after 15 minutes',
-    standardHeaders: true,
-    legacyHeaders: false,
-  });
-
-  router.use(routerRateLimit);
+  const { authRouteRateLimit } = require('../middleware/rate-limiter');
+  router.use(authRouteRateLimit);
 }
 
 router.post('/register', (req, res, next) => {

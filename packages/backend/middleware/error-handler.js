@@ -69,15 +69,6 @@ const errorHandlerMiddleware = (err, req, res, next) => {
     statusCode: customError.statusCode,
   };
 
-  // Only include sensitive information in development
-  if (config.isDevelopment) {
-    response.error = {
-      name: err.name,
-      stack: err.stack,
-      details: err
-    };
-  }
-
   // For production, provide generic error messages for 5xx errors
   if (config.isProduction && customError.statusCode >= 500) {
     response.message = 'Internal server error. Please try again later.';

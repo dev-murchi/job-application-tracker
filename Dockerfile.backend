@@ -19,4 +19,4 @@ EXPOSE 3001
 
 WORKDIR /usr/src/app/packages/backend
 
-CMD ["npx", "nodemon", "app.js"]
+CMD ["npm", "run", "dev"]

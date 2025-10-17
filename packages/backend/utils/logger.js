@@ -22,7 +22,7 @@ const logger = createLogger({
         customFormat
       )
     }),
-    ...(isProduction
+    ...(config.isProduction
       ? [
         // In production, log errors to a file
         new transports.File({
