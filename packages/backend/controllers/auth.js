@@ -1,6 +1,6 @@
 const { StatusCodes } = require('http-status-codes');
 const { BadRequestError, UnauthenticatedError } = require('../errors/index.js');
-const attachCookie = require('../utils/attachCookie.js');
+const attachCookie = require('../utils/attach-cookie.js');
 
 const dbService = require('../db/db-service');
 const User = dbService.getModel('User');
