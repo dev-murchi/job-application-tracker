@@ -1,0 +1,30 @@
+{
+  "testEnvironment": "node",
+  "collectCoverageFrom": [
+    "controllers/**/*.js",
+    "utils/**/*.js",
+    "middleware/**/*.js",
+    "!middleware/rate-limiter.js",
+    "!middleware/validator.js",
+    "!utils/logger.js",
+    "!**/node_modules/**",
+    "!**/tests/**"
+  ],
+  "coverageDirectory": "coverage/unit",
+  "coverageReporters": ["text", "lcov", "html"],
+  "coverageThreshold": {
+    "global": {
+      "branches": 90,
+      "functions": 90,
+      "lines": 90,
+      "statements": 90
+    }
+  },
+  "testMatch": ["<rootDir>/tests/unit/**/*.test.js"],
+  "clearMocks": true,
+  "rootDir": "../",
+  "modulePaths": ["<rootDir>"],
+  "setupFilesAfterEnv": ["<rootDir>/tests/jest-unit-setup.js"],
+  "testTimeout": 30000,
+  "maxWorkers": 1
+}

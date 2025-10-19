@@ -24,6 +24,7 @@ packages/*/logs/
 dist/
 build/
 coverage/
+coverage/**/
 packages/*/dist
 packages/*/build
 
