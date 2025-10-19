@@ -62,4 +62,4 @@ JobSchema.index({ createdBy: 1, company: 1, position: 1 }, { background: true, n
 
 JobSchema.index({ createdBy: 1, status: 1 }, { background: true, name: 'user_status_idx' });
 
-module.exports = mongoose.model('Job', JobSchema);
+module.exports = JobSchema;

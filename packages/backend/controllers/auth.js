@@ -1,7 +1,9 @@
-const User = require('../models/User.js');
 const { StatusCodes } = require('http-status-codes');
 const { BadRequestError, UnauthenticatedError } = require('../errors/index.js');
 const attachCookie = require('../utils/attachCookie.js');
+
+const dbService = require('../db/db-service');
+const User = dbService.getModel('User');
 
 // Helper functions
 const formatUserResponse = (user) => ({

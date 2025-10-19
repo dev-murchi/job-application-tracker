@@ -1,9 +1,11 @@
-const Job = require('../models/Job.js');
 const { StatusCodes } = require('http-status-codes');
 const { BadRequestError, NotFoundError } = require('../errors/index.js');
 const checkPermissions = require('../utils/checkPermissions.js');
 const mongoose = require('mongoose');
 const { format } = require('date-fns');
+
+const dbService = require('../db/db-service.js');
+const Job = dbService.getModel('Job');
 
 const createJob = async (req, res) => {
   const { position, company, jobType, jobLocation, status, companyWebsite, jobPostingUrl } = req.body;
@@ -100,9 +102,7 @@ const updateJob = async (req, res) => {
     ...(jobPostingUrl && { jobPostingUrl }),
   };
 
-  if (!data['jobLocation'] && typeof (jobLocation) === 'string') {
-    data['jobLocation'] = '';
-  }
+
   if (!data['jobPostingUrl'] && typeof (jobPostingUrl) === 'string') {
     data['jobPostingUrl'] = '';
   }

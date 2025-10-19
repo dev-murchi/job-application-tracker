@@ -1,6 +1,8 @@
-const User = require('../models/User');
 const { StatusCodes } = require('http-status-codes');
-const { BadRequestError } = require('../errors');
+const { BadRequestError, NotFoundError } = require('../errors');
+
+const dbService = require('../db/db-service');
+const User = dbService.getModel('User');
 
 const formatUserResponse = (user) => ({
   email: user.email,

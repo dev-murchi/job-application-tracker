@@ -1,7 +1,9 @@
 const config = require('./config');
 const logger = require('./utils/logger');
-const { connectionManager } = require('./db/connect');
-const { app } = require('./app');
+const mongoose = require('mongoose');
+const createConnectionManager = require('./db/connect');
+const dbService = require('./db/db-service')
+const { UserSchema, JobSchema } = require('./models')
 const http = require('http');
 
 const createConfiguredServer = (requestListener, keepAliveTimeout, headersTimeout) => {
@@ -9,11 +11,6 @@ const createConfiguredServer = (requestListener, keepAliveTimeout, headersTimeou
   server.keepAliveTimeout = keepAliveTimeout;
   server.headersTimeout = headersTimeout;
   return server;
-};
-
-const connectDatabase = async (url) => {
-  await connectionManager.connect(url);
-  logger.info('Database connection established successfully');
 };
 
 const listenServer = (server, port) => {
@@ -94,10 +91,17 @@ const setupProcessHandlers = (shutdownHandler) => {
 
 const startServer = async () => {
   try {
+    // create models
+    dbService.createModel(mongoose.connection, 'User', UserSchema);
+    dbService.createModel(mongoose.connection, 'Job', JobSchema);
+    
     // Database connection
-    await connectDatabase(config.mongoUrl);
+    const connectionManager = createConnectionManager(mongoose.connection, {isProdction: config.isProduction});
+    await connectionManager.connect(config.mongoUrl);
+    logger.info('Database connection established successfully');
 
     // Server creation
+    const { app } = require('./app');
     const server = createConfiguredServer(app, 61 * 1000, 65 * 1000);
 
     // Set up process handlers for graceful shutdown.

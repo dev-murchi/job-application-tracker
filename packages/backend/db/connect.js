@@ -1,4 +1,3 @@
-const config = require('../config');
 const mongoose = require('mongoose');
 const logger = require('../utils/logger');
 
@@ -18,8 +17,6 @@ const createConnectionOptions = (isProduction) => ({
   heartbeatFrequencyMS: 10000,
 
   // Retry and durability settings
-  retryWrites: true,
-  retryReads: true,
   writeConcern: {
     w: 'majority',
     j: true,
@@ -42,13 +39,13 @@ const createConnectionOptions = (isProduction) => ({
 });
 
 
-const createEventHandlers = (isProduction) => ({
+const createEventHandlers = (connection, isProduction) => ({
   onConnected: () => {
     logger.info('MongoDB connected successfully', {
-      host: mongoose.connection.host,
-      port: mongoose.connection.port,
-      database: mongoose.connection.name,
-      readyState: mongoose.connection.readyState
+      host: connection.host,
+      port: connection.port,
+      database: connection.name,
+      readyState: connection.readyState
     });
   },
 
@@ -62,14 +59,14 @@ const createEventHandlers = (isProduction) => ({
 
   onDisconnected: () => {
     logger.warn('MongoDB disconnected', {
-      readyState: mongoose.connection.readyState
+      readyState: connection.readyState
     });
   },
 
   onReconnected: () => {
     logger.info('MongoDB reconnected', {
-      host: mongoose.connection.host,
-      readyState: mongoose.connection.readyState
+      host: connection.host,
+      readyState: connection.readyState
     });
   },
 
@@ -105,20 +102,27 @@ const validateConnectionUrl = (url) => {
   return url;
 };
 
-const createConnectionManager = ({ mongoose, config }) => {
+const createConnectionManager = ({ connection, config }) => {
+  const conn = connection || mongoose.connection;
+
   const options = createConnectionOptions(config.isProduction);
-  const eventHandlers = createEventHandlers(config.isProduction);
+  const eventHandlers = createEventHandlers(conn, config.isProduction);
 
   const connect = (url) => {
     validateConnectionUrl(url);
-    registerEventListeners(mongoose.connection, eventHandlers);
-    return mongoose.connect(url, options);
+    registerEventListeners(conn, eventHandlers);
+
+    if (conn === mongoose.connection) {
+      return mongoose.connect(url, options);
+    } else {
+      return conn.openUri(url, options);
+    }
   };
 
   const closeConnection = async (force = false) => {
     try {
       logger.info('Closing MongoDB connection...', { force });
-      await mongoose.connection.close(force);
+      await conn.close(force);
       logger.info('MongoDB connection closed successfully');
     } catch (error) {
       logger.error('Error closing MongoDB connection', {
@@ -129,7 +133,7 @@ const createConnectionManager = ({ mongoose, config }) => {
     }
   };
 
-  const isConnected = () => mongoose.connection.readyState === 1;
+  const isConnected = () => conn.readyState === 1;
 
   const mapConnectionState = (readyState) => {
     const states = {
@@ -143,22 +147,22 @@ const createConnectionManager = ({ mongoose, config }) => {
   };
 
   const getConnectionStatus = () => ({
-    state: mapConnectionState(mongoose.connection.readyState),
-    readyState: mongoose.connection.readyState,
-    host: mongoose.connection.host,
-    port: mongoose.connection.port,
-    name: mongoose.connection.name
+    state: mapConnectionState(conn.readyState),
+    readyState: conn.readyState,
+    host: conn.host,
+    port: conn.port,
+    name: conn.name
   });
 
   const getPoolStats = () => {
-    if (!mongoose.connection.db) {
+    if (!conn.db) {
       return null;
     }
 
     try {
       return {
-        maxPoolSize: mongoose.connection.options?.maxPoolSize,
-        minPoolSize: mongoose.connection.options?.minPoolSize,
+        maxPoolSize: conn.options?.maxPoolSize,
+        minPoolSize: conn.options?.minPoolSize,
         currentConnections: 'N/A',
       };
     } catch (error) {
@@ -173,7 +177,7 @@ const createConnectionManager = ({ mongoose, config }) => {
     const timestamp = () => new Date().toISOString();
 
     try {
-      await mongoose.connection.db.admin().ping();
+      await conn.db.admin().ping();
       return {
         success: true,
         responseTime: responseTime(),
@@ -199,9 +203,4 @@ const createConnectionManager = ({ mongoose, config }) => {
   };
 };
 
-// Create and export the connection manager instance
-const connectionManager = createConnectionManager({ mongoose, config });
-
-module.exports = {
-  connectionManager,
-};
+module.exports = createConnectionManager;
