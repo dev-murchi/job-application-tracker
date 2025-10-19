@@ -1,8 +1,8 @@
 const express = require('express');
 const authController = require('../controllers/auth');
-const rateLimit = require('express-rate-limit');
-const { validateData, UserRegisterationSchema, UserLoginSchema } = require('../middleware/validation');
+const { UserRegisterSchema, UserLoginSchema } = require('../utils/validation');
 const config = require('../config');
+const { validateBody } = require('../middleware/validator');
 
 const router = express.Router();
 
@@ -11,15 +11,9 @@ if (config.isProduction) {
   router.use(authRouteRateLimit);
 }
 
-router.post('/register', (req, res, next) => {
-  req.body = validateData(UserRegisterationSchema, req.body);
-  next();
-}, authController.register);
+router.post('/register', validateBody(UserRegisterSchema), authController.register);
 
-router.post('/login', (req, res, next) => {
-  req.body = validateData(UserLoginSchema, req.body);
-  next();
-}, authController.login);
+router.post('/login', validateBody(UserLoginSchema), authController.login);
 
 router.get('/logout', authController.logout);
 

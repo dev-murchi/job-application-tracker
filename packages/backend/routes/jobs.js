@@ -7,32 +7,22 @@ const {
   showStats,
   getJob,
 } = require('../controllers/jobs');
-const { validateData, JobSearchQuerySchema, JobCreateSchema, JobUpdateSchema, MongooseObjectId } = require('../middleware/validation');
+const { JobSearchQuerySchema, JobCreateSchema, JobUpdateSchema, MongooseObjectIdSchema } = require('../utils/validation');
+const { validateQuery, validateBody, validateParams } = require('../middleware/validator');
+const z = require('zod');
 
 const router = express.Router();
 
 router.route('/')
-  .post((req, res, next) => {
-    req.body = validateData(JobCreateSchema, req.body);
-    next()
-  }, createJob)
-  .get((req, res, next) => {
-    req.query = validateData(JobSearchQuerySchema, req.query);
-    next();
-  }, getAllJobs);
+  .post(validateBody(JobCreateSchema), createJob)
+  .get(validateQuery(JobSearchQuerySchema), getAllJobs);
 
 router.route('/stats').get(showStats);
 
 router.route('/:id')
-  .all((req, res, next) => {
-    validateData(MongooseObjectId, req.params['id']);
-    next();
-  })
+  .all(validateParams(z.object({ id: MongooseObjectIdSchema })))
   .get(getJob)
-  .patch((req, res, next) => {
-    req.body = validateData(JobUpdateSchema, req.body);
-    next()
-  }, updateJob)
+  .patch(validateBody(JobUpdateSchema), updateJob)
   .delete(deleteJob);
 
 module.exports = router;

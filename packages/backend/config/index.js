@@ -81,7 +81,6 @@ const loadAndValidate = (schema, rawConfig) => {
   try {
     return schema.parse(rawConfig);
   } catch (error) {
-    console.error('Error occurred:', error);
     if (error instanceof z.ZodError) {
       const errorMessages = error.issues.map(err => {
         let message = `${err.path.join('.')}: ${err.message}`;

@@ -6,8 +6,10 @@ const errorHandlerMiddleware = (err, req, res, next) => {
   // Log the full error for debugging (includes stack trace)
   logger.error('Error occurred:', {
     message: err.message,
-    stack: err.stack,
+    issues: err.issues || [],
+    stack: config.isProduction ? undefined : err.stack,
     url: req.url,
+    path: req.path,
     method: req.method,
     ip: req.ip,
     userAgent: req.get('User-Agent'),
@@ -43,22 +45,24 @@ const errorHandlerMiddleware = (err, req, res, next) => {
 
   // JWT errors
   else if (err.name === 'JsonWebTokenError') {
-    customError.msg = 'Invalid token. Please log in again.';
+    customError.msg = 'Invalid token. Please provide valid token.';
     customError.statusCode = StatusCodes.UNAUTHORIZED;
   }
 
   else if (err.name === 'TokenExpiredError') {
-    customError.msg = 'Token expired. Please log in again.';
+    customError.msg = 'Token expired. Please provide valid token.';
     customError.statusCode = StatusCodes.UNAUTHORIZED;
   }
 
   // Zod validation errors
   else if (err.name === 'ZodError') {
-    const errorMessages = err.errors.map((error) => {
-      const field = error.path.join('.');
-      return `${field}: ${error.message}`;
-    });
-    customError.msg = errorMessages.join(', ');
+    const errorMessage = err.issues
+      .map((err) => {
+        const path = err.path.length > 0 ? `${err.path.join('.')}: ` : '';
+        return `${path}${err.message}`;
+      })
+      .join(', ');
+    customError.msg = errorMessage;
     customError.statusCode = StatusCodes.BAD_REQUEST;
   }
 
