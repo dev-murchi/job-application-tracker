@@ -9,7 +9,6 @@ const morgan = require('morgan');
 
 // Security middleware imports
 const helmet = require('helmet');
-const xss = require('xss-clean');
 const cors = require('cors');
 const mongoSanitize = require('express-mongo-sanitize');
 
@@ -26,6 +25,7 @@ const jobsRouter = require('./routes/jobs');
 
 // Utilities
 const logger = require('./utils/logger');
+const sanitizeData = require('./utils/sanitize');
 
 // Initialize express app
 const app = express();
@@ -55,7 +55,19 @@ app.use(
 
 // Security middleware
 app.use(helmet());
-app.use(xss());
+// XSS protection handled by sanitize-html in validation layer
+app.use((req, res, next) => {
+  try {
+    req.headers = sanitizeData(req.headers);
+    req.body = sanitizeData(req.body);
+    req.params = sanitizeData(req.params);
+    req.query = sanitizeData(req.query);
+    req.cookies = sanitizeData(req.cookies);
+    next()
+  } catch (error) {
+    next(error);
+  }
+})
 app.use(mongoSanitize());
 app.use(cors({
   origin: config.corsOrigin,
