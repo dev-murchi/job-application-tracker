@@ -31,7 +31,6 @@ const authenticateUser = async (req, res, next) => {
   req.user = { ...user, userId };
 
   next();
-
 };
 
 module.exports = authenticateUser;

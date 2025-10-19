@@ -20,10 +20,10 @@ const createConnectionOptions = (isProduction) => ({
   writeConcern: {
     w: 'majority',
     j: true,
-    wtimeout: 5000
+    wtimeout: 5000,
   },
   readConcern: {
-    level: 'majority'
+    level: 'majority',
   },
   readPreference: 'secondaryPreferred',
 
@@ -38,14 +38,13 @@ const createConnectionOptions = (isProduction) => ({
   appName: 'job-tracker-api',
 });
 
-
 const createEventHandlers = (connection, isProduction) => ({
   onConnected: () => {
     logger.info('MongoDB connected successfully', {
       host: connection.host,
       port: connection.port,
       database: connection.name,
-      readyState: connection.readyState
+      readyState: connection.readyState,
     });
   },
 
@@ -53,20 +52,20 @@ const createEventHandlers = (connection, isProduction) => ({
     logger.error('MongoDB connection error', {
       error: err.message,
       code: err.code,
-      stack: isProduction ? undefined : err.stack
+      stack: isProduction ? undefined : err.stack,
     });
   },
 
   onDisconnected: () => {
     logger.warn('MongoDB disconnected', {
-      readyState: connection.readyState
+      readyState: connection.readyState,
     });
   },
 
   onReconnected: () => {
     logger.info('MongoDB reconnected', {
       host: connection.host,
-      readyState: connection.readyState
+      readyState: connection.readyState,
     });
   },
 
@@ -80,7 +79,7 @@ const createEventHandlers = (connection, isProduction) => ({
 
   onAll: () => {
     logger.info('MongoDB connected to all servers in replica set');
-  }
+  },
 });
 
 const registerEventListeners = (connection, handlers) => {
@@ -127,7 +126,7 @@ const createConnectionManager = ({ connection, config }) => {
     } catch (error) {
       logger.error('Error closing MongoDB connection', {
         error: error.message,
-        stack: config.isProduction ? undefined : error.stack
+        stack: config.isProduction ? undefined : error.stack,
       });
       throw error;
     }
@@ -141,7 +140,7 @@ const createConnectionManager = ({ connection, config }) => {
       1: 'connected',
       2: 'connecting',
       3: 'disconnecting',
-      99: 'uninitialized'
+      99: 'uninitialized',
     };
     return states[readyState] || 'unknown';
   };
@@ -151,7 +150,7 @@ const createConnectionManager = ({ connection, config }) => {
     readyState: conn.readyState,
     host: conn.host,
     port: conn.port,
-    name: conn.name
+    name: conn.name,
   });
 
   const getPoolStats = () => {
@@ -181,14 +180,14 @@ const createConnectionManager = ({ connection, config }) => {
       return {
         success: true,
         responseTime: responseTime(),
-        timestamp: timestamp()
+        timestamp: timestamp(),
       };
     } catch (error) {
       return {
         success: false,
         responseTime: responseTime(),
         error: error.message,
-        timestamp: timestamp()
+        timestamp: timestamp(),
       };
     }
   };

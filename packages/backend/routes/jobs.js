@@ -7,19 +7,30 @@ const {
   showStats,
   getJob,
 } = require('../controllers/jobs');
-const { JobSearchQuerySchema, JobCreateSchema, JobUpdateSchema, MongooseObjectIdSchema } = require('../utils/validation');
-const { validateQuery, validateBody, validateParams } = require('../middleware/validator');
+const {
+  JobSearchQuerySchema,
+  JobCreateSchema,
+  JobUpdateSchema,
+  MongooseObjectIdSchema,
+} = require('../utils/validation');
+const {
+  validateQuery,
+  validateBody,
+  validateParams,
+} = require('../middleware/validator');
 const z = require('zod');
 
 const router = express.Router();
 
-router.route('/')
+router
+  .route('/')
   .post(validateBody(JobCreateSchema), createJob)
   .get(validateQuery(JobSearchQuerySchema), getAllJobs);
 
 router.route('/stats').get(showStats);
 
-router.route('/:id')
+router
+  .route('/:id')
   .all(validateParams(z.object({ id: MongooseObjectIdSchema })))
   .get(getJob)
   .patch(validateBody(JobUpdateSchema), updateJob)

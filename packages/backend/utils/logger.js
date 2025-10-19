@@ -17,26 +17,23 @@ const logger = createLogger({
   format: customFormat,
   transports: [
     new transports.Console({
-      format: format.combine(
-        format.colorize(),
-        customFormat
-      )
+      format: format.combine(format.colorize(), customFormat),
     }),
     ...(config.isProduction
       ? [
-        // In production, log errors to a file
-        new transports.File({
-          filename: 'logs/error.log',
-          level: 'error',
-          maxsize: 5242880, // 5MB
-          maxFiles: 5,
-        }),
-        new transports.File({
-          filename: 'logs/combined.log',
-          maxsize: 5242880, // 5MB
-          maxFiles: 5,
-        }),
-      ]
+          // In production, log errors to a file
+          new transports.File({
+            filename: 'logs/error.log',
+            level: 'error',
+            maxsize: 5242880, // 5MB
+            maxFiles: 5,
+          }),
+          new transports.File({
+            filename: 'logs/combined.log',
+            maxsize: 5242880, // 5MB
+            maxFiles: 5,
+          }),
+        ]
       : []),
   ],
   // Don't exit on uncaught exception

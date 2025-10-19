@@ -19,18 +19,23 @@ const calculateShannonEntropy = (str) => {
   }
 
   return entropy;
-}
+};
 
 // JWT Secret validation based on JWT BCP recommendations
-const JwtSecretSchema = z.string()
+const JwtSecretSchema = z
+  .string()
   .min(32, 'JWT secret must be at least 32 characters (256 bits) for security')
-  .refine((secret) => {
-    // Check entropy - secret should not be predictable
-    const entropy = calculateShannonEntropy(secret);
-    return entropy >= 4.5; // Reasonable entropy threshold
-  }, {
-    message: 'JWT secret has insufficient entropy. Use a cryptographically secure random string'
-  });
+  .refine(
+    (secret) => {
+      // Check entropy - secret should not be predictable
+      const entropy = calculateShannonEntropy(secret);
+      return entropy >= 4.5; // Reasonable entropy threshold
+    },
+    {
+      message:
+        'JWT secret has insufficient entropy. Use a cryptographically secure random string',
+    }
+  );
 
 const ConfigSchema = z.object({
   // Application settings
@@ -42,22 +47,29 @@ const ConfigSchema = z.object({
 
   // JWT configuration
   jwtSecret: JwtSecretSchema,
-  jwtLifetime: z.string()
-    .regex(/^\d+[dhms]$/, 'JWT lifetime must be in format: 30d, 24h, 60m, 3600s')
-    .refine((lifetime) => {
-      // Parse and validate reasonable lifetime limits
-      const value = parseInt(lifetime);
-      const unit = lifetime.slice(-1);
+  jwtLifetime: z
+    .string()
+    .regex(
+      /^\d+[dhms]$/,
+      'JWT lifetime must be in format: 30d, 24h, 60m, 3600s'
+    )
+    .refine(
+      (lifetime) => {
+        // Parse and validate reasonable lifetime limits
+        const value = parseInt(lifetime);
+        const unit = lifetime.slice(-1);
 
-      if (unit === 'd') return value <= 30; // Max 30 days
-      if (unit === 'h') return value <= 720; // Max 30 days in hours
-      if (unit === 'm') return value <= 43200; // Max 30 days in minutes
-      if (unit === 's') return value <= 2592000; // Max 30 days in seconds
+        if (unit === 'd') return value <= 30; // Max 30 days
+        if (unit === 'h') return value <= 720; // Max 30 days in hours
+        if (unit === 'm') return value <= 43200; // Max 30 days in minutes
+        if (unit === 's') return value <= 2592000; // Max 30 days in seconds
 
-      return false;
-    }, {
-      message: 'JWT lifetime cannot exceed 30 days for security reasons'
-    })
+        return false;
+      },
+      {
+        message: 'JWT lifetime cannot exceed 30 days for security reasons',
+      }
+    )
     .default('7d'),
 
   // CORS Configuration
@@ -71,10 +83,17 @@ const ConfigSchema = z.object({
   logLevel: z.enum(['error', 'warn', 'info', 'http', 'debug']).default('info'),
 
   // Request Size Limit
-  requestSizeLimit: z.union([
-    z.string().regex(/^\d+[kmgtpezy]?b?$/i, 'Invalid size format. Use formats like "10mb", "500kb", "1gb"'),
-    z.coerce.number().int().positive()
-  ]).default('100kb')
+  requestSizeLimit: z
+    .union([
+      z
+        .string()
+        .regex(
+          /^\d+[kmgtpezy]?b?$/i,
+          'Invalid size format. Use formats like "10mb", "500kb", "1gb"'
+        ),
+      z.coerce.number().int().positive(),
+    ])
+    .default('100kb'),
 });
 
 const loadAndValidate = (schema, rawConfig) => {
@@ -82,23 +101,26 @@ const loadAndValidate = (schema, rawConfig) => {
     return schema.parse(rawConfig);
   } catch (error) {
     if (error instanceof z.ZodError) {
-      const errorMessages = error.issues.map(err => {
-        let message = `${err.path.join('.')}: ${err.message}`;
+      const errorMessages = error.issues
+        .map((err) => {
+          let message = `${err.path.join('.')}: ${err.message}`;
 
-        // Add helpful suggestion for JWT secret errors
-        if (err.path.includes('jwtSecret')) {
-          message += `\n\nTo generate a secure JWT secret, run:\n` +
-            `node -e "console.log(require('crypto').randomBytes(64).toString('base64'))"`;
-        }
+          // Add helpful suggestion for JWT secret errors
+          if (err.path.includes('jwtSecret')) {
+            message +=
+              `\n\nTo generate a secure JWT secret, run:\n` +
+              `node -e "console.log(require('crypto').randomBytes(64).toString('base64'))"`;
+          }
 
-        return message;
-      }).join('\n');
+          return message;
+        })
+        .join('\n');
 
       console.error(`\nConfiguration validation failed:\n${errorMessages}\n`);
     }
     process.exit(1);
   }
-}
+};
 
 const rawConfig = {
   nodeEnv: process.env.NODE_ENV,
@@ -110,7 +132,7 @@ const rawConfig = {
   rateLimitWindowMs: process.env.RATE_LIMIT_WINDOW_MS,
   rateLimitMaxRequests: process.env.RATE_LIMIT_MAX_REQUESTS,
   logLevel: process.env.LOG_LEVEL,
-  requestSizeLimit: process.env.REQUEST_SIZE_LIMIT
+  requestSizeLimit: process.env.REQUEST_SIZE_LIMIT,
 };
 
 const config = loadAndValidate(ConfigSchema, rawConfig);

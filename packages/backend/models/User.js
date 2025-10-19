@@ -42,9 +42,15 @@ const UserSchema = new mongoose.Schema(
   { timestamps: true, autoIndex: !config.isProduction }
 );
 
-UserSchema.index({ email: 1 }, { unique: true, background: true, name: 'email_unique_idx' });
+UserSchema.index(
+  { email: 1 },
+  { unique: true, background: true, name: 'email_unique_idx' }
+);
 
-UserSchema.index({ email: 1, createdAt: -1 }, { background: true, name: 'email_created_idx' });
+UserSchema.index(
+  { email: 1, createdAt: -1 },
+  { background: true, name: 'email_created_idx' }
+);
 
 UserSchema.pre('save', async function (next) {
   if (!this.isModified('password')) return;
@@ -59,11 +65,9 @@ UserSchema.methods.comparePassword = async function (candidatePassword) {
 };
 
 UserSchema.methods.createJWT = function () {
-  return jwt.sign(
-    { userId: this._id },
-    config.jwtSecret,
-    { expiresIn: config.jwtLifetime }
-  );
+  return jwt.sign({ userId: this._id }, config.jwtSecret, {
+    expiresIn: config.jwtLifetime,
+  });
 };
 
 module.exports = UserSchema;

@@ -11,7 +11,11 @@ if (config.isProduction) {
   router.use(authRouteRateLimit);
 }
 
-router.post('/register', validateBody(UserRegisterSchema), authController.register);
+router.post(
+  '/register',
+  validateBody(UserRegisterSchema),
+  authController.register
+);
 
 router.post('/login', validateBody(UserLoginSchema), authController.login);
 

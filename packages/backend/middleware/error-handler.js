@@ -13,7 +13,7 @@ const errorHandlerMiddleware = (err, req, res, next) => {
     method: req.method,
     ip: req.ip,
     userAgent: req.get('User-Agent'),
-    userId: req.user?.userId || 'anonymous'
+    userId: req.user?.userId || 'anonymous',
   });
 
   let customError = {
@@ -47,9 +47,7 @@ const errorHandlerMiddleware = (err, req, res, next) => {
   else if (err.name === 'JsonWebTokenError') {
     customError.msg = 'Invalid token. Please provide valid token.';
     customError.statusCode = StatusCodes.UNAUTHORIZED;
-  }
-
-  else if (err.name === 'TokenExpiredError') {
+  } else if (err.name === 'TokenExpiredError') {
     customError.msg = 'Token expired. Please provide valid token.';
     customError.statusCode = StatusCodes.UNAUTHORIZED;
   }

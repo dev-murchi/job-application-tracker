@@ -21,4 +21,4 @@ const authRouteRateLimit = rateLimit({
 module.exports = {
   appLevelRateLimit,
   authRouteRateLimit,
-}
+};

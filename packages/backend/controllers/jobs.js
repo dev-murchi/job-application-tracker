@@ -8,7 +8,15 @@ const dbService = require('../db/db-service.js');
 const Job = dbService.getModel('Job');
 
 const createJob = async (req, res) => {
-  const { position, company, jobType, jobLocation, status, companyWebsite, jobPostingUrl } = req.body;
+  const {
+    position,
+    company,
+    jobType,
+    jobLocation,
+    status,
+    companyWebsite,
+    jobPostingUrl,
+  } = req.body;
 
   const data = {
     company,
@@ -40,8 +48,8 @@ const getAllJobs = async (req, res) => {
       ...queryObject,
       $or: [
         { position: { $regex: search, $options: 'i' } },
-        { company: { $regex: search, $options: 'i' } }
-      ]
+        { company: { $regex: search, $options: 'i' } },
+      ],
     };
   }
 
@@ -56,13 +64,17 @@ const getAllJobs = async (req, res) => {
   const totalJobs = await Job.countDocuments(queryObject);
 
   if (totalJobs === 0) {
-    return res.status(StatusCodes.OK).json({ jobs: [], page, numOfPages: 0, totalJobs: 0 });
+    return res
+      .status(StatusCodes.OK)
+      .json({ jobs: [], page, numOfPages: 0, totalJobs: 0 });
   }
 
   const numOfPages = Math.ceil(totalJobs / limit);
 
   if (page > numOfPages) {
-    throw new BadRequestError('Requested page does not exist: page number is out of range for the available jobs.');
+    throw new BadRequestError(
+      'Requested page does not exist: page number is out of range for the available jobs.'
+    );
   }
 
   const skip = (page - 1) * limit;
@@ -77,9 +89,25 @@ const getAllJobs = async (req, res) => {
 
 const updateJob = async (req, res) => {
   const { id: jobId } = req.params;
-  const { company, position, status, jobType, jobLocation, companyWebsite, jobPostingUrl } = req.body;
+  const {
+    company,
+    position,
+    status,
+    jobType,
+    jobLocation,
+    companyWebsite,
+    jobPostingUrl,
+  } = req.body;
 
-  if (!company && !position && !status && !jobType && !jobLocation && !companyWebsite && !jobPostingUrl) {
+  if (
+    !company &&
+    !position &&
+    !status &&
+    !jobType &&
+    !jobLocation &&
+    !companyWebsite &&
+    !jobPostingUrl
+  ) {
     throw new BadRequestError('No changes provided');
   }
 
@@ -102,8 +130,7 @@ const updateJob = async (req, res) => {
     ...(jobPostingUrl && { jobPostingUrl }),
   };
 
-
-  if (!data['jobPostingUrl'] && typeof (jobPostingUrl) === 'string') {
+  if (!data['jobPostingUrl'] && typeof jobPostingUrl === 'string') {
     data['jobPostingUrl'] = '';
   }
 
@@ -155,7 +182,11 @@ const showStats = async (req, res) => {
 
   const endDate = new Date(Date.now());
   const N = 6; // change N to desired number of months
-  const startDate = new Date(endDate.getFullYear(), endDate.getMonth() - (N - 1), 1);
+  const startDate = new Date(
+    endDate.getFullYear(),
+    endDate.getMonth() - (N - 1),
+    1
+  );
 
   let monthlyApplications = await Job.aggregate([
     { $match: { createdBy: userId, createdAt: { $gte: startDate } } },
@@ -190,7 +221,9 @@ const showStats = async (req, res) => {
     });
   }
 
-  res.status(StatusCodes.OK).json({ defaultStats, monthlyApplications: monthlyApplicationsFilled });
+  res
+    .status(StatusCodes.OK)
+    .json({ defaultStats, monthlyApplications: monthlyApplicationsFilled });
 };
 
 const getJob = async (req, res) => {
@@ -203,7 +236,7 @@ const getJob = async (req, res) => {
   }
 
   res.status(StatusCodes.OK).json({ job });
-}
+};
 
 module.exports = {
   createJob,

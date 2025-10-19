@@ -6,8 +6,8 @@ const createValidatorFn = (property) => (schema) => {
     } catch (error) {
       throw error;
     }
-  }
-}
+  };
+};
 
 const validateBody = createValidatorFn('body');
 const validateHeaders = createValidatorFn('headers');
@@ -19,6 +19,4 @@ module.exports = {
   validateHeaders,
   validateParams,
   validateQuery,
-}
-
-
+};

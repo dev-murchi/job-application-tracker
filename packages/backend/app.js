@@ -33,24 +33,27 @@ const app = express();
 // Middleware setup
 
 // Body parsing with size limits
-app.use(express.json({
-  limit: config.requestSizeLimit,
-  parameterLimit: 100,
-  type: ['application/json', 'application/json-patch+json']
-}));
+app.use(
+  express.json({
+    limit: config.requestSizeLimit,
+    parameterLimit: 100,
+    type: ['application/json', 'application/json-patch+json'],
+  })
+);
 
-app.use(express.urlencoded({
-  extended: true,
-  limit: config.requestSizeLimit,
-  parameterLimit: 100
-}));
+app.use(
+  express.urlencoded({
+    extended: true,
+    limit: config.requestSizeLimit,
+    parameterLimit: 100,
+  })
+);
 
 // Morgan logger configuration for production
 app.use(
-  morgan(
-    config.isProduction ? 'combined' : 'dev',
-    { stream: { write: (message) => logger.info(message.trim()) } }
-  )
+  morgan(config.isProduction ? 'combined' : 'dev', {
+    stream: { write: (message) => logger.info(message.trim()) },
+  })
 );
 
 // Security middleware
@@ -63,20 +66,22 @@ app.use((req, res, next) => {
     req.params = sanitizeData(req.params);
     req.query = sanitizeData(req.query);
     req.cookies = sanitizeData(req.cookies);
-    next()
+    next();
   } catch (error) {
     next(error);
   }
-})
+});
 app.use(mongoSanitize());
-app.use(cors({
-  origin: config.corsOrigin,
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
-  optionsSuccessStatus: 204,
-  maxAge: 86400 // Cache preflight for 24 hours
-}));
+app.use(
+  cors({
+    origin: config.corsOrigin,
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+    optionsSuccessStatus: 204,
+    maxAge: 86400, // Cache preflight for 24 hours
+  })
+);
 app.use(cookieParser());
 
 // Apply rate limiting in production
@@ -92,7 +97,7 @@ app.get('/', (req, res) => {
     message: 'Job Tracker API',
     version: process.env.npm_package_version || '1.0.0',
     environment: config.nodeEnv,
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   });
 });
 

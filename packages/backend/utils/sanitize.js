@@ -8,7 +8,7 @@ const sanitize = (value) => {
       allowedSchemes: ['http', 'https'],
       allowedTags: [],
       allowedAttributes: {},
-      disallowedTagsMode: 'recursiveEscape'
+      disallowedTagsMode: 'recursiveEscape',
     });
   } catch (error) {
     logger.error('Error sanitizing value:', { value, error: error.message });
@@ -28,7 +28,7 @@ const sanitizeData = (data) => {
 
   // Handle arrays
   if (Array.isArray(data)) {
-    return data.map(item => sanitizeData(item));
+    return data.map((item) => sanitizeData(item));
   }
 
   // Handle objects
@@ -38,6 +38,5 @@ const sanitizeData = (data) => {
   }
   return sanitized;
 };
-
 
 module.exports = sanitizeData;
