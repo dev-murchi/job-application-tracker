@@ -20,7 +20,7 @@ const authenticateUser = async (req, res, next) => {
   // Fetch user from database to verify existence
 
   const User = dbService.getModel('User');
-  const user = await User.findOne({ _id: userId });
+  const user = await User.findOne({ _id: userId }).lean();
 
   if (!user) {
     logger.warn('Authentication failed: User not found');
