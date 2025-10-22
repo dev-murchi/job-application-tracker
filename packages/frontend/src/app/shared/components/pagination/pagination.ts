@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, computed, signal, input, output, effect } from '@angular/core';
+import { Component, computed, input, output } from '@angular/core';
 import { SvgComponent } from '../svg/svg';
 import { SvgNameType } from '../../../svg.config';
 

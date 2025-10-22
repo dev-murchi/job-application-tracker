@@ -1,7 +1,7 @@
 <aside class="sidebar h-full px-4 flex-shrink-0 flex flex-col shadow-md w-24" [class.w-64]="!isCollapsed">
 
     <nav class="flex-1 flex-col overflow-y-auto w-full items-left px-2 space-y-2 my-4">
-        @for (item of items; track item.link) {
+        @for (item of items(); track item.link) {
         <app-nav-link [link]="item.link" [text]="!isCollapsed ? item.text : undefined" [icon]="item.icon"
             [cssClass]="'flex flex-row w-full justify-start text-lg h-10 px-3 py-2 gap-2 rounded-lg transition-[padding-left] duration-300 ease-in-out transition-all duration-200 ease-in-out hover:scale-105'">
         </app-nav-link>

@@ -19,7 +19,7 @@
     </header>
 
     <nav class="flex-1 mt-8 px-2 space-y-2 overflow-y-auto">
-        @for (item of items; track item.link) {
+        @for (item of items(); track item.link) {
         <app-nav-link [link]="item.link" [icon]="item.icon!" [text]="item.text"
             [cssClass]="'p-2 rounded-lg gap-2 flex-row flex w-full justify-start'"></app-nav-link>
         }
