@@ -31,8 +31,8 @@ const UserLoginSchema = z.object({
 
 const JobSearchQuerySchema = z.object({
   search: z.string().trim().min(3).optional(),
-  status: z.enum(jobStatusEnum).optional(),
-  jobType: z.enum(jobTypeEnum).optional(),
+  status: z.union([z.literal('all'), z.enum(jobStatusEnum)]).optional(),
+  jobType: z.union([z.literal('all'), z.enum(jobTypeEnum)]).optional(),
   sort: z.enum(sortOrderEnum).default('newest'),
   page: z.coerce.number().int().positive().default(1),
   limit: z.coerce.number().int().positive().max(100).default(10),

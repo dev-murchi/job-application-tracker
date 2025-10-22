@@ -20,7 +20,7 @@ describe('Jobs Integration Tests', () => {
   let testUser;
   let authToken;
   let authCookie;
-  let nonExistJob
+  let nonExistJob;
 
   beforeAll(async () => {
     // Create isolated mongoose connection
@@ -51,17 +51,14 @@ describe('Jobs Integration Tests', () => {
     });
 
     // create and delete a job to as non-exist job
-    nonExistJob = await createTestJob(
-      testUser._id,
-      {
-        company: 'None Exist Corp',
-        position: 'Software Engineer',
-        status: 'pending',
-        jobType: 'full-time',
-        jobLocation: 'Remote',
-        companyWebsite: 'https://nonexistcorp.com',
-      }
-    )
+    nonExistJob = await createTestJob(testUser._id, {
+      company: 'None Exist Corp',
+      position: 'Software Engineer',
+      status: 'pending',
+      jobType: 'full-time',
+      jobLocation: 'Remote',
+      companyWebsite: 'https://nonexistcorp.com',
+    });
 
     await deleteTestJob(nonExistJob._id);
 
@@ -478,7 +475,7 @@ describe('Jobs Integration Tests', () => {
     });
 
     it('should return 404 for non-existent job id', async () => {
-      const fakeId = nonExistJob._id;//'507f1f77bcf86cd799439011';
+      const fakeId = nonExistJob._id; //'507f1f77bcf86cd799439011';
 
       const response = await request(app)
         .get(`/api/v1/jobs/${fakeId}`)
@@ -626,7 +623,7 @@ describe('Jobs Integration Tests', () => {
     });
 
     it('should reject update for non-existent job', async () => {
-      const fakeId = nonExistJob._id;//'507f1f77bcf86cd799439011';
+      const fakeId = nonExistJob._id; //'507f1f77bcf86cd799439011';
       const updateData = { company: 'New Corp' };
 
       const response = await request(app)
@@ -738,7 +735,7 @@ describe('Jobs Integration Tests', () => {
     });
 
     it('should reject deletion for non-existent job', async () => {
-      const fakeId = nonExistJob._id;//'507f1f77bcf86cd799439011';
+      const fakeId = nonExistJob._id; //'507f1f77bcf86cd799439011';
 
       const response = await request(app)
         .delete(`/api/v1/jobs/${fakeId}`)

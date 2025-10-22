@@ -3,7 +3,7 @@ const path = require('path');
 // Load test environment variables first
 require('dotenv').config({
   path: path.resolve(__dirname, '..', '.env.test'),
-  quiet: true
+  quiet: true,
 });
 
 // Set NODE_ENV before importing any modules

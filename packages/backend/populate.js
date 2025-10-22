@@ -1,11 +1,22 @@
+const config = require('./config');
 const fs = require('fs/promises');
-const connectDB = require('./db/connect');
-const Job = require('./models/Job');
+const { UserSchema, JobSchema } = require('./models');
+const mongoose = require('mongoose');
+const createConnectionManager = require('./db/connect');
 
 const populateJobs = async () => {
-  await connectDB(process.env.MONGO_URL);
+  const connection = mongoose.createConnection();
 
-  const User = require('./models/User');
+  const User = connection.model('User', UserSchema);
+  const Job = connection.model('Job', JobSchema);
+
+  const connectionManager = createConnectionManager({
+    connection,
+    config: { isProduction: false },
+  });
+
+  await connectionManager.connect(config.mongoUrl);
+
   const user = await User.findOne({ email: 'test@user.com' });
 
   const jsonJobs = JSON.parse(await fs.readFile('./mockData.json', 'utf-8'));
@@ -15,6 +26,8 @@ const populateJobs = async () => {
 
   await Job.deleteMany({ createdBy: user._id });
   await Job.create(jobs);
+
+  await connectionManager.closeConnection();
 };
 
 populateJobs()

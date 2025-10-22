@@ -108,7 +108,7 @@ const startServer = async () => {
 
     // Database connection
     const connectionManager = createConnectionManager(mongoose.connection, {
-      isProdction: config.isProduction,
+      isProduction: config.isProduction,
     });
     await connectionManager.connect(config.mongoUrl);
     logger.info('Database connection established successfully');

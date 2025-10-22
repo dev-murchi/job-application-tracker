@@ -94,7 +94,7 @@ describe('User Integration Tests', () => {
         .get('/api/v1/users/profile')
         .set('Cookie', authCookieForDeletedUser)
         .expect(401);
-      
+
       expect(response2.body.success).toBe(false);
       expect(response2.body.message).toContain('Authentication Invalid');
     });

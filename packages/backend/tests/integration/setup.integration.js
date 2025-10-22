@@ -102,12 +102,12 @@ const createTestJob = async (userId, jobData = {}) => {
 const deleteTestJob = async (jobId) => {
   const Job = dbService.getModel('Job');
   await Job.findByIdAndDelete(jobId);
-}
+};
 
 const deleteTestUser = async (userId) => {
   const User = dbService.getModel('User');
   await User.findByIdAndDelete(userId);
-}
+};
 
 const generateTestToken = (user) => {
   const jwt = require('jsonwebtoken');
