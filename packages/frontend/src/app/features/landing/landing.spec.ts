@@ -1,6 +1,10 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideZonelessChangeDetection } from '@angular/core';
 
 import { Landing } from './landing';
+import { provideRouter } from '@angular/router';
+import { SvgComponentMock } from '../../../mocks/components/shared/components/svg/svg-mock';
+import { SvgComponent } from '../../shared/components/svg/svg';
 
 describe('Landing', () => {
   let component: Landing;
@@ -8,9 +12,14 @@ describe('Landing', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [Landing]
+      imports: [Landing],
+      providers: [provideZonelessChangeDetection(), provideRouter([])],
     })
-    .compileComponents();
+      .overrideComponent(Landing, {
+        remove: { imports: [SvgComponent] },
+        add: { imports: [SvgComponentMock] },
+      })
+      .compileComponents();
 
     fixture = TestBed.createComponent(Landing);
     component = fixture.componentInstance;

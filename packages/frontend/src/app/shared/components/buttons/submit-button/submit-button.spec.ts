@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideZonelessChangeDetection } from '@angular/core';
 
 import { SubmitButton } from './submit-button';
 
@@ -8,9 +9,9 @@ describe('SubmitButton', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [SubmitButton]
-    })
-    .compileComponents();
+      imports: [SubmitButton],
+      providers: [provideZonelessChangeDetection()],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(SubmitButton);
     component = fixture.componentInstance;

@@ -1,3 +1,4 @@
+import { provideZonelessChangeDetection } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { JobStatusBadge } from './job-status-badge';
@@ -8,9 +9,9 @@ describe('JobStatusBadge', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [JobStatusBadge]
-    })
-    .compileComponents();
+      imports: [JobStatusBadge],
+      providers: [provideZonelessChangeDetection()],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(JobStatusBadge);
     component = fixture.componentInstance;
