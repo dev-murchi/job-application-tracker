@@ -1,8 +1,0 @@
-{
-  "name": "job-application-tracker",
-  "private": true,
-  "workspaces": [
-    "packages/backend",
-    "packages/frontend"
-  ]
-}

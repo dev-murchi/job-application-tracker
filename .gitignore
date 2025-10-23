@@ -1,6 +1,7 @@
 # Node modules
 /node_modules
 /packages/*/node_modules
+**/node_modules
 
 # Environment files
 .env
@@ -23,10 +24,9 @@ packages/*/logs/
 # Build output
 dist/
 build/
-coverage/
-coverage/**/
-packages/*/dist
-packages/*/build
+**/coverage/
+**/dist
+**/build
 
 # Editor directories and files
 .vscode/

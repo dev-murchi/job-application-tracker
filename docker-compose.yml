@@ -34,7 +34,7 @@ services:
     networks:
       - job-application-tracker
     volumes:
-      - .:/usr/src/app
+      - ./backend:/usr/src/app
       - /usr/src/app/node_modules
     
   frontend-dev:
@@ -48,7 +48,7 @@ services:
     networks:
       - job-application-tracker
     volumes:
-      - .:/usr/src/app
+      - ./frontend:/usr/src/app
       - /usr/src/app/node_modules
 
   frontend-prod:

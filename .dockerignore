@@ -11,8 +11,6 @@ packages/*/node_modules
 # Ignore build output
 dist
 build
-packages/*/dist
-packages/*/build
 **/dist
 **/build
 
@@ -22,6 +20,7 @@ packages/*/build
 **/*.test.ts
 **/*.spec.ts
 coverage
+**/coverage
 **/__tests__
 
 # Ignore local config and logs

@@ -1,5 +1,5 @@
 {
-  "name": "@job-application-tracker/backend",
+  "name": "backend",
   "version": "1.0.0",
   "description": "Job Application Tracker - Backend API",
   "main": "server.js",
