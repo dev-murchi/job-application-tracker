@@ -40,12 +40,8 @@ const closeTestConnection = async (connection, connectionManager) => {
 };
 
 const clearDatabase = async (connection) => {
-  const collections = connection.collections;
-
-  for (const key in collections) {
-    const collection = collections[key];
-    await collection.deleteMany({});
-  }
+  const collections = Object.values(connection.collections);
+  await Promise.all(collections.map((collection) => collection.deleteMany({})));
 };
 
 const seedTestUser = async (userData = {}) => {
@@ -136,7 +132,10 @@ const countDocuments = async (modelName) => {
   return await Model.countDocuments({});
 };
 
-const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+const wait = (ms) =>
+  new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
 
 module.exports = {
   createTestConnection,

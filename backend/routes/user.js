@@ -5,10 +5,6 @@ const { validateBody } = require('../middleware/validator');
 
 const router = express.Router();
 router.get('/profile', userController.getCurrentUser);
-router.patch(
-  '/update',
-  validateBody(UserUpdateSchema),
-  userController.updateUser
-);
+router.patch('/update', validateBody(UserUpdateSchema), userController.updateUser);
 
 module.exports = router;

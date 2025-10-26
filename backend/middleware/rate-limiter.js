@@ -12,8 +12,7 @@ const appLevelRateLimit = rateLimit({
 const authRouteRateLimit = rateLimit({
   windowMs: config.rateLimitWindowMs,
   max: 5,
-  message:
-    'Too many login/register attempts, please try again after 15 minutes',
+  message: 'Too many login/register attempts, please try again after 15 minutes',
   standardHeaders: true,
   legacyHeaders: false,
 });

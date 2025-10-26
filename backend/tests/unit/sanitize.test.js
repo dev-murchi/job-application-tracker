@@ -94,7 +94,7 @@ describe('Sanitize Utility - Minimal Tests for 100% Coverage', () => {
         expect.objectContaining({
           value: 'test',
           error: 'Sanitization error',
-        })
+        }),
       );
     });
   });

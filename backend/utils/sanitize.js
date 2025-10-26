@@ -3,7 +3,9 @@ const logger = require('./logger');
 
 const sanitize = (value) => {
   try {
-    if (typeof value !== 'string') return value;
+    if (typeof value !== 'string') {
+      return value;
+    }
     return sanitizeHtml(value, {
       allowedSchemes: ['http', 'https'],
       allowedTags: [],

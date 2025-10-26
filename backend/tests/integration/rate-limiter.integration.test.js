@@ -7,8 +7,6 @@ const {
   closeTestConnection,
   clearDatabase,
   seedTestUser,
-  generateTestToken,
-  createTestCookie,
   wait,
 } = require('./setup.integration');
 
@@ -16,9 +14,6 @@ describe('Rate Limiter Integration Tests', () => {
   let app;
   let connectionManager;
   let connection;
-  let testUser;
-  let authToken;
-  let authCookie;
 
   beforeAll(async () => {
     // Create isolated mongoose connection
@@ -40,16 +35,13 @@ describe('Rate Limiter Integration Tests', () => {
     await clearDatabase(connection);
 
     // Create test user and auth token for authenticated requests
-    testUser = await seedTestUser({
+    await seedTestUser({
       name: 'Test',
       lastName: 'User',
       email: 'test@example.com',
       password: 'password123',
       location: 'Test City',
     });
-
-    authToken = generateTestToken(testUser);
-    authCookie = createTestCookie(authToken);
 
     // Wait between tests to avoid rate limit carryover
     await wait(100);
@@ -71,14 +63,14 @@ describe('Rate Limiter Integration Tests', () => {
   describe('Auth Route Rate Limiting', () => {
     it('should allow requests within rate limit and block exceeding requests', async () => {
       // Auth routes have a limit of 5 requests
-      let requestCount = 5;
+      const requestCount = 5;
       const requests = Array(requestCount)
         .fill(null)
-        .map(async () =>
+        .map(() =>
           request(app).post('/api/v1/auth/login').send({
             email: 'test@example.com',
             password: 'wrongpassword',
-          })
+          }),
         );
 
       const responses = await Promise.allSettled(requests);
@@ -88,9 +80,7 @@ describe('Rate Limiter Integration Tests', () => {
         expect(resp.value.statusCode).toBe(401);
         expect(resp.value.body).toBeDefined();
         expect(resp.value.body.message).toBe('Invalid Credentials');
-        expect(resp.value.header['ratelimit-remaining']).toBe(
-          `${remainingRequestCount}`
-        );
+        expect(resp.value.header['ratelimit-remaining']).toBe(`${remainingRequestCount}`);
       }
 
       const rateLimitedResponse = await request(app)
@@ -102,7 +92,7 @@ describe('Rate Limiter Integration Tests', () => {
         .expect(429);
 
       expect(rateLimitedResponse.text).toBe(
-        'Too many login/register attempts, please try again after 15 minutes'
+        'Too many login/register attempts, please try again after 15 minutes',
       );
       expect(rateLimitedResponse.header['ratelimit-limit']).toBe('5');
       expect(rateLimitedResponse.header['ratelimit-remaining']).toBe('0');
@@ -116,7 +106,7 @@ describe('Rate Limiter Integration Tests', () => {
         requests.push(
           request(app)
             .post('/api/v1/auth/login')
-            .send({ email: 'test@example.com', password: 'wrong' })
+            .send({ email: 'test@example.com', password: 'wrong' }),
         );
         requests.push(
           request(app)
@@ -127,7 +117,7 @@ describe('Rate Limiter Integration Tests', () => {
               email: `user${i}@example.com`,
               password: 'password123',
               location: 'City',
-            })
+            }),
         );
       }
 

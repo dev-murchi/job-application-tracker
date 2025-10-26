@@ -119,18 +119,14 @@ describe('API Integration Tests', () => {
       // Helmet may or may not set HSTS depending on configuration
       // Just verify the header structure if present
       if (response.headers['strict-transport-security']) {
-        expect(typeof response.headers['strict-transport-security']).toBe(
-          'string'
-        );
+        expect(typeof response.headers['strict-transport-security']).toBe('string');
       }
     });
   });
 
   describe('404 Not Found Handler', () => {
     it('should return 404 for non-existent routes', async () => {
-      const response = await request(app)
-        .get('/api/v1/nonexistent')
-        .expect(404);
+      const response = await request(app).get('/api/v1/nonexistent').expect(404);
 
       expect(response.text).toContain('Route does not exist');
     });
@@ -148,9 +144,7 @@ describe('API Integration Tests', () => {
     });
 
     it('should handle 404 for deeply nested non-existent routes', async () => {
-      await request(app)
-        .get('/api/v1/deeply/nested/route/that/does/not/exist')
-        .expect(404);
+      await request(app).get('/api/v1/deeply/nested/route/that/does/not/exist').expect(404);
     });
   });
 
@@ -198,15 +192,10 @@ describe('API Integration Tests', () => {
         location: 'City',
       };
 
-      const response = await request(app)
-        .post('/api/v1/auth/register')
-        .send(xssData)
-        .expect(201);
+      const response = await request(app).post('/api/v1/auth/register').send(xssData).expect(201);
 
       // XSS should be sanitized
-      expect(response.body.name).toBe(
-        '&lt;script&gt;alert(\"xss\")&lt;/script&gt;Test'
-      );
+      expect(response.body.name).toBe('&lt;script&gt;alert("xss")&lt;/script&gt;Test');
     });
 
     it('should sanitize XSS attacks from nested objects and complex HTML elements', async () => {
@@ -249,9 +238,7 @@ describe('API Integration Tests', () => {
         .send(xssData2)
         .expect(201);
 
-      expect(response2.body.job.company).toBe(
-        '&lt;script&gt;alert(\"hello\");&lt;/script&gt;corp'
-      );
+      expect(response2.body.job.company).toBe('&lt;script&gt;alert("hello");&lt;/script&gt;corp');
     });
   });
 
@@ -273,9 +260,7 @@ describe('API Integration Tests', () => {
 
   describe('API Versioning', () => {
     it('should handle v1 API routes correctly', async () => {
-      const response = await request(app)
-        .get('/api/v1/auth/logout')
-        .expect(200);
+      const response = await request(app).get('/api/v1/auth/logout').expect(200);
 
       expect(response.body.msg).toBe('user logged out!');
     });

@@ -41,29 +41,26 @@ const JobSchema = new mongoose.Schema(
       required: [true, 'Please provide user'],
     },
   },
-  { timestamps: true, autoIndex: !config.isProduction }
+  { timestamps: true, autoIndex: !config.isProduction },
 );
 
 JobSchema.index({ createdBy: 1 }, { background: true, name: 'created_by_idx' });
 
 JobSchema.index(
   { createdBy: 1, createdAt: -1 },
-  { background: true, name: 'user_created_desc_idx' }
+  { background: true, name: 'user_created_desc_idx' },
 );
 
-JobSchema.index(
-  { createdBy: 1, createdAt: 1 },
-  { background: true, name: 'user_created_asc_idx' }
-);
+JobSchema.index({ createdBy: 1, createdAt: 1 }, { background: true, name: 'user_created_asc_idx' });
 
 JobSchema.index(
   { createdBy: 1, status: 1, createdAt: -1 },
-  { background: true, name: 'user_status_created_idx' }
+  { background: true, name: 'user_status_created_idx' },
 );
 
 JobSchema.index(
   { createdBy: 1, jobType: 1, createdAt: -1 },
-  { background: true, name: 'user_jobtype_created_idx' }
+  { background: true, name: 'user_jobtype_created_idx' },
 );
 
 JobSchema.index(
@@ -72,17 +69,14 @@ JobSchema.index(
     background: true,
     name: 'search_text_idx',
     weights: { position: 2, company: 1 },
-  }
+  },
 );
 
 JobSchema.index(
   { createdBy: 1, company: 1, position: 1 },
-  { background: true, name: 'user_company_position_idx' }
+  { background: true, name: 'user_company_position_idx' },
 );
 
-JobSchema.index(
-  { createdBy: 1, status: 1 },
-  { background: true, name: 'user_status_idx' }
-);
+JobSchema.index({ createdBy: 1, status: 1 }, { background: true, name: 'user_status_idx' });
 
 module.exports = JobSchema;

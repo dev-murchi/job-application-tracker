@@ -17,7 +17,9 @@ const User = {
 
 // Setup dbService mock to return our mocked User model
 dbService.getModel = jest.fn().mockImplementation((modelName) => {
-  if (modelName === 'User') return User;
+  if (modelName === 'User') {
+    return User;
+  }
   return null;
 });
 
@@ -62,21 +64,15 @@ describe('Auth Middleware', () => {
   it('should throw UnauthenticatedError when token is missing', async () => {
     req.cookies.token = undefined;
 
-    await expect(authenticateUser(req, res, next)).rejects.toThrow(
-      UnauthenticatedError
-    );
-    await expect(authenticateUser(req, res, next)).rejects.toThrow(
-      'Authentication Invalid'
-    );
+    await expect(authenticateUser(req, res, next)).rejects.toThrow(UnauthenticatedError);
+    await expect(authenticateUser(req, res, next)).rejects.toThrow('Authentication Invalid');
     expect(next).not.toHaveBeenCalled();
   });
 
   it('should throw UnauthenticatedError when token is null', async () => {
     req.cookies.token = null;
 
-    await expect(authenticateUser(req, res, next)).rejects.toThrow(
-      UnauthenticatedError
-    );
+    await expect(authenticateUser(req, res, next)).rejects.toThrow(UnauthenticatedError);
     expect(next).not.toHaveBeenCalled();
   });
 

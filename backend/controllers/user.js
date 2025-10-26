@@ -1,5 +1,5 @@
 const { StatusCodes } = require('http-status-codes');
-const { BadRequestError, NotFoundError } = require('../errors');
+const { BadRequestError } = require('../errors');
 
 const dbService = require('../db/db-service');
 const User = dbService.getModel('User');
@@ -33,7 +33,7 @@ const updateUser = async (req, res) => {
   res.status(StatusCodes.OK).json(formatUserResponse(user));
 };
 
-const getCurrentUser = async (req, res) => {
+const getCurrentUser = (req, res) => {
   res.status(StatusCodes.OK).json(formatUserResponse(req.user));
 };
 

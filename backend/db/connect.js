@@ -1,38 +1,72 @@
 const mongoose = require('mongoose');
 const logger = require('../utils/logger');
 
+// Constants for configuration (avoid magic numbers)
+const POOL_MAX_PROD = 50;
+const POOL_MAX_DEV = 10;
+const POOL_MIN_PROD = 5;
+const POOL_MIN_DEV = 2;
+
+const MAX_IDLE_TIME_MS = 30_000;
+const WAIT_QUEUE_TIMEOUT_MS = 5_000;
+
+const SERVER_SELECTION_TIMEOUT_MS = 5_000;
+const SOCKET_TIMEOUT_MS = 45_000;
+const CONNECT_TIMEOUT_MS = 10_000;
+
+const HEARTBEAT_FREQUENCY_MS = 10_000;
+
+const WRITE_CONCERN_W = 'majority';
+const WRITE_CONCERN_J = true;
+const WRITE_CONCERN_WTIMEOUT_MS = 5_000;
+
+const READ_CONCERN_LEVEL = 'majority';
+const READ_PREFERENCE = 'secondaryPreferred';
+
+const COMPRESSORS = ['zlib'];
+const ZLIB_COMPRESSION_LEVEL = 6;
+
+const MONITOR_COMMANDS_IN_DEV = true; // monitorCommands should be enabled in non-prod
+
+// Ready state codes
+const READY_STATE_DISCONNECTED = 0;
+const READY_STATE_CONNECTED = 1;
+const READY_STATE_CONNECTING = 2;
+const READY_STATE_DISCONNECTING = 3;
+const READY_STATE_UNINITIALIZED = 99;
+
 const createConnectionOptions = (isProduction) => ({
   // Connection pool settings
-  maxPoolSize: isProduction ? 50 : 10,
-  minPoolSize: isProduction ? 5 : 2,
-  maxIdleTimeMS: 30000,
-  waitQueueTimeoutMS: 5000,
+  maxPoolSize: isProduction ? POOL_MAX_PROD : POOL_MAX_DEV,
+  minPoolSize: isProduction ? POOL_MIN_PROD : POOL_MIN_DEV,
+  maxIdleTimeMS: MAX_IDLE_TIME_MS,
+  waitQueueTimeoutMS: WAIT_QUEUE_TIMEOUT_MS,
 
   // Server selection and socket timeouts
-  serverSelectionTimeoutMS: 5000,
-  socketTimeoutMS: 45000,
-  connectTimeoutMS: 10000,
+  serverSelectionTimeoutMS: SERVER_SELECTION_TIMEOUT_MS,
+  socketTimeoutMS: SOCKET_TIMEOUT_MS,
+  connectTimeoutMS: CONNECT_TIMEOUT_MS,
 
   // Heartbeat and monitoring
-  heartbeatFrequencyMS: 10000,
+  heartbeatFrequencyMS: HEARTBEAT_FREQUENCY_MS,
 
   // Retry and durability settings
   writeConcern: {
-    w: 'majority',
-    j: true,
-    wtimeout: 5000,
+    w: WRITE_CONCERN_W,
+    j: WRITE_CONCERN_J,
+    wtimeout: WRITE_CONCERN_WTIMEOUT_MS,
   },
   readConcern: {
-    level: 'majority',
+    level: READ_CONCERN_LEVEL,
   },
-  readPreference: 'secondaryPreferred',
+  readPreference: READ_PREFERENCE,
 
   // Network compression
-  compressors: ['zlib'],
-  zlibCompressionLevel: 6,
+  compressors: COMPRESSORS,
+  zlibCompressionLevel: ZLIB_COMPRESSION_LEVEL,
 
   // Connection monitoring
-  monitorCommands: !isProduction,
+  monitorCommands: isProduction ? !MONITOR_COMMANDS_IN_DEV : MONITOR_COMMANDS_IN_DEV,
 
   // Application name for MongoDB logs
   appName: 'job-tracker-api',
@@ -95,7 +129,7 @@ const registerEventListeners = (connection, handlers) => {
 const validateConnectionUrl = (url) => {
   if (!url || typeof url !== 'string') {
     throw new Error(
-      'MongoDB connection URL is missing or invalid. Please provide the connection URL.'
+      'MongoDB connection URL is missing or invalid. Please provide the connection URL.',
     );
   }
   return url;
@@ -132,15 +166,15 @@ const createConnectionManager = ({ connection, config }) => {
     }
   };
 
-  const isConnected = () => conn.readyState === 1;
+  const isConnected = () => conn.readyState === READY_STATE_CONNECTED;
 
   const mapConnectionState = (readyState) => {
     const states = {
-      0: 'disconnected',
-      1: 'connected',
-      2: 'connecting',
-      3: 'disconnecting',
-      99: 'uninitialized',
+      [READY_STATE_DISCONNECTED]: 'disconnected',
+      [READY_STATE_CONNECTED]: 'connected',
+      [READY_STATE_CONNECTING]: 'connecting',
+      [READY_STATE_DISCONNECTING]: 'disconnecting',
+      [READY_STATE_UNINITIALIZED]: 'uninitialized',
     };
     return states[readyState] || 'unknown';
   };

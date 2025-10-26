@@ -8,10 +8,6 @@ const {
   UserUpdateSchema,
 } = require('../../utils/validation');
 
-const { BadRequestError } = require('../../errors');
-
-const z = require('zod');
-
 describe('Validation Schema Utils', () => {
   describe('UserRegisterSchema', () => {
     it('should validate correct user registration data', () => {
@@ -162,13 +158,7 @@ describe('Validation Schema Utils', () => {
     });
 
     it('should accept valid status values', () => {
-      const validStatuses = [
-        'interview',
-        'declined',
-        'pending',
-        'offered',
-        'accepted',
-      ];
+      const validStatuses = ['interview', 'declined', 'pending', 'offered', 'accepted'];
 
       validStatuses.forEach((status) => {
         const result = JobSearchQuerySchema.parse({ status });

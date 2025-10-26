@@ -6,7 +6,6 @@ const {
   seedTestUser,
   getAllUsers,
   countDocuments,
-  wait,
 } = require('./setup.integration');
 
 describe('Auth Integration Tests', () => {
@@ -44,10 +43,7 @@ describe('Auth Integration Tests', () => {
         location: 'New York',
       };
 
-      const response = await request(app)
-        .post('/api/v1/auth/register')
-        .send(userData)
-        .expect(201);
+      const response = await request(app).post('/api/v1/auth/register').send(userData).expect(201);
 
       expect(response.body).toEqual({
         name: 'John',
@@ -86,16 +82,10 @@ describe('Auth Integration Tests', () => {
       };
 
       // First registration should succeed
-      await request(app)
-        .post('/api/v1/auth/register')
-        .send(userData)
-        .expect(201);
+      await request(app).post('/api/v1/auth/register').send(userData).expect(201);
 
       // Second registration with same email should fail
-      const response = await request(app)
-        .post('/api/v1/auth/register')
-        .send(userData)
-        .expect(400);
+      const response = await request(app).post('/api/v1/auth/register').send(userData).expect(400);
 
       expect(response.body.success).toBe(false);
       expect(response.body.message).toContain('Email already in use');
@@ -125,7 +115,7 @@ describe('Auth Integration Tests', () => {
         largeField: 'x'.repeat(2 * 1024 * 1024), // 2MB of data
       };
 
-      const response = await request(app)
+      await request(app)
         .post('/api/v1/auth/register')
         .set('Content-Type', 'application/json')
         .send(largeData)
@@ -178,10 +168,7 @@ describe('Auth Integration Tests', () => {
         location: 'City',
       };
 
-      const response = await request(app)
-        .post('/api/v1/auth/register')
-        .send(userData)
-        .expect(400);
+      const response = await request(app).post('/api/v1/auth/register').send(userData).expect(400);
 
       expect(response.body.success).toBe(false);
       expect(response.body.message).toContain('Name is required');
@@ -199,10 +186,7 @@ describe('Auth Integration Tests', () => {
         location: 'City',
       };
 
-      const response = await request(app)
-        .post('/api/v1/auth/register')
-        .send(userData)
-        .expect(400);
+      const response = await request(app).post('/api/v1/auth/register').send(userData).expect(400);
 
       expect(response.body.success).toBe(false);
       expect(response.body.message).toContain('email');
@@ -220,10 +204,7 @@ describe('Auth Integration Tests', () => {
         location: 'City',
       };
 
-      const response = await request(app)
-        .post('/api/v1/auth/register')
-        .send(userData)
-        .expect(400);
+      const response = await request(app).post('/api/v1/auth/register').send(userData).expect(400);
 
       expect(response.body.success).toBe(false);
       expect(response.body.message).toContain('password');
@@ -241,10 +222,7 @@ describe('Auth Integration Tests', () => {
         location: 'City',
       };
 
-      const response = await request(app)
-        .post('/api/v1/auth/register')
-        .send(userData)
-        .expect(400);
+      const response = await request(app).post('/api/v1/auth/register').send(userData).expect(400);
 
       expect(response.body.success).toBe(false);
 
@@ -261,10 +239,7 @@ describe('Auth Integration Tests', () => {
         location: '  City  ',
       };
 
-      const response = await request(app)
-        .post('/api/v1/auth/register')
-        .send(userData)
-        .expect(201);
+      const response = await request(app).post('/api/v1/auth/register').send(userData).expect(201);
 
       expect(response.body.name).toBe('John');
       expect(response.body.lastName).toBe('Doe');
@@ -281,10 +256,7 @@ describe('Auth Integration Tests', () => {
         location: 'City',
       };
 
-      const response = await request(app)
-        .post('/api/v1/auth/register')
-        .send(userData)
-        .expect(400);
+      const response = await request(app).post('/api/v1/auth/register').send(userData).expect(400);
 
       expect(response.body).toHaveProperty('success');
       expect(response.body).toHaveProperty('message');
@@ -312,10 +284,7 @@ describe('Auth Integration Tests', () => {
         password: 'password123',
       };
 
-      const response = await request(app)
-        .post('/api/v1/auth/login')
-        .send(loginData)
-        .expect(200);
+      const response = await request(app).post('/api/v1/auth/login').send(loginData).expect(200);
 
       expect(response.body).toEqual({
         name: 'Test',
@@ -331,10 +300,7 @@ describe('Auth Integration Tests', () => {
         password: 'password123',
       };
 
-      const response = await request(app)
-        .post('/api/v1/auth/login')
-        .send(loginData)
-        .expect(200);
+      const response = await request(app).post('/api/v1/auth/login').send(loginData).expect(200);
 
       const cookies = response.headers['set-cookie'];
       expect(cookies).toBeDefined();
@@ -351,10 +317,7 @@ describe('Auth Integration Tests', () => {
         password: 'wrongpassword',
       };
 
-      const response = await request(app)
-        .post('/api/v1/auth/login')
-        .send(loginData)
-        .expect(401);
+      const response = await request(app).post('/api/v1/auth/login').send(loginData).expect(401);
 
       expect(response.body.success).toBe(false);
       expect(response.body.message).toBe('Invalid Credentials');
@@ -370,10 +333,7 @@ describe('Auth Integration Tests', () => {
         password: 'password123',
       };
 
-      const response = await request(app)
-        .post('/api/v1/auth/login')
-        .send(loginData)
-        .expect(401);
+      const response = await request(app).post('/api/v1/auth/login').send(loginData).expect(401);
 
       expect(response.body.success).toBe(false);
       expect(response.body.message).toBe('Invalid Credentials');
@@ -384,10 +344,7 @@ describe('Auth Integration Tests', () => {
         password: 'password123',
       };
 
-      const response = await request(app)
-        .post('/api/v1/auth/login')
-        .send(loginData)
-        .expect(400);
+      const response = await request(app).post('/api/v1/auth/login').send(loginData).expect(400);
 
       expect(response.body.success).toBe(false);
     });
@@ -397,10 +354,7 @@ describe('Auth Integration Tests', () => {
         email: 'test@example.com',
       };
 
-      const response = await request(app)
-        .post('/api/v1/auth/login')
-        .send(loginData)
-        .expect(400);
+      const response = await request(app).post('/api/v1/auth/login').send(loginData).expect(400);
 
       expect(response.body.success).toBe(false);
     });
@@ -411,10 +365,7 @@ describe('Auth Integration Tests', () => {
         password: 'password123',
       };
 
-      const response = await request(app)
-        .post('/api/v1/auth/login')
-        .send(loginData)
-        .expect(400);
+      const response = await request(app).post('/api/v1/auth/login').send(loginData).expect(400);
 
       expect(response.body.success).toBe(false);
     });
@@ -425,10 +376,7 @@ describe('Auth Integration Tests', () => {
         password: 'password123',
       };
 
-      const response = await request(app)
-        .post('/api/v1/auth/login')
-        .send(loginData)
-        .expect(401);
+      const response = await request(app).post('/api/v1/auth/login').send(loginData).expect(401);
 
       expect(response.body.success).toBe(false);
       expect(response.body.message).toBe('Invalid Credentials');
@@ -437,25 +385,19 @@ describe('Auth Integration Tests', () => {
 
   describe('GET /api/v1/auth/logout', () => {
     it('should logout user and clear token cookie', async () => {
-      const response = await request(app)
-        .get('/api/v1/auth/logout')
-        .expect(200);
+      const response = await request(app).get('/api/v1/auth/logout').expect(200);
 
       expect(response.body).toEqual({ msg: 'user logged out!' });
 
       const cookies = response.headers['set-cookie'];
       expect(cookies).toBeDefined();
 
-      const tokenCookie = cookies.find((cookie) =>
-        cookie.startsWith('token=logout')
-      );
+      const tokenCookie = cookies.find((cookie) => cookie.startsWith('token=logout'));
       expect(tokenCookie).toBeDefined();
     });
 
     it('should set cookie with past expiration date', async () => {
-      const response = await request(app)
-        .get('/api/v1/auth/logout')
-        .expect(200);
+      const response = await request(app).get('/api/v1/auth/logout').expect(200);
 
       const cookies = response.headers['set-cookie'];
       const tokenCookie = cookies.find((cookie) => cookie.startsWith('token='));
@@ -466,9 +408,7 @@ describe('Auth Integration Tests', () => {
 
     it('should allow logout without being authenticated', async () => {
       // Logout should work even if user is not logged in
-      const response = await request(app)
-        .get('/api/v1/auth/logout')
-        .expect(200);
+      const response = await request(app).get('/api/v1/auth/logout').expect(200);
 
       expect(response.body.msg).toBe('user logged out!');
     });
@@ -510,9 +450,7 @@ describe('Auth Integration Tests', () => {
       expect(tokenCookie).toBeDefined();
 
       // Step 3: Logout
-      const logoutResponse = await request(app)
-        .get('/api/v1/auth/logout')
-        .expect(200);
+      const logoutResponse = await request(app).get('/api/v1/auth/logout').expect(200);
 
       expect(logoutResponse.body.msg).toBe('user logged out!');
     });

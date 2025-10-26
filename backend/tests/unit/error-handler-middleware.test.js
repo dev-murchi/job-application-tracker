@@ -36,7 +36,7 @@ describe('Error Handler Middleware', () => {
         message: 'Something went wrong',
         url: '/test',
         userId: 'user123',
-      })
+      }),
     );
     expect(res.status).toHaveBeenCalledWith(StatusCodes.INTERNAL_SERVER_ERROR);
     expect(res.json).toHaveBeenCalledWith({
@@ -172,7 +172,7 @@ describe('Error Handler Middleware', () => {
       'Error occurred:',
       expect.objectContaining({
         userId: 'anonymous',
-      })
+      }),
     );
   });
 
@@ -214,7 +214,7 @@ describe('Error Handler Middleware', () => {
       'Error occurred:',
       expect.objectContaining({
         stack: expect.stringContaining('Error: Test error'),
-      })
+      }),
     );
   });
 });

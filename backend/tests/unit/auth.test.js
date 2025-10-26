@@ -1,10 +1,4 @@
-const {
-  describe,
-  beforeEach,
-  afterEach,
-  it,
-  expect,
-} = require('@jest/globals');
+const { describe, beforeEach, afterEach, it, expect } = require('@jest/globals');
 
 // Mock dependencies before importing the controller
 jest.mock('../../utils/attach-cookie.js');
@@ -22,14 +16,16 @@ const User = {
 
 // Setup dbService mock to return our mocked User model
 dbService.getModel = jest.fn().mockImplementation((modelName) => {
-  if (modelName === 'User') return User;
+  if (modelName === 'User') {
+    return User;
+  }
   return null;
 });
 
 const { register, login, logout } = require('../../controllers/auth');
 
 describe('Auth Controller', () => {
-  let mockReq, mockRes, mockNext;
+  let mockReq, mockRes;
 
   beforeEach(() => {
     mockReq = {
@@ -41,7 +37,6 @@ describe('Auth Controller', () => {
       json: jest.fn().mockReturnThis(),
       cookie: jest.fn().mockReturnThis(),
     };
-    mockNext = jest.fn();
   });
 
   afterEach(() => {
@@ -106,9 +101,7 @@ describe('Auth Controller', () => {
 
       User.findOne.mockResolvedValue(existingUser); // User already exists
 
-      await expect(register(mockReq, mockRes)).rejects.toThrow(
-        'Email already in use'
-      );
+      await expect(register(mockReq, mockRes)).rejects.toThrow('Email already in use');
       expect(User.findOne).toHaveBeenCalledWith({ email: userData.email });
       expect(User.create).not.toHaveBeenCalled();
       expect(mockRes.status).not.toHaveBeenCalled();
@@ -129,9 +122,7 @@ describe('Auth Controller', () => {
       const error = new Error('Database error');
       User.create.mockRejectedValue(error);
 
-      await expect(register(mockReq, mockRes)).rejects.toThrow(
-        'Database error'
-      );
+      await expect(register(mockReq, mockRes)).rejects.toThrow('Database error');
       expect(User.findOne).toHaveBeenCalledWith({ email: userData.email });
       expect(User.create).toHaveBeenCalledWith(userData);
       expect(mockRes.status).not.toHaveBeenCalled();
@@ -191,9 +182,7 @@ describe('Auth Controller', () => {
         select: jest.fn().mockResolvedValue(null),
       });
 
-      await expect(login(mockReq, mockRes)).rejects.toThrow(
-        'Invalid Credentials'
-      );
+      await expect(login(mockReq, mockRes)).rejects.toThrow('Invalid Credentials');
       expect(User.findOne).toHaveBeenCalledWith({ email: loginData.email });
       expect(User.findOne().select).toHaveBeenCalledWith('+password');
     });
@@ -215,9 +204,7 @@ describe('Auth Controller', () => {
         select: jest.fn().mockResolvedValue(mockUser),
       });
 
-      await expect(login(mockReq, mockRes)).rejects.toThrow(
-        'Invalid Credentials'
-      );
+      await expect(login(mockReq, mockRes)).rejects.toThrow('Invalid Credentials');
       expect(User.findOne).toHaveBeenCalledWith({ email: loginData.email });
       expect(mockUser.comparePassword).toHaveBeenCalledWith(loginData.password);
     });
@@ -238,9 +225,7 @@ describe('Auth Controller', () => {
         select: jest.fn().mockResolvedValue(mockUser),
       });
 
-      await expect(login(mockReq, mockRes)).rejects.toThrow(
-        'Invalid Credentials'
-      );
+      await expect(login(mockReq, mockRes)).rejects.toThrow('Invalid Credentials');
       expect(mockUser.createJWT).not.toHaveBeenCalled();
       expect(attachCookie).not.toHaveBeenCalled();
     });

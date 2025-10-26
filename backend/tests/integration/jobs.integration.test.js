@@ -118,9 +118,7 @@ describe('Jobs Integration Tests', () => {
         .send(jobData)
         .expect(201);
 
-      expect(response.body.job.jobPostingUrl).toBe(
-        'https://startup.com/careers/123'
-      );
+      expect(response.body.job.jobPostingUrl).toBe('https://startup.com/careers/123');
     });
 
     it('should reject job creation without authentication', async () => {
@@ -133,10 +131,7 @@ describe('Jobs Integration Tests', () => {
         companyWebsite: 'https://techcorp.com',
       };
 
-      const response = await request(app)
-        .post('/api/v1/jobs')
-        .send(jobData)
-        .expect(401);
+      const response = await request(app).post('/api/v1/jobs').send(jobData).expect(401);
 
       expect(response.body.success).toBe(false);
       expect(response.body.message).toContain('Authentication Invalid');
@@ -229,10 +224,7 @@ describe('Jobs Integration Tests', () => {
     });
 
     it('should get all jobs for authenticated user', async () => {
-      const response = await request(app)
-        .get('/api/v1/jobs')
-        .set('Cookie', authCookie)
-        .expect(200);
+      const response = await request(app).get('/api/v1/jobs').set('Cookie', authCookie).expect(200);
 
       expect(response.body.jobs).toHaveLength(10); // Default limit is 10
       expect(response.body.page).toBe(1);
@@ -253,9 +245,7 @@ describe('Jobs Integration Tests', () => {
         .set('Cookie', authCookie)
         .expect(200);
 
-      expect(response.body.jobs.every((job) => job.status === 'pending')).toBe(
-        true
-      );
+      expect(response.body.jobs.every((job) => job.status === 'pending')).toBe(true);
     });
 
     it('should filter jobs by jobType', async () => {
@@ -264,9 +254,7 @@ describe('Jobs Integration Tests', () => {
         .set('Cookie', authCookie)
         .expect(200);
 
-      expect(
-        response.body.jobs.every((job) => job.jobType === 'full-time')
-      ).toBe(true);
+      expect(response.body.jobs.every((job) => job.jobType === 'full-time')).toBe(true);
     });
 
     it('should search jobs by position', async () => {
@@ -284,9 +272,7 @@ describe('Jobs Integration Tests', () => {
         .set('Cookie', authCookie)
         .expect(200);
 
-      expect(
-        response.body.jobs.some((job) => job.position.includes('Senior'))
-      ).toBe(true);
+      expect(response.body.jobs.some((job) => job.position.includes('Senior'))).toBe(true);
     });
 
     it('should search jobs by company', async () => {
@@ -304,16 +290,11 @@ describe('Jobs Integration Tests', () => {
         .set('Cookie', authCookie)
         .expect(200);
 
-      expect(
-        response.body.jobs.some((job) => job.company.includes('Google'))
-      ).toBe(true);
+      expect(response.body.jobs.some((job) => job.company.includes('Google'))).toBe(true);
     });
 
     it('should sort jobs by newest (default)', async () => {
-      const response = await request(app)
-        .get('/api/v1/jobs')
-        .set('Cookie', authCookie)
-        .expect(200);
+      const response = await request(app).get('/api/v1/jobs').set('Cookie', authCookie).expect(200);
 
       const jobs = response.body.jobs;
       for (let i = 0; i < jobs.length - 1; i++) {
@@ -345,9 +326,7 @@ describe('Jobs Integration Tests', () => {
 
       const jobs = response.body.jobs;
       for (let i = 0; i < jobs.length - 1; i++) {
-        expect(
-          jobs[i].position.localeCompare(jobs[i + 1].position)
-        ).toBeLessThanOrEqual(0);
+        expect(jobs[i].position.localeCompare(jobs[i + 1].position)).toBeLessThanOrEqual(0);
       }
     });
 
@@ -359,9 +338,7 @@ describe('Jobs Integration Tests', () => {
 
       const jobs = response.body.jobs;
       for (let i = 0; i < jobs.length - 1; i++) {
-        expect(
-          jobs[i].position.localeCompare(jobs[i + 1].position)
-        ).toBeGreaterThanOrEqual(0);
+        expect(jobs[i].position.localeCompare(jobs[i + 1].position)).toBeGreaterThanOrEqual(0);
       }
     });
 
@@ -411,10 +388,7 @@ describe('Jobs Integration Tests', () => {
       const newToken = generateTestToken(newUser);
       const newCookie = createTestCookie(newToken);
 
-      const response = await request(app)
-        .get('/api/v1/jobs')
-        .set('Cookie', newCookie)
-        .expect(200);
+      const response = await request(app).get('/api/v1/jobs').set('Cookie', newCookie).expect(200);
 
       expect(response.body.jobs).toEqual([]);
       expect(response.body.totalJobs).toBe(0);
@@ -423,16 +397,12 @@ describe('Jobs Integration Tests', () => {
 
     it('should combine multiple filters', async () => {
       const response = await request(app)
-        .get(
-          '/api/v1/jobs?status=pending&jobType=full-time&sort=a-z&page=1&limit=5'
-        )
+        .get('/api/v1/jobs?status=pending&jobType=full-time&sort=a-z&page=1&limit=5')
         .set('Cookie', authCookie)
         .expect(200);
 
       expect(
-        response.body.jobs.every(
-          (job) => job.status === 'pending' && job.jobType === 'full-time'
-        )
+        response.body.jobs.every((job) => job.status === 'pending' && job.jobType === 'full-time'),
       ).toBe(true);
       expect(response.body.jobs.length).toBeLessThanOrEqual(5);
     });
@@ -467,9 +437,7 @@ describe('Jobs Integration Tests', () => {
     });
 
     it('should reject getting job without authentication', async () => {
-      const response = await request(app)
-        .get(`/api/v1/jobs/${testJob._id}`)
-        .expect(401);
+      const response = await request(app).get(`/api/v1/jobs/${testJob._id}`).expect(401);
 
       expect(response.body.success).toBe(false);
     });
@@ -564,9 +532,7 @@ describe('Jobs Integration Tests', () => {
         .send(updateData)
         .expect(200);
 
-      expect(response.body.job.jobPostingUrl).toBe(
-        'https://newcorp.com/job/123'
-      );
+      expect(response.body.job.jobPostingUrl).toBe('https://newcorp.com/job/123');
     });
 
     it('should clear jobPostingUrl with empty string', async () => {
@@ -715,23 +681,17 @@ describe('Jobs Integration Tests', () => {
 
       // Verify job is deleted from database
       const jobs = await getAllJobs(testUser._id);
-      expect(
-        jobs.find((job) => job._id.toString() === testJob._id.toString())
-      ).toBeUndefined();
+      expect(jobs.find((job) => job._id.toString() === testJob._id.toString())).toBeUndefined();
     });
 
     it('should reject deletion without authentication', async () => {
-      const response = await request(app)
-        .delete(`/api/v1/jobs/${testJob._id}`)
-        .expect(401);
+      const response = await request(app).delete(`/api/v1/jobs/${testJob._id}`).expect(401);
 
       expect(response.body.success).toBe(false);
 
       // Verify job still exists
       const jobs = await getAllJobs(testUser._id);
-      expect(
-        jobs.find((job) => job._id.toString() === testJob._id.toString())
-      ).toBeDefined();
+      expect(jobs.find((job) => job._id.toString() === testJob._id.toString())).toBeDefined();
     });
 
     it('should reject deletion for non-existent job', async () => {
@@ -768,9 +728,7 @@ describe('Jobs Integration Tests', () => {
 
       // Verify job still exists
       const jobs = await getAllJobs(testUser._id);
-      expect(
-        jobs.find((job) => job._id.toString() === testJob._id.toString())
-      ).toBeDefined();
+      expect(jobs.find((job) => job._id.toString() === testJob._id.toString())).toBeDefined();
     });
   });
 
@@ -920,16 +878,10 @@ describe('Jobs Integration Tests', () => {
       expect(updateResponse.body.job.status).toBe('interview');
 
       // Step 4: Delete job
-      await request(app)
-        .delete(`/api/v1/jobs/${jobId}`)
-        .set('Cookie', authCookie)
-        .expect(200);
+      await request(app).delete(`/api/v1/jobs/${jobId}`).set('Cookie', authCookie).expect(200);
 
       // Step 5: Verify deletion
-      await request(app)
-        .get(`/api/v1/jobs/${jobId}`)
-        .set('Cookie', authCookie)
-        .expect(404);
+      await request(app).get(`/api/v1/jobs/${jobId}`).set('Cookie', authCookie).expect(404);
     });
   });
 });

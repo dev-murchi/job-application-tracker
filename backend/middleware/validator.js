@@ -1,11 +1,7 @@
 const createValidatorFn = (property) => (schema) => {
   return (req, res, next) => {
-    try {
-      req[property] = schema.parse(req[property]);
-      next();
-    } catch (error) {
-      throw error;
-    }
+    req[property] = schema.parse(req[property]);
+    next();
   };
 };
 

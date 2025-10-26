@@ -83,9 +83,7 @@ describe('User Integration Tests', () => {
     });
 
     it('should reject profile request without authentication', async () => {
-      const response = await request(app)
-        .get('/api/v1/users/profile')
-        .expect(401);
+      const response = await request(app).get('/api/v1/users/profile').expect(401);
 
       expect(response.body.success).toBe(false);
       expect(response.body.message).toContain('Authentication Invalid');
@@ -116,7 +114,7 @@ describe('User Integration Tests', () => {
       const expiredToken = jwt.sign(
         { userId: testUser._id },
         config.jwtSecret,
-        { expiresIn: '-1h' } // Expired 1 hour ago
+        { expiresIn: '-1h' }, // Expired 1 hour ago
       );
 
       const expiredCookie = createTestCookie(expiredToken);
@@ -148,9 +146,7 @@ describe('User Integration Tests', () => {
 
       // Verify in database
       const users = await getAllUsers();
-      const updatedUser = users.find(
-        (u) => u._id.toString() === testUser._id.toString()
-      );
+      const updatedUser = users.find((u) => u._id.toString() === testUser._id.toString());
       expect(updatedUser.name).toBe('Updated');
     });
 
@@ -185,9 +181,7 @@ describe('User Integration Tests', () => {
 
       // Verify in database
       const users = await getAllUsers();
-      const updatedUser = users.find(
-        (u) => u._id.toString() === testUser._id.toString()
-      );
+      const updatedUser = users.find((u) => u._id.toString() === testUser._id.toString());
       expect(updatedUser.email).toBe('newemail@example.com');
     });
 
@@ -228,9 +222,7 @@ describe('User Integration Tests', () => {
 
       // Verify in database
       const users = await getAllUsers();
-      const updatedUser = users.find(
-        (u) => u._id.toString() === testUser._id.toString()
-      );
+      const updatedUser = users.find((u) => u._id.toString() === testUser._id.toString());
       expect(updatedUser.name).toBe('John');
       expect(updatedUser.lastName).toBe('Doe');
       expect(updatedUser.email).toBe('john.doe@example.com');
@@ -270,9 +262,7 @@ describe('User Integration Tests', () => {
 
       // Verify user was not updated
       const users = await getAllUsers();
-      const user = users.find(
-        (u) => u._id.toString() === testUser._id.toString()
-      );
+      const user = users.find((u) => u._id.toString() === testUser._id.toString());
       expect(user.name).toBe('Test');
     });
 
@@ -314,9 +304,7 @@ describe('User Integration Tests', () => {
 
       // Verify user was not updated
       const users = await getAllUsers();
-      const user = users.find(
-        (u) => u._id.toString() === testUser._id.toString()
-      );
+      const user = users.find((u) => u._id.toString() === testUser._id.toString());
       expect(user.email).toBe('test@example.com');
     });
 
@@ -335,9 +323,7 @@ describe('User Integration Tests', () => {
 
       // Verify user was not updated
       const users = await getAllUsers();
-      const user = users.find(
-        (u) => u._id.toString() === testUser._id.toString()
-      );
+      const user = users.find((u) => u._id.toString() === testUser._id.toString());
       expect(user.name).toBe('Test');
     });
 
@@ -380,9 +366,7 @@ describe('User Integration Tests', () => {
 
       // Verify user was not updated
       const users = await getAllUsers();
-      const user = users.find(
-        (u) => u._id.toString() === testUser._id.toString()
-      );
+      const user = users.find((u) => u._id.toString() === testUser._id.toString());
       expect(user.email).toBe('test@example.com');
     });
 
@@ -412,14 +396,8 @@ describe('User Integration Tests', () => {
 
       // Make concurrent requests
       const [response1, response2] = await Promise.all([
-        request(app)
-          .patch('/api/v1/users/update')
-          .set('Cookie', authCookie)
-          .send(updateData1),
-        request(app)
-          .patch('/api/v1/users/update')
-          .set('Cookie', authCookie)
-          .send(updateData2),
+        request(app).patch('/api/v1/users/update').set('Cookie', authCookie).send(updateData1),
+        request(app).patch('/api/v1/users/update').set('Cookie', authCookie).send(updateData2),
       ]);
 
       expect(response1.status).toBe(200);
@@ -433,8 +411,7 @@ describe('User Integration Tests', () => {
 
       // At least one update should be reflected
       expect(
-        profileResponse.body.name === 'First' ||
-          profileResponse.body.lastName === 'Second'
+        profileResponse.body.name === 'First' || profileResponse.body.lastName === 'Second',
       ).toBe(true);
     });
   });
@@ -450,10 +427,7 @@ describe('User Integration Tests', () => {
         location: 'Initial City',
       };
 
-      await request(app)
-        .post('/api/v1/auth/register')
-        .send(registerData)
-        .expect(201);
+      await request(app).post('/api/v1/auth/register').send(registerData).expect(201);
 
       // Step 2: Login
       const loginResponse = await request(app)

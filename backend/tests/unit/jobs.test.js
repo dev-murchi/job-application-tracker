@@ -1,7 +1,6 @@
 const { BadRequestError, NotFoundError } = require('../../errors');
 const checkPermissions = require('../../utils/check-permissions');
 const mongoose = require('mongoose');
-const { format } = require('date-fns');
 const dbService = require('../../db/db-service');
 
 jest.mock('../../db/db-service');
@@ -20,7 +19,9 @@ const Job = {
 
 // Setup dbService mock to return our mocked Job model
 dbService.getModel = jest.fn().mockImplementation((modelName) => {
-  if (modelName === 'Job') return Job;
+  if (modelName === 'Job') {
+    return Job;
+  }
   return null;
 });
 
@@ -48,7 +49,9 @@ describe('Jobs Controller', () => {
     };
 
     checkPermissions.mockImplementation((reqUser, userId) => {
-      if (reqUser.userId === userId.toString()) return;
+      if (reqUser.userId === userId.toString()) {
+        return;
+      }
 
       throw new Error('Not authorized to access this route');
     });
@@ -104,7 +107,7 @@ describe('Jobs Controller', () => {
       expect(Job.create).toHaveBeenCalledWith(
         expect.objectContaining({
           jobPostingUrl: 'https://startup.com/careers/123',
-        })
+        }),
       );
     });
 
@@ -126,7 +129,7 @@ describe('Jobs Controller', () => {
       expect(Job.create).toHaveBeenCalledWith(
         expect.not.objectContaining({
           jobPostingUrl: expect.anything(),
-        })
+        }),
       );
     });
   });
@@ -175,7 +178,7 @@ describe('Jobs Controller', () => {
       expect(Job.find).toHaveBeenCalledWith(
         expect.objectContaining({
           status: 'interview',
-        })
+        }),
       );
     });
 
@@ -194,7 +197,7 @@ describe('Jobs Controller', () => {
       expect(Job.find).toHaveBeenCalledWith(
         expect.objectContaining({
           jobType: 'full-time',
-        })
+        }),
       );
     });
 
@@ -216,7 +219,7 @@ describe('Jobs Controller', () => {
             { position: { $regex: 'engineer', $options: 'i' } },
             { company: { $regex: 'engineer', $options: 'i' } },
           ],
-        })
+        }),
       );
     });
 
@@ -330,9 +333,7 @@ describe('Jobs Controller', () => {
       Job.countDocuments.mockResolvedValue(10);
 
       await expect(getAllJobs(req, res)).rejects.toThrow(BadRequestError);
-      await expect(getAllJobs(req, res)).rejects.toThrow(
-        'Requested page does not exist'
-      );
+      await expect(getAllJobs(req, res)).rejects.toThrow('Requested page does not exist');
     });
 
     it('should ignore status filter when set to "all"', async () => {
@@ -350,7 +351,7 @@ describe('Jobs Controller', () => {
       expect(Job.find).toHaveBeenCalledWith(
         expect.not.objectContaining({
           status: expect.anything(),
-        })
+        }),
       );
     });
 
@@ -369,7 +370,7 @@ describe('Jobs Controller', () => {
       expect(Job.find).toHaveBeenCalledWith(
         expect.not.objectContaining({
           jobType: expect.anything(),
-        })
+        }),
       );
     });
   });
@@ -403,10 +404,7 @@ describe('Jobs Controller', () => {
 
       await updateJob(req, res);
 
-      expect(checkPermissions).toHaveBeenCalledWith(
-        req.user,
-        mockJob.createdBy
-      );
+      expect(checkPermissions).toHaveBeenCalledWith(req.user, mockJob.createdBy);
       expect(Job.findOneAndUpdate).toHaveBeenCalledWith(
         { _id: jobId },
         expect.objectContaining({
@@ -414,7 +412,7 @@ describe('Jobs Controller', () => {
           position: 'New Position',
           status: 'interview',
         }),
-        { new: true, runValidators: true }
+        { new: true, runValidators: true },
       );
       expect(res.json).toHaveBeenCalledWith({ job: updatedJob });
     });
@@ -431,9 +429,7 @@ describe('Jobs Controller', () => {
       Job.findOne.mockResolvedValue(null);
 
       await expect(updateJob(req, res)).rejects.toThrow(NotFoundError);
-      await expect(updateJob(req, res)).rejects.toThrow(
-        `No job with id :${jobId}`
-      );
+      await expect(updateJob(req, res)).rejects.toThrow(`No job with id :${jobId}`);
     });
 
     it('should update job with optional jobPostingUrl', async () => {
@@ -452,7 +448,7 @@ describe('Jobs Controller', () => {
         expect.objectContaining({
           jobPostingUrl: 'https://newcorp.com/job/123',
         }),
-        expect.any(Object)
+        expect.any(Object),
       );
     });
 
@@ -472,7 +468,7 @@ describe('Jobs Controller', () => {
         expect.objectContaining({
           jobPostingUrl: '',
         }),
-        expect.any(Object)
+        expect.any(Object),
       );
     });
 
@@ -487,7 +483,7 @@ describe('Jobs Controller', () => {
       Job.findOne.mockResolvedValue(mockJob);
 
       await expect(updateJob(secondUserReq, res)).rejects.toThrow(
-        'Not authorized to access this route'
+        'Not authorized to access this route',
       );
       expect(Job.findOneAndUpdate).not.toHaveBeenCalled();
     });
@@ -510,10 +506,7 @@ describe('Jobs Controller', () => {
 
       await deleteJob(req, res);
 
-      expect(checkPermissions).toHaveBeenCalledWith(
-        req.user,
-        mockJob.createdBy
-      );
+      expect(checkPermissions).toHaveBeenCalledWith(req.user, mockJob.createdBy);
       expect(Job.findOneAndDelete).toHaveBeenCalledWith({ _id: jobId });
       expect(res.json).toHaveBeenCalledWith({ msg: 'Success! Job removed' });
     });
@@ -522,9 +515,7 @@ describe('Jobs Controller', () => {
       Job.findOne.mockResolvedValue(null);
 
       await expect(deleteJob(req, res)).rejects.toThrow(NotFoundError);
-      await expect(deleteJob(req, res)).rejects.toThrow(
-        `No job with id :${jobId}`
-      );
+      await expect(deleteJob(req, res)).rejects.toThrow(`No job with id :${jobId}`);
     });
 
     it('should check permissions before deleting', async () => {
@@ -534,9 +525,7 @@ describe('Jobs Controller', () => {
       };
 
       Job.findOne.mockResolvedValue(job);
-      await expect(deleteJob(req, res)).rejects.toThrow(
-        'Not authorized to access this route'
-      );
+      await expect(deleteJob(req, res)).rejects.toThrow('Not authorized to access this route');
       expect(Job.findOneAndDelete).not.toHaveBeenCalled();
     });
   });
@@ -546,9 +535,7 @@ describe('Jobs Controller', () => {
 
     beforeEach(() => {
       req.user = { userId };
-      jest
-        .spyOn(mongoose.Types.ObjectId, 'createFromHexString')
-        .mockReturnValue(userId);
+      jest.spyOn(mongoose.Types.ObjectId, 'createFromHexString').mockReturnValue(userId);
       const now = new Date('2024-01-15');
       jest.spyOn(Date, 'now').mockReturnValue(now.getTime());
     });
@@ -569,9 +556,7 @@ describe('Jobs Controller', () => {
         { _id: { year: 2023, month: 12 }, count: 5 },
       ];
 
-      Job.aggregate
-        .mockResolvedValueOnce(mockStats)
-        .mockResolvedValueOnce(mockMonthlyApplications);
+      Job.aggregate.mockResolvedValueOnce(mockStats).mockResolvedValueOnce(mockMonthlyApplications);
 
       await showStats(req, res);
 
@@ -613,13 +598,9 @@ describe('Jobs Controller', () => {
 
     it('should fill missing months with zero count', async () => {
       const mockStats = [{ _id: 'pending', count: 1 }];
-      const mockMonthlyApplications = [
-        { _id: { year: 2024, month: 3 }, count: 1 },
-      ];
+      const mockMonthlyApplications = [{ _id: { year: 2024, month: 3 }, count: 1 }];
 
-      Job.aggregate
-        .mockResolvedValueOnce(mockStats)
-        .mockResolvedValueOnce(mockMonthlyApplications);
+      Job.aggregate.mockResolvedValueOnce(mockStats).mockResolvedValueOnce(mockMonthlyApplications);
 
       await showStats(req, res);
 
@@ -656,9 +637,7 @@ describe('Jobs Controller', () => {
       Job.findOne.mockResolvedValue(null);
 
       await expect(getJob(req, res)).rejects.toThrow(NotFoundError);
-      await expect(getJob(req, res)).rejects.toThrow(
-        `No job with id :${jobId}`
-      );
+      await expect(getJob(req, res)).rejects.toThrow(`No job with id :${jobId}`);
     });
   });
 });

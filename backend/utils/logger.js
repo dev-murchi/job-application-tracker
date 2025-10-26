@@ -9,7 +9,7 @@ const customFormat = format.combine(
   format.printf(({ timestamp, level, message, stack }) => {
     const msg = `[${timestamp}] ${level.toUpperCase()}: ${message}`;
     return stack ? `${msg}\n${stack}` : msg;
-  })
+  }),
 );
 
 const logger = createLogger({

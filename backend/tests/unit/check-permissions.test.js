@@ -15,11 +15,9 @@ describe('checkPermissions', () => {
     const requestUser = { userId: 'user123' };
     const resourceUserId = 'user456';
 
+    expect(() => checkPermissions(requestUser, resourceUserId)).toThrow(UnauthorizedError);
     expect(() => checkPermissions(requestUser, resourceUserId)).toThrow(
-      UnauthorizedError
-    );
-    expect(() => checkPermissions(requestUser, resourceUserId)).toThrow(
-      'Not authorized to access this route'
+      'Not authorized to access this route',
     );
   });
 
@@ -34,8 +32,6 @@ describe('checkPermissions', () => {
     const requestUser = { userId: 'user123' };
     const resourceUserId = { toString: () => 'user456' }; // Mock ObjectId
 
-    expect(() => checkPermissions(requestUser, resourceUserId)).toThrow(
-      UnauthorizedError
-    );
+    expect(() => checkPermissions(requestUser, resourceUserId)).toThrow(UnauthorizedError);
   });
 });

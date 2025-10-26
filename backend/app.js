@@ -26,6 +26,7 @@ const jobsRouter = require('./routes/jobs');
 // Utilities
 const logger = require('./utils/logger');
 const sanitizeData = require('./utils/sanitize');
+const { StatusCodes } = require('http-status-codes');
 
 // Initialize express app
 const app = express();
@@ -38,7 +39,7 @@ app.use(
     limit: config.requestSizeLimit,
     parameterLimit: 100,
     type: ['application/json', 'application/json-patch+json'],
-  })
+  }),
 );
 
 app.use(
@@ -46,14 +47,14 @@ app.use(
     extended: true,
     limit: config.requestSizeLimit,
     parameterLimit: 100,
-  })
+  }),
 );
 
 // Morgan logger configuration for production
 app.use(
   morgan(config.isProduction ? 'combined' : 'dev', {
     stream: { write: (message) => logger.info(message.trim()) },
-  })
+  }),
 );
 
 // Security middleware
@@ -80,7 +81,7 @@ app.use(
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
     optionsSuccessStatus: 204,
     maxAge: 86400, // Cache preflight for 24 hours
-  })
+  }),
 );
 app.use(cookieParser());
 
