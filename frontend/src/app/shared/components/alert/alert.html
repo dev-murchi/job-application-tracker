@@ -1,29 +1,55 @@
-<div class="fixed inset-0 z-[100] flex flex-col pt-8 space-y-4 items-center justify-start pointer-events-none">
+<div
+  class="fixed inset-0 z-[100] flex flex-col pt-8 space-y-4 items-center justify-start pointer-events-none"
+>
   @for (alert of alerts(); track alert.id) {
-  <div
-    class="w-full max-w-xs md:max-w-md flex flex-col items-center pointer-events-auto text-sm card rounded-lg shadow-lg overflow-hidden">
-    <div class="flex flex-row items-center px-4 py-2 w-full gap-4"
-      [class.text-status-success]="alert.type === 'success'" [class.text-status-error]="alert.type === 'error'">
+    <div
+      class="w-full max-w-xs md:max-w-md flex flex-col items-center pointer-events-auto text-sm card rounded-lg shadow-lg overflow-hidden"
+    >
+      <div
+        class="flex flex-row items-center px-4 py-2 w-full gap-4"
+        [class.text-status-success]="alert.type === 'success'"
+        [class.text-status-error]="alert.type === 'error'"
+      >
+        @if (alert.type === 'success') {
+          <app-svg
+            class="min-w-4 w-4"
+            [svgName]="successIcon"
+            fill="currentColor"
+            width="16"
+            height="16"
+          />
+        } @else if (alert.type === 'error') {
+          <app-svg
+            class="min-w-4 w-4"
+            [svgName]="errorIcon"
+            fill="currentColor"
+            width="16"
+            height="16"
+          />
+        }
 
-      @if(alert.type === 'success') {
-      <app-svg class="min-w-4 w-4" [svgName]="successIcon" fill="currentColor" width="16" height="16" />
-      }
-      @else if(alert.type === 'error') {
-      <app-svg class="min-w-4 w-4" [svgName]="errorIcon" fill="currentColor" width="16" height="16" />
-      }
+        <div class="ms-3">
+          <p class="font-medium">{{ alert.message }}</p>
+        </div>
 
-      <div class="ms-3">
-        <p class="font-medium">{{ alert.message }}</p>
+        <div class="ms-auto flex items-center min-w-4 w-4">
+          <app-svg
+            class="min-w-4 w-4"
+            [svgName]="closeIcon"
+            class="rounded-lg focus:outline-hidden focus:opacity-100 cursor-pointer"
+            width="16"
+            height="16"
+            fill="currentColor"
+            (click)="hideAlert(alert.id)"
+          />
+        </div>
       </div>
-
-      <div class="ms-auto flex items-center min-w-4 w-4">
-        <app-svg class="min-w-4 w-4" [svgName]="closeIcon"
-          class="rounded-lg focus:outline-hidden focus:opacity-100 cursor-pointer" width="16" height="16"
-          fill="currentColor" (click)="hideAlert(alert.id)" />
-      </div>
+      <div
+        class="h-1 w-full toast-border-animate"
+        [class.bg-alert-success]="alert.type === 'success'"
+        [class.bg-alert-warning]="alert.type === 'warn'"
+        [class.bg-alert-error]="alert.type === 'error'"
+      ></div>
     </div>
-    <div class="h-1 w-full toast-border-animate" [class.bg-alert-success]="alert.type === 'success'"
-      [class.bg-alert-warning]="alert.type === 'warn'" [class.bg-alert-error]="alert.type === 'error'"></div>
-  </div>
   }
 </div>

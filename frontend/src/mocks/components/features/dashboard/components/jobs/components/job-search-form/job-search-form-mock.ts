@@ -10,10 +10,10 @@ import { JobSearchFormOutput } from '../../../../../../../../app/features/dashbo
 })
 export class JobSearchFormMock {
   readonly debounceDelay = input.required<number>();
-  initialSearchText = input.required<string>();
-  initialJobStatus = input.required<JobStatus>();
-  initialJobType = input.required<JobType>();
-  initialSortOption = input.required<JobSortOption>();
+  readonly initialSearchText = input.required<string>();
+  readonly initialJobStatus = input.required<JobStatus>();
+  readonly initialJobType = input.required<JobType>();
+  readonly initialSortOption = input.required<JobSortOption>();
 
   readonly jobSearchEvent = output<JobSearchFormOutput>();
 }

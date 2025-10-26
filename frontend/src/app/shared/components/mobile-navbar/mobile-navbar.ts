@@ -15,7 +15,7 @@ import { ClickOutsideDirective } from '../../directives/click-outside';
   styleUrls: ['./mobile-navbar.css'],
 })
 export class MobileNavbar {
-  items = input<NavLink[]>([]);
+  readonly items = input<NavLink[]>([]);
 
   private readonly authService = inject(AuthService);
 
@@ -26,15 +26,15 @@ export class MobileNavbar {
 
   mobileMenuOpen = false;
 
-  onToggleMenu() {
+  onToggleMenu(): void {
     this.mobileMenuOpen = !this.mobileMenuOpen;
   }
 
-  closeMenu() {
+  closeMenu(): void {
     this.mobileMenuOpen = false;
   }
 
-  logout() {
+  logout(): void {
     this.authService.logout().subscribe();
   }
 }

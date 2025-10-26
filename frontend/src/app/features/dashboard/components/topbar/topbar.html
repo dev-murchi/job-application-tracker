@@ -1,44 +1,58 @@
 <header class="w-full flex flex-row w-full items-center justify-between shadow-md px-4">
-    <div class="brand w-64 pr-3">
-        <a routerLink="/dashboard">
-            <app-svg [svgName]="logo" [mode]="'image'" class="h-auto" />
-        </a>
-    </div>
+  <div class="brand w-64 pr-3">
+    <a routerLink="/dashboard">
+      <app-svg [svgName]="logo" [mode]="'image'" class="h-auto" />
+    </a>
+  </div>
 
-    <div class="flex flex-row items-center gap-2">
-        <div class="gap-2 bg-[var(--color-bg-active)]/25 rounded-lg">
-            <div class="ml-auto relative rounded-lg">
-                <button
-                    class="flex flex-row items-center gap-2 p-1 w-full hover:bg-[var(--color-bg-active)] focus:outline-none cursor-pointer text-[var(--color-text-secondary)] rounded-lg"
-                    (click)="toggleDropdown()">
+  <div class="flex flex-row items-center gap-2">
+    <div class="gap-2 bg-[var(--color-bg-active)]/25 rounded-lg">
+      <div class="ml-auto relative rounded-lg">
+        <button
+          class="flex flex-row items-center gap-2 p-1 w-full hover:bg-[var(--color-bg-active)] focus:outline-none cursor-pointer text-[var(--color-text-secondary)] rounded-lg"
+          (click)="toggleDropdown()"
+        >
+          <img
+            src="{{ user().profile?.avatar ?? 'images/default-avatar.png' }}"
+            alt="Avatar"
+            class="object-cover size-8 rounded-lg"
+          />
 
-                    <img src="{{user().profile?.avatar ?? 'images/default-avatar.png'}}" alt="Avatar"
-                        class="object-cover size-8 rounded-lg" />
+          <div class="h-4 text-sm flex items-center">
+            {{ user().profile?.name }} {{ user().profile?.lastName }}
+          </div>
 
-                    <div class="h-4 text-sm flex items-center">{{user().profile?.name}} {{user().profile?.lastName}}</div>
-
-                    <app-svg [svgName]="dropDownIcon" class="rounded-lg" fill="currentColor" />
-
-                </button>
-                @if(showDropdown()) {
-                <div (clickOutside)="closeDropdown()"
-                    class="absolute flex-1 space-y-2 right-0 mt-4 w-48 rounded-lg shadow-xl p-2 z-50 card border-[var(--color-border-default)] border-2"
-                    [class.hidden]="!showDropdown()">
-                    <app-nav-link (click)="closeDropdown()" [link]="profileNavigation.link"
-                        [text]="profileNavigation.text" [icon]="profileNavigation.icon!"
-                        [cssClass]="'flex flex-row w-full text-sm p-2 gap-2 rounded-lg transition-[padding-left] duration-300 ease-in-out transition-all duration-200 ease-in-out hover:scale-105'" />
-                    <div class="mt-8">
-                        <button (click)="logout()"
-                            class="h-10 flex flex-row w-full items-center justify-center text-sm text-red-600 font-bold gap-2 p-2 rounded-lg border-1 outline-none hover:bg-red-600 hover:text-white cursor-pointer ">
-                            <app-svg [svgName]="logoutIcon" fill="currentColor" />
-                            <span>Logout</span>
-                        </button>
-                    </div>
-                </div>
-                }
+          <app-svg [svgName]="dropDownIcon" class="rounded-lg" fill="currentColor" />
+        </button>
+        @if (showDropdown()) {
+          <div
+            (clickOutside)="closeDropdown()"
+            class="absolute flex-1 space-y-2 right-0 mt-4 w-48 rounded-lg shadow-xl p-2 z-50 card border-[var(--color-border-default)] border-2"
+            [class.hidden]="!showDropdown()"
+          >
+            <app-nav-link
+              (click)="closeDropdown()"
+              [link]="profileNavigation.link"
+              [text]="profileNavigation.text"
+              [icon]="profileNavigation.icon!"
+              [cssClass]="
+                'flex flex-row w-full text-sm p-2 gap-2 rounded-lg transition-[padding-left] duration-300 ease-in-out transition-all duration-200 ease-in-out hover:scale-105'
+              "
+            />
+            <div class="mt-8">
+              <button
+                (click)="logout()"
+                class="h-10 flex flex-row w-full items-center justify-center text-sm text-red-600 font-bold gap-2 p-2 rounded-lg border-1 outline-none hover:bg-red-600 hover:text-white cursor-pointer"
+              >
+                <app-svg [svgName]="logoutIcon" fill="currentColor" />
+                <span>Logout</span>
+              </button>
             </div>
-        </div>
-
-        <app-theme-switch class="cursor-pointer" />
+          </div>
+        }
+      </div>
     </div>
+
+    <app-theme-switch class="cursor-pointer" />
+  </div>
 </header>

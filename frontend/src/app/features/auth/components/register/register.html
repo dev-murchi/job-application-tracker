@@ -1,28 +1,33 @@
 <form [formGroup]="registerForm" (submit)="registerUser()" class="space-y-6">
-    <h2 class="text-xl font-bold text-center mb-4 text-[var(--color-brand-accent)]">Create Your Account</h2>
+  <h2 class="text-xl font-bold text-center mb-4 text-[var(--color-brand-accent)]">
+    Create Your Account
+  </h2>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-        <div>
-            <app-input [form]="registerForm" [inputElement]="firstNameIput" />
-        </div>
-        <div>
-            <app-input [form]="registerForm" [inputElement]="lastNameIput" />
-        </div>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+    <div>
+      <app-input [form]="registerForm" [inputElement]="firstNameIput" />
     </div>
+    <div>
+      <app-input [form]="registerForm" [inputElement]="lastNameIput" />
+    </div>
+  </div>
 
-    <div class="mb-4">
-        <app-input [form]="registerForm" [inputElement]="emailInput" />
-    </div>
-    <div class="mb-4">
-        <app-input [form]="registerForm" [inputElement]="passwordInput" />
-    </div>
-    <div class="mb-4">
-        <app-input [form]="registerForm" [inputElement]="locationIput" />
-    </div>
+  <div class="mb-4">
+    <app-input [form]="registerForm" [inputElement]="emailInput" />
+  </div>
+  <div class="mb-4">
+    <app-input [form]="registerForm" [inputElement]="passwordInput" />
+  </div>
+  <div class="mb-4">
+    <app-input [form]="registerForm" [inputElement]="locationIput" />
+  </div>
 
-
-    <div class="flex py-2">
-        <app-submit-button [icon]="registerIcon" text="Create Account" [isDisabled]="registerForm.invalid"
-            class="flex flex-row w-full" />
-    </div>
+  <div class="flex py-2">
+    <app-submit-button
+      [icon]="registerIcon"
+      text="Create Account"
+      [isDisabled]="registerForm.invalid"
+      class="flex flex-row w-full"
+    />
+  </div>
 </form>

@@ -7,17 +7,17 @@ import { ThemeSwitchService } from './theme-switch-service';
   standalone: true,
   imports: [SvgComponent],
   templateUrl: './theme-switch.html',
-  styleUrls: ['./theme-switch.css']
+  styleUrls: ['./theme-switch.css'],
 })
 export class ThemeSwitch {
   private readonly themeSwitchService = inject(ThemeSwitchService);
-  
+
   readonly theme = computed(() => {
     const currentTheme = this.themeSwitchService.theme();
     return {
       icon: currentTheme.icon,
       isDarkMode: currentTheme.mode === 'dark',
-      mode: currentTheme.mode
+      mode: currentTheme.mode,
     };
   });
 

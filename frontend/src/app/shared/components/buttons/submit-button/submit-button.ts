@@ -6,10 +6,10 @@ import { SvgComponent } from '../../svg/svg';
   selector: 'app-submit-button',
   imports: [SvgComponent],
   templateUrl: './submit-button.html',
-  styleUrl: './submit-button.css'
+  styleUrl: './submit-button.css',
 })
 export class SubmitButton {
-  icon = input<SvgNameType | undefined>(undefined);
-  text = input<string>('');
-  isDisabled = input<boolean>(false);
+  readonly icon = input<SvgNameType | undefined>(undefined);
+  readonly text = input<string>('');
+  readonly isDisabled = input<boolean>(false);
 }

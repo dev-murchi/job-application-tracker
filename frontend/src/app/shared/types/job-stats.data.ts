@@ -5,11 +5,11 @@ export interface MonthlyApplication {
 
 export interface JobStats {
   defaultStats: {
-    interview: number,
-    declined: number,
-    pending: number,
-    offered: number,
-    accepted: number,
+    interview: number;
+    declined: number;
+    pending: number;
+    offered: number;
+    accepted: number;
   };
   monthlyApplications: { count: number; date: string }[];
 }

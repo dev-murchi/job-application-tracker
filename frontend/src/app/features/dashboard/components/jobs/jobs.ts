@@ -1,22 +1,22 @@
-import { Component, inject, DestroyRef, signal } from '@angular/core';
+import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { JobsService } from '../../../../core/services/jobs';
 import { Pagination } from '../../../../shared/components/pagination/pagination';
 import { JobQuery } from '../../../../shared/types/job-query.data';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { JobSearchForm, JobSearchFormOutput } from "./components/job-search-form/job-search-form";
+import { JobSearchForm, JobSearchFormOutput } from './components/job-search-form/job-search-form';
 import { JobStatus } from '../../../../shared/types/job-status';
 import { JobType } from '../../../../shared/types/job-type';
 import { JobSortOption } from '../../../../shared/types/job-sort-option';
-import { SvgComponent } from "../../../../shared/components/svg/svg";
-import { JobStatusBadge } from "../../../../shared/components/job-status-badge/job-status-badge";
-import { LoadingSpinner } from "../../../../shared/components/loading-spinner/loading-spinner";
+import { SvgComponent } from '../../../../shared/components/svg/svg';
+import { JobStatusBadge } from '../../../../shared/components/job-status-badge/job-status-badge';
+import { LoadingSpinner } from '../../../../shared/components/loading-spinner/loading-spinner';
 
 @Component({
   selector: 'app-jobs',
   imports: [Pagination, JobSearchForm, RouterLink, SvgComponent, JobStatusBadge, LoadingSpinner],
   templateUrl: './jobs.html',
-  styleUrl: './jobs.css'
+  styleUrl: './jobs.css',
 })
 export class Jobs {
   private readonly jobsService = inject(JobsService);
@@ -33,13 +33,11 @@ export class Jobs {
   constructor() {
     const destroyRef = inject(DestroyRef);
 
-    this.activeRoute.queryParams
-      .pipe(takeUntilDestroyed(destroyRef))
-      .subscribe(params => {
-        this.searchQuery = this.mapParamsToQuery(params);
-        this.updateJobSearchFormSignals(params);
-        this.jobsService.getJobs(this.searchQuery);
-      });
+    this.activeRoute.queryParams.pipe(takeUntilDestroyed(destroyRef)).subscribe(params => {
+      this.searchQuery = this.mapParamsToQuery(params);
+      this.updateJobSearchFormSignals(params);
+      this.jobsService.getJobs(this.searchQuery);
+    });
   }
 
   private mapParamsToQuery(params: any): JobQuery {
@@ -50,36 +48,42 @@ export class Jobs {
       ...(params.jobType && { jobType: params.jobType }),
       ...(params.page && { page: params.page }),
       ...(params.limit && { limit: params.limit }),
-    }
+    };
   }
 
-  private updateJobSearchFormSignals(params: any) {
+  private updateJobSearchFormSignals(params: any): void {
     const { search, status, jobType, sort } = params;
 
     this.initialSearchText.set(search || '');
-    this.initialSortOption.set(sort && Object.values(JobSortOption).includes(sort) ? sort : JobSortOption.Newest);
-    this.initialJobStatus.set(status && Object.values(JobStatus).includes(status) ? status : JobStatus.All);
-    this.initialJobType.set(jobType && Object.values(JobType).includes(jobType) ? jobType : JobType.All);
+    this.initialSortOption.set(
+      sort && Object.values(JobSortOption).includes(sort) ? sort : JobSortOption.Newest,
+    );
+    this.initialJobStatus.set(
+      status && Object.values(JobStatus).includes(status) ? status : JobStatus.All,
+    );
+    this.initialJobType.set(
+      jobType && Object.values(JobType).includes(jobType) ? jobType : JobType.All,
+    );
   }
 
-  private updateQueryParams(queryParams: JobQuery) {
+  private updateQueryParams(queryParams: JobQuery): void {
     this.router.navigate([], {
       relativeTo: this.activeRoute,
       queryParams,
     });
   }
 
-  requestedPageHandler(pageNumber: number) {
+  requestedPageHandler(pageNumber: number): void {
     this.updateQueryParams({ ...this.searchQuery, page: pageNumber });
   }
 
-  handleSearchFormData(event: JobSearchFormOutput) {
+  handleSearchFormData(event: JobSearchFormOutput): void {
     if (event.operation === 'search') {
       const query: JobQuery = {
         search: event.value.search || undefined,
         status: event.value.status || undefined,
         jobType: event.value.type || undefined,
-        sort: event.value.sort || undefined
+        sort: event.value.sort || undefined,
       };
       this.updateQueryParams(query);
     } else {
@@ -87,5 +91,4 @@ export class Jobs {
       this.router.navigate([], { relativeTo: this.activeRoute });
     }
   }
-
 }

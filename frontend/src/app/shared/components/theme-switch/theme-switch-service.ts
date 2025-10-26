@@ -9,7 +9,7 @@ interface ThemeState {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ThemeSwitchService {
   private static readonly THEME_STORAGE_KEY = 'theme';
@@ -36,8 +36,10 @@ export class ThemeSwitchService {
       return 'light';
     }
 
-    const savedTheme = localStorage.getItem(ThemeSwitchService.THEME_STORAGE_KEY) as ThemeMode | null;
-    
+    const savedTheme = localStorage.getItem(
+      ThemeSwitchService.THEME_STORAGE_KEY,
+    ) as ThemeMode | null;
+
     if (savedTheme && this.isValidTheme(savedTheme)) {
       return savedTheme;
     }
@@ -63,9 +65,10 @@ export class ThemeSwitchService {
   }
 
   private setModeInternal(mode: ThemeMode): void {
-    const themeConfig: ThemeState = mode === 'dark' 
-      ? { mode: 'dark', icon: 'darkModeIcon' }
-      : { mode: 'light', icon: 'lightModeIcon' };
+    const themeConfig: ThemeState =
+      mode === 'dark'
+        ? { mode: 'dark', icon: 'darkModeIcon' }
+        : { mode: 'light', icon: 'lightModeIcon' };
 
     this.#theme.set(themeConfig);
   }

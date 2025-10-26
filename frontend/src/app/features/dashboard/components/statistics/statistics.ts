@@ -2,14 +2,14 @@ import { Component, computed, inject, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { JobsService } from '../../../../core/services/jobs';
 import { SvgComponent } from '../../../../shared/components/svg/svg';
-import { LoadingSpinner } from "../../../../shared/components/loading-spinner/loading-spinner";
+import { LoadingSpinner } from '../../../../shared/components/loading-spinner/loading-spinner';
 import { JobStatus } from '../../../../shared/types/job-status';
 import { CommonModule } from '@angular/common';
-import { ActivityBarChart } from "../../../../shared/components/activity-bar-chart/activity-bar-chart";
+import { ActivityBarChart } from '../../../../shared/components/activity-bar-chart/activity-bar-chart';
 
 interface StatusStat {
   label: string;
-  status: JobStatus,
+  status: JobStatus;
   value: number;
   valueCss: string;
   backgroundClass: string;
@@ -17,23 +17,17 @@ interface StatusStat {
 }
 
 interface TrendsSummary {
-  averagePerMonth: string,
-  mostActiveMonth: number,
-  totalPeriod: string,
+  averagePerMonth: string;
+  mostActiveMonth: number;
+  totalPeriod: string;
 }
 
 @Component({
   selector: 'app-statistics',
   standalone: true,
-  imports: [
-    CommonModule,
-    RouterLink,
-    SvgComponent,
-    LoadingSpinner,
-    ActivityBarChart
-],
+  imports: [CommonModule, RouterLink, SvgComponent, LoadingSpinner, ActivityBarChart],
   templateUrl: './statistics.html',
-  styleUrl: './statistics.css'
+  styleUrl: './statistics.css',
 })
 export class Statistics implements OnInit {
   private readonly jobsService = inject(JobsService);
@@ -41,34 +35,50 @@ export class Statistics implements OnInit {
 
   readonly totalApplications = computed(() => {
     const stats = this.jobStats();
-    if (!stats.data?.defaultStats) return 0;
+    if (!stats.data?.defaultStats) {
+      return 0;
+    }
     return Object.values(stats.data.defaultStats).reduce((sum: number, val: any) => sum + val, 0);
   });
 
   readonly successRate = computed(() => {
     const stats = this.jobStats();
-    if (!stats.data?.defaultStats) return '0.0';
+    if (!stats.data?.defaultStats) {
+      return '0.0';
+    }
     const total = this.totalApplications();
-    if (total === 0) return '0.0';
-    const successful = (stats.data.defaultStats.offered || 0) + (stats.data.defaultStats.accepted || 0);
+    if (total === 0) {
+      return '0.0';
+    }
+    const successful =
+      (stats.data.defaultStats.offered || 0) + (stats.data.defaultStats.accepted || 0);
     return ((successful / total) * 100).toFixed(1);
   });
 
   readonly interviewRate = computed(() => {
     const stats = this.jobStats();
-    if (!stats.data?.defaultStats) return '0.0';
+    if (!stats.data?.defaultStats) {
+      return '0.0';
+    }
     const total = this.totalApplications();
-    if (total === 0) return '0.0';
+    if (total === 0) {
+      return '0.0';
+    }
 
     return ((stats.data.defaultStats.interview / total) * 100).toFixed(1);
   });
 
   readonly responseRate = computed(() => {
     const stats = this.jobStats();
-    if (!stats.data?.defaultStats) return '0.0';
+    if (!stats.data?.defaultStats) {
+      return '0.0';
+    }
     const total = this.totalApplications();
-    if (total === 0) return '0.0';
-    const responded = (stats.data.defaultStats.interview || 0) +
+    if (total === 0) {
+      return '0.0';
+    }
+    const responded =
+      (stats.data.defaultStats.interview || 0) +
       (stats.data.defaultStats.offered || 0) +
       (stats.data.defaultStats.accepted || 0) +
       (stats.data.defaultStats.declined || 0);
@@ -78,7 +88,9 @@ export class Statistics implements OnInit {
   // Computed data for breakdown component
   readonly statusBreakdown = computed((): StatusStat[] => {
     const stats = this.jobStats();
-    if (!stats.data?.defaultStats) return [];
+    if (!stats.data?.defaultStats) {
+      return [];
+    }
 
     return [
       {
@@ -94,7 +106,8 @@ export class Statistics implements OnInit {
         status: JobStatus.Pending,
         value: stats.data.defaultStats.pending || 0,
         valueCss: 'text-[var(--color-job-status-pending-text)]',
-        backgroundClass: 'bg-[var(--color-job-status-pending-bg)]/50 hover:bg-[var(--color-job-status-pending-bg)]',
+        backgroundClass:
+          'bg-[var(--color-job-status-pending-bg)]/50 hover:bg-[var(--color-job-status-pending-bg)]',
         dotClass: 'bg-[var(--color-job-status-pending-text)]',
       },
       {
@@ -102,7 +115,8 @@ export class Statistics implements OnInit {
         status: JobStatus.Interview,
         value: stats.data.defaultStats.interview || 0,
         valueCss: 'text-[var(--color-job-status-interview-text)]',
-        backgroundClass: 'bg-[var(--color-job-status-interview-bg)]/50 hover:bg-[var(--color-job-status-interview-bg)]',
+        backgroundClass:
+          'bg-[var(--color-job-status-interview-bg)]/50 hover:bg-[var(--color-job-status-interview-bg)]',
         dotClass: 'bg-[var(--color-job-status-interview-text)]',
       },
       {
@@ -110,7 +124,8 @@ export class Statistics implements OnInit {
         status: JobStatus.Offered,
         value: stats.data.defaultStats.offered || 0,
         valueCss: 'text-[var(--color-job-status-offered-text)]',
-        backgroundClass: 'bg-[var(--color-job-status-offered-bg)]/50 hover:bg-[var(--color-job-status-offered-bg)]',
+        backgroundClass:
+          'bg-[var(--color-job-status-offered-bg)]/50 hover:bg-[var(--color-job-status-offered-bg)]',
         dotClass: 'bg-[var(--color-job-status-offered-text)]',
       },
       {
@@ -118,7 +133,8 @@ export class Statistics implements OnInit {
         status: JobStatus.Accepted,
         value: stats.data.defaultStats.accepted || 0,
         valueCss: 'text-[var(--color-job-status-accepted-text)]',
-        backgroundClass: 'bg-[var(--color-job-status-accepted-bg)]/50 hover:bg-[var(--color-job-status-accepted-bg)]',
+        backgroundClass:
+          'bg-[var(--color-job-status-accepted-bg)]/50 hover:bg-[var(--color-job-status-accepted-bg)]',
         dotClass: 'bg-[var(--color-job-status-accepted-text)]',
       },
       {
@@ -126,20 +142,26 @@ export class Statistics implements OnInit {
         status: JobStatus.Declined,
         value: stats.data.defaultStats.declined || 0,
         valueCss: 'text-[var(--color-job-status-declined-text)]',
-        backgroundClass: 'bg-[var(--color-job-status-declined-bg)]/50 hover:bg-[var(--color-job-status-declined-bg)]',
+        backgroundClass:
+          'bg-[var(--color-job-status-declined-bg)]/50 hover:bg-[var(--color-job-status-declined-bg)]',
         dotClass: 'bg-[var(--color-job-status-declined-text)]',
-      }
+      },
     ];
   });
 
   // Computed data for trends chart component
   readonly monthlyChartData = computed(() => {
     const stats = this.jobStats();
-    if (!stats.data?.monthlyApplications) return [];
+    if (!stats.data?.monthlyApplications) {
+      return [];
+    }
 
     return stats.data.monthlyApplications.map((month: any) => ({
       value: month.count,
-      label: new Date(month.date + '-01').toLocaleDateString('en-US', { year: 'numeric', month: 'short' })
+      label: new Date(month.date + '-01').toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+      }),
     }));
   });
 
@@ -155,7 +177,7 @@ export class Statistics implements OnInit {
     return {
       averagePerMonth: avgPerMonth,
       mostActiveMonth: maxMonth,
-      totalPeriod: '6 months'
+      totalPeriod: '6 months',
     };
   });
 

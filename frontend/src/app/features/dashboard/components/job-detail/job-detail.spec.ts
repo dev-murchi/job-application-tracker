@@ -38,7 +38,7 @@ describe('JobDetail', () => {
     alertServiceSpy = jasmine.createSpyObj('AlertService', ['show']);
 
     routeParamMap = new BehaviorSubject({
-      get: (key: string) => (key === 'jobId' ? 'job-123' : null),
+      get: (key: string): string | null => (key === 'jobId' ? 'job-123' : null),
     });
     routerSpy = jasmine.createSpyObj('Router', ['navigate']);
 

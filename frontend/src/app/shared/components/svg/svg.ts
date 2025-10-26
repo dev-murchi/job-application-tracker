@@ -1,4 +1,4 @@
-import { Component, effect, inject, input, ElementRef, HostBinding } from '@angular/core';
+import { Component, effect, ElementRef, HostBinding, inject, input } from '@angular/core';
 import { SvgNameType } from '../../../svg.config';
 import { SvgService } from '../../../core/services/svg-service';
 
@@ -7,17 +7,16 @@ import { SvgService } from '../../../core/services/svg-service';
   standalone: true,
   imports: [],
   template: '',
-  styleUrl: './svg.css'
+  styleUrl: './svg.css',
 })
 export class SvgComponent {
-
-  svgName = input.required<SvgNameType>();
-  mode = input<'icon' | 'image'>('icon');
-  width = input<string>();
-  height = input<string>();
-  fill = input<string>();
-  stroke = input<string>();
-  class = input<string>('');
+  readonly svgName = input.required<SvgNameType>();
+  readonly mode = input<'icon' | 'image'>('icon');
+  readonly width = input<string>();
+  readonly height = input<string>();
+  readonly fill = input<string>();
+  readonly stroke = input<string>();
+  readonly class = input<string>('');
 
   @HostBinding('class')
   get customClass(): string {

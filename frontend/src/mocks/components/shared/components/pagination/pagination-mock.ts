@@ -5,7 +5,7 @@ import { Component, input, output } from '@angular/core';
   template: '',
 })
 export class PaginationMock {
-  currentPage = input.required<number>();
-  totalPages = input.required<number>();
-  requestedPage = output<number>();
+  readonly currentPage = input.required<number>();
+  readonly totalPages = input.required<number>();
+  readonly requestedPage = output<number>();
 }

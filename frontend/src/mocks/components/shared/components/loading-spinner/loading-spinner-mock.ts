@@ -5,5 +5,5 @@ import { Component, input } from '@angular/core';
   template: '',
 })
 export class LoadingSpinnerMock {
-  text = input<string>();
+  readonly text = input<string>();
 }

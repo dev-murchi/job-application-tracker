@@ -1,8 +1,9 @@
 <div>
   <div class="px-4 py-6">
     <form [formGroup]="form">
-      <div class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-8 gap-y-4 gap-x-2 md:gap-col-6 items-end">
-
+      <div
+        class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-8 gap-y-4 gap-x-2 md:gap-col-6 items-end"
+      >
         <!-- searchField -->
         <div class="col-span-3 md:col-span-4">
           <app-input [form]="form" [inputElement]="searchBox" />
@@ -10,31 +11,38 @@
 
         <!-- jobStatusField  -->
         <div class="col-span-1">
-          <app-input [form]="form" [inputElement]="statusSelection"/>
+          <app-input [form]="form" [inputElement]="statusSelection" />
         </div>
 
         <!--  jobTypeField -->
         <div class="col-span-1">
-          <app-input [form]="form" [inputElement]="typeSelection"/>
+          <app-input [form]="form" [inputElement]="typeSelection" />
         </div>
 
         <!-- sortField  -->
         <div class="col-span-1">
-          <label class="block text-xs md:text-sm font-medium text-[var(--color-text-secondary)] mb-2">
+          <label
+            class="block text-xs md:text-sm font-medium text-[var(--color-text-secondary)] mb-2"
+          >
             {{ sortSelection.label }}
           </label>
-          <select [formControlName]="sortSelection.key"
-            class="cursor-pointer input-field w-full px-2 py-2 rounded-lg text-xs md:text-sm focus:outline-none focus:border-[var(--color-brand-accent)] placeholder-stone-400">
+          <select
+            [formControlName]="sortSelection.key"
+            class="cursor-pointer input-field w-full px-2 py-2 rounded-lg text-xs md:text-sm focus:outline-none focus:border-[var(--color-brand-accent)] placeholder-stone-400"
+          >
             @for (option of sortSelection.options; track option.value) {
-            <option [value]="option.value">{{ option.key }}</option>
+              <option [value]="option.value">{{ option.key }}</option>
             }
           </select>
         </div>
 
         <!-- Clear Form Button -->
         <div class="col-span-3 md:col-span-1">
-          <button type="button" (click)="clearFormValues()"
-            class="text-md flex flex-row w-full justify-center items-center px-2 py-2 cursor-pointer rounded-lg bg-[var(--color-bg-active)]/70 hover:bg-[var(--color-bg-active)] text-[var(--color-text-primary)] gap-x-2 shadow-sm">
+          <button
+            type="button"
+            (click)="clearFormValues()"
+            class="text-md flex flex-row w-full justify-center items-center px-2 py-2 cursor-pointer rounded-lg bg-[var(--color-bg-active)]/70 hover:bg-[var(--color-bg-active)] text-[var(--color-text-primary)] gap-x-2 shadow-sm"
+          >
             <app-svg [svgName]="clearIcon" fill="currentColor" class="size-6" />
             Clear
           </button>

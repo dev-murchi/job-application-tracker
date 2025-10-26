@@ -7,6 +7,6 @@ import { SvgNameType } from '../../../../../app/svg.config';
   template: '',
 })
 export class JobStatusBadgeMock {
-  status = input<JobStatus>();
-  icon = input<SvgNameType>();
+  readonly status = input<JobStatus>();
+  readonly icon = input<SvgNameType>();
 }

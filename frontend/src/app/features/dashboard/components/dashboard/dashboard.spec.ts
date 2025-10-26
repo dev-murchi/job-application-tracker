@@ -1,12 +1,12 @@
 import { provideZonelessChangeDetection, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { Dashboard } from './dashboard';
-import { JobsService } from '../../../../core/services/jobs';
 import { LoadingSpinnerMock } from '../../../../../mocks/components/shared/components/loading-spinner/loading-spinner-mock';
 import { SvgComponentMock } from '../../../../../mocks/components/shared/components/svg/svg-mock';
+import { JobsService } from '../../../../core/services/jobs';
 import { LoadingSpinner } from '../../../../shared/components/loading-spinner/loading-spinner';
 import { SvgComponent } from '../../../../shared/components/svg/svg';
+import { Dashboard } from './dashboard';
 
 describe('Dashboard', () => {
   let component: Dashboard;

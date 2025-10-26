@@ -1,12 +1,12 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 
-import { FormGroup, ReactiveFormsModule, Validators } from '@angular/forms'
+import { FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 
 import { AuthService } from '../../../../core/services/auth';
 import { UserRegister } from '../../../../shared/types/user-register.data';
 import { SvgNameType } from '../../../../svg.config';
 import { CustomInput } from '../../../../shared/components/form-items/input/input';
-import { SubmitButton } from "../../../../shared/components/buttons/submit-button/submit-button";
+import { SubmitButton } from '../../../../shared/components/buttons/submit-button/submit-button';
 import { InputElementText } from '../../../../shared/components/form-helpers/input-element-text';
 import { InputControlService } from '../../../../shared/components/form-helpers/input-control-service';
 
@@ -14,9 +14,9 @@ import { InputControlService } from '../../../../shared/components/form-helpers/
   selector: 'app-register',
   imports: [ReactiveFormsModule, CustomInput, SubmitButton],
   templateUrl: './register.html',
-  styleUrl: './register.css'
+  styleUrl: './register.css',
 })
-export class Register {
+export class Register implements OnInit {
   private authService = inject(AuthService);
 
   firstNameIput = new InputElementText({
@@ -25,7 +25,7 @@ export class Register {
     label: 'First Name',
     type: 'text',
     placeholder: 'first name',
-    validators: [Validators.required, Validators.minLength(3)]
+    validators: [Validators.required, Validators.minLength(3)],
   });
 
   lastNameIput = new InputElementText({
@@ -34,7 +34,7 @@ export class Register {
     label: 'Last Name',
     type: 'text',
     placeholder: 'last name',
-    validators: [Validators.required]
+    validators: [Validators.required],
   });
 
   emailInput = new InputElementText({
@@ -43,8 +43,8 @@ export class Register {
     label: 'Email',
     type: 'email',
     placeholder: 'you@email.com',
-    validators: [Validators.required, Validators.email]
-  })
+    validators: [Validators.required, Validators.email],
+  });
 
   passwordInput = new InputElementText({
     value: '',
@@ -52,8 +52,12 @@ export class Register {
     label: 'Password',
     type: 'password',
     placeholder: '********',
-    validators: [Validators.required, Validators.minLength(8), Validators.pattern('^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).{8,}$')]
-  })
+    validators: [
+      Validators.required,
+      Validators.minLength(8),
+      Validators.pattern('^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).{8,}$'),
+    ],
+  });
 
   locationIput = new InputElementText({
     value: '',
@@ -61,7 +65,7 @@ export class Register {
     label: 'Location',
     type: 'text',
     placeholder: 'Tx, USB',
-    validators: [Validators.required]
+    validators: [Validators.required],
   });
 
   readonly registerForm: FormGroup;
@@ -79,11 +83,11 @@ export class Register {
     });
   }
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.registerForm.reset();
   }
 
-  registerUser() {
+  registerUser(): void {
     if (this.registerForm.valid) {
       const payload: UserRegister = {
         name: this.registerForm.value[this.firstNameIput.key]!,
@@ -91,7 +95,7 @@ export class Register {
         email: this.registerForm.value[this.emailInput.key]!,
         password: this.registerForm.value[this.passwordInput.key]!,
         location: this.registerForm.value[this.locationIput.key]!,
-      }
+      };
 
       this.authService.register(payload).subscribe();
     } else {

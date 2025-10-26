@@ -6,8 +6,8 @@ import { SvgNameType } from '../../../../../app/svg.config';
   template: '',
 })
 export class NavLinkComponentMock {
-  link = input.required<string>();
-  text = input<string | undefined>();
-  icon = input<SvgNameType | undefined>();
-  cssClass = input<string>('');
+  readonly link = input.required<string>();
+  readonly text = input<string | undefined>();
+  readonly icon = input<SvgNameType | undefined>();
+  readonly cssClass = input<string>('');
 }

@@ -1,7 +1,7 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthService } from '../../../../core/services/auth';
-import { SubmitButton } from "../../../../shared/components/buttons/submit-button/submit-button";
+import { SubmitButton } from '../../../../shared/components/buttons/submit-button/submit-button';
 import { InputControlService } from '../../../../shared/components/form-helpers/input-control-service';
 import { InputElementText } from '../../../../shared/components/form-helpers/input-element-text';
 import { CustomInput } from '../../../../shared/components/form-items/input/input';
@@ -13,7 +13,7 @@ import { SvgNameType } from '../../../../svg.config';
   selector: 'app-login',
   imports: [ReactiveFormsModule, SvgComponent, CustomInput, SubmitButton],
   templateUrl: './login.html',
-  styleUrl: './login.css'
+  styleUrl: './login.css',
 })
 export class Login implements OnInit {
   private authService = inject(AuthService);
@@ -28,8 +28,8 @@ export class Login implements OnInit {
     label: 'Email',
     type: 'email',
     placeholder: 'you@email.com',
-    validators: [Validators.required, Validators.email]
-  })
+    validators: [Validators.required, Validators.email],
+  });
 
   passwordInput = new InputElementText({
     value: '',
@@ -37,8 +37,8 @@ export class Login implements OnInit {
     label: 'Password',
     type: 'password',
     placeholder: '********',
-    validators: [Validators.required]
-  })
+    validators: [Validators.required],
+  });
 
   constructor() {
     const ics = inject(InputControlService);
@@ -46,14 +46,14 @@ export class Login implements OnInit {
     this.loginForm = new FormGroup({
       [`${this.emailInput.key}`]: ics.toFormControl(this.emailInput),
       [`${this.passwordInput.key}`]: ics.toFormControl(this.passwordInput),
-    })
+    });
   }
 
   ngOnInit(): void {
     this.loginForm.reset();
   }
 
-  loginUser() {
+  loginUser(): void {
     if (this.loginForm.valid) {
       const payload: UserLogin = {
         email: this.loginForm.value[this.emailInput.key]!,
@@ -66,11 +66,11 @@ export class Login implements OnInit {
     }
   }
 
-  demoLogin(event: Event) {
+  demoLogin(event: Event): void {
     event.preventDefault();
     const demoUserPayload: UserLogin = {
       email: 'test@user.com',
-      password: 'TestPass.123'
+      password: 'TestPass.123',
     };
 
     this.authService.login(demoUserPayload).subscribe();

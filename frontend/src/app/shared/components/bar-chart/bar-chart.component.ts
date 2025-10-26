@@ -1,18 +1,7 @@
-import { 
-  Component, 
-  effect,
-  inject,
-  input,
-  signal,
-  viewChild
-} from '@angular/core';
+import { Component, effect, inject, input, signal, viewChild } from '@angular/core';
 import { BaseChartDirective } from 'ng2-charts';
 import { ThemeSwitchService } from '../theme-switch/theme-switch-service';
-import {
-  Chart,
-  ChartConfiguration,
-  registerables
-} from 'chart.js';
+import { Chart, ChartConfiguration, registerables } from 'chart.js';
 
 Chart.register(...registerables);
 
@@ -21,10 +10,9 @@ Chart.register(...registerables);
   standalone: true,
   imports: [BaseChartDirective],
   templateUrl: './bar-chart.component.html',
-  styleUrls: ['./bar-chart.component.css']
+  styleUrls: ['./bar-chart.component.css'],
 })
 export class BarChartComponent {
-
   readonly chart = viewChild(BaseChartDirective);
 
   readonly barChartType = 'bar' as const;
@@ -42,12 +30,12 @@ export class BarChartComponent {
 
   private readonly themeSwitchService = inject(ThemeSwitchService);
 
-  readonly barChartData= signal<ChartConfiguration<'bar'>['data']>({
+  readonly barChartData = signal<ChartConfiguration<'bar'>['data']>({
     labels: [],
-    datasets: []
+    datasets: [],
   });
 
-  readonly barChartOptions  = signal<ChartConfiguration<'bar'>['options']>({});
+  readonly barChartOptions = signal<ChartConfiguration<'bar'>['options']>({});
 
   constructor() {
     effect(() => {
@@ -58,24 +46,29 @@ export class BarChartComponent {
         this.barChartData.set(this.prepareChartData2(inputData, this.title(), isDarkMode));
         this.barChartData.set(this.prepareChartData2(inputData, this.title(), isDarkMode));
 
-        this.barChartOptions.set(this.prepareChartOptions({
-          orientation: this.orientation(),
-          responsive: this.responsive(),
-          maintainAspectRatio: this.maintainAspectRatio(),
-          showTitle: this.showTitle(),
-          showLegend: this.showLegend(),
-          showGrid: this.showGrid(),
-          title: this.title(),
-          textColor: this.getTextColor(),
-          gridColor: this.getGridColor()
-        }));
+        this.barChartOptions.set(
+          this.prepareChartOptions({
+            orientation: this.orientation(),
+            responsive: this.responsive(),
+            maintainAspectRatio: this.maintainAspectRatio(),
+            showTitle: this.showTitle(),
+            showLegend: this.showLegend(),
+            showGrid: this.showGrid(),
+            title: this.title(),
+            textColor: this.getTextColor(),
+            gridColor: this.getGridColor(),
+          }),
+        );
       }
     });
   }
 
-  private prepareChartData2(inputData: { label: string; value: number }[], title: string, isDarkMode: boolean): ChartConfiguration<'bar'>['data']  {
-      
-    if(inputData.length === 0) {
+  private prepareChartData2(
+    inputData: { label: string; value: number }[],
+    title: string,
+    isDarkMode: boolean,
+  ): ChartConfiguration<'bar'>['data'] {
+    if (inputData.length === 0) {
       return { labels: [], datasets: [] };
     }
     const labels: string[] = [];
@@ -90,16 +83,17 @@ export class BarChartComponent {
 
     return {
       labels,
-      datasets: [{
-        label: title,
-        data: dataValues,
-        backgroundColor: backgroundColors,
-        borderColor: backgroundColors,
-        borderWidth: 1,
-        borderRadius: 4
-      }]
+      datasets: [
+        {
+          label: title,
+          data: dataValues,
+          backgroundColor: backgroundColors,
+          borderColor: backgroundColors,
+          borderWidth: 1,
+          borderRadius: 4,
+        },
+      ],
     };
-    
   }
 
   private prepareChartOptions({
@@ -111,17 +105,17 @@ export class BarChartComponent {
     showGrid,
     title,
     textColor,
-    gridColor
+    gridColor,
   }: {
-    orientation: 'horizontal' | 'vertical',
-    responsive: boolean,
-    maintainAspectRatio: boolean,
-    showTitle: boolean,
-    showLegend: boolean,
-    showGrid: { x: boolean, y: boolean },
-    title: string,
-    textColor: string,
-    gridColor: string
+    orientation: 'horizontal' | 'vertical';
+    responsive: boolean;
+    maintainAspectRatio: boolean;
+    showTitle: boolean;
+    showLegend: boolean;
+    showGrid: { x: boolean; y: boolean };
+    title: string;
+    textColor: string;
+    gridColor: string;
   }): ChartConfiguration<'bar'>['options'] {
     const isHorizontal = orientation === 'horizontal';
 
@@ -134,55 +128,57 @@ export class BarChartComponent {
           display: showTitle,
           text: title,
           font: { size: 16, weight: 'bold' },
-          color: textColor
+          color: textColor,
         },
         legend: {
           display: showLegend,
           labels: {
-            color: textColor
-          }
-        }
+            color: textColor,
+          },
+        },
       },
       scales: {
         x: {
           display: true,
           grid: {
             display: showGrid.x,
-            color: gridColor
+            color: gridColor,
           },
           ticks: {
             color: textColor,
             maxRotation: isHorizontal ? 0 : 45,
             minRotation: 0,
             font: { size: 12 },
-            padding: 8
-          }
+            padding: 8,
+          },
         },
         y: {
           display: true,
           beginAtZero: true,
           grid: {
             display: showGrid.y,
-            color: gridColor
+            color: gridColor,
           },
           ticks: {
             color: textColor,
             font: { size: 12 },
-            padding: 8
-          }
-        }
-      }
+            padding: 8,
+          },
+        },
+      },
     };
   }
 
   private getBarColor(index: number, isDarkMode: boolean): string {
     const defaultColors = this.getDefaultColors(isDarkMode);
-    const color= defaultColors[index % defaultColors.length];
+    const color = defaultColors[index % defaultColors.length];
     return getComputedStyle(document.body).getPropertyValue(color);
   }
 
   private getDefaultColors(isDarkMode: boolean): string[] {
-    return isDarkMode ? ['--color-sky-400', '--color-emerald-400'] : ['--color-sky-700', '--color-emerald-700'];
+    return isDarkMode
+      ? ['--color-sky-400', '--color-emerald-400']
+      : ['--color-sky-700', '--color-emerald-700'];
   }
 
   private formatLabel(label: string): string {
@@ -195,7 +191,8 @@ export class BarChartComponent {
 
   private getTextColor(): string {
     const cssColor = getComputedStyle(document.body)
-      .getPropertyValue('--color-text-primary')?.trim();
+      .getPropertyValue('--color-text-primary')
+      ?.trim();
     return cssColor || '#000';
   }
 
@@ -203,10 +200,12 @@ export class BarChartComponent {
     const isDarkMode = this.themeSwitchService.theme().mode === 'dark';
 
     const cssColorDark = getComputedStyle(document.body)
-      .getPropertyValue('--color-gray-700')?.trim();
+      .getPropertyValue('--color-gray-700')
+      ?.trim();
 
     const cssColorLight = getComputedStyle(document.body)
-      .getPropertyValue('--border-color')?.trim();
+      .getPropertyValue('--border-color')
+      ?.trim();
 
     const cssColor = isDarkMode ? cssColorDark : cssColorLight;
     return cssColor || '#e7e5e4';

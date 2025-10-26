@@ -1,29 +1,59 @@
-<ng-template #quickStatCard let-link="link" let-label="label" let-value="value" let-bgClass="bgClass"
-  let-colorClass="colorClass" let-icon="icon">
-  <a [routerLink]="link.target" [queryParams]="link.queryParams" queryParamsHandling="merge"
-    class="card block rounded-lg p-6 shadow-md hover:shadow-lg transition-all duration-200 cursor-pointer group">
+<ng-template
+  #quickStatCard
+  let-link="link"
+  let-label="label"
+  let-value="value"
+  let-bgClass="bgClass"
+  let-colorClass="colorClass"
+  let-icon="icon"
+>
+  <a
+    [routerLink]="link.target"
+    [queryParams]="link.queryParams"
+    queryParamsHandling="merge"
+    class="card block rounded-lg p-6 shadow-md hover:shadow-lg transition-all duration-200 cursor-pointer group"
+  >
     <div class="flex items-center justify-between">
       <div class="flex-1">
         <p class="text-sm font-medium text-[var(--color-text-secondary)] mb-1">{{ label }}</p>
-        <p class="text-3xl font-bold text-[var(--color-text-primary)] group-hover:scale-105 transition-transform">
+        <p
+          class="text-3xl font-bold text-[var(--color-text-primary)] group-hover:scale-105 transition-transform"
+        >
           {{ value }}
         </p>
       </div>
       <div
-        class="flex items-center justify-center size-12 rounded-lg group-hover:scale-110 transition-transform {{bgClass}}">
+        class="flex items-center justify-center size-12 rounded-lg group-hover:scale-110 transition-transform {{
+          bgClass
+        }}"
+      >
         <app-svg [svgName]="icon" class="size-6" [class]="colorClass" fill="currentColor" />
       </div>
     </div>
   </a>
 </ng-template>
 
-<ng-template #quickActionCard let-link="link" let-icon="icon" let-label="label" let-description="description">
-
-  <a [routerLink]="link.target" [queryParams]="link.queryParams" queryParamsHandling="merge"
-    class="flex items-center gap-4 p-4 rounded-lg border-2 border-dashed border-[var(--color-border-default)] hover:border-[var(--color-brand-primary)] hover:bg-[var(--color-bg-active)]/50 transition-all duration-200 group">
+<ng-template
+  #quickActionCard
+  let-link="link"
+  let-icon="icon"
+  let-label="label"
+  let-description="description"
+>
+  <a
+    [routerLink]="link.target"
+    [queryParams]="link.queryParams"
+    queryParamsHandling="merge"
+    class="flex items-center gap-4 p-4 rounded-lg border-2 border-dashed border-[var(--color-border-default)] hover:border-[var(--color-brand-primary)] hover:bg-[var(--color-bg-active)]/50 transition-all duration-200 group"
+  >
     <div
-      class="size-10 rounded-lg bg-[var(--color-bg-active)] flex items-center justify-center group-hover:scale-110 transition-transform">
-      <app-svg [svgName]="icon" class="size-6 text-[var(--color-brand-accent)]" fill="currentColor" />
+      class="size-10 rounded-lg bg-[var(--color-bg-active)] flex items-center justify-center group-hover:scale-110 transition-transform"
+    >
+      <app-svg
+        [svgName]="icon"
+        class="size-6 text-[var(--color-brand-accent)]"
+        fill="currentColor"
+      />
     </div>
     <div>
       <p class="font-medium text-[var(--color-text-primary)]">{{ label }}</p>
@@ -36,66 +66,82 @@
   <!-- Header Section -->
   <div>
     <h1 class="text-2xl md:text-3xl font-semibold text-[var(--color-text-primary)]">Dashboard</h1>
-    <p class="text-sm text-[var(--color-text-secondary)] mt-1">Track your job application journey</p>
+    <p class="text-sm text-[var(--color-text-secondary)] mt-1">
+      Track your job application journey
+    </p>
   </div>
-
 
   @if (jobStats().isLoading) {
-  <app-loading-spinner text="Loading dashboard..." />
+    <app-loading-spinner text="Loading dashboard..." />
   } @else if (jobStats().data) {
-
-  <!-- Quick Stats Cards -->
-  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-    @for (stat of quickStats(); track $index) {
-    <ng-container *ngTemplateOutlet="quickStatCard; context: {
-          label: stat.label,
-          value: stat.value,
-          icon: stat.icon,
-          colorClass: stat.colorClass,
-          bgClass: stat.bgClass,
-          link: stat.link,
-        }"></ng-container>
-
-    }
-  </div>
-
-  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-    <!-- Application Activity Chart -->
-    <div class="col-span-1 lg:col-span-2 inset-0 card rounded-lg py-6 px-6 relative z-2">
-      <a [routerLink]="'/dashboard/stats'"
-        class="absolute right-6 top-10 text-sm font-medium text-[var(--color-brand-accent)] hover:underline">
-        View Details
-      </a>
-      <app-activity-bar-chart title="Application Activity" subtitle="Last 6 months"
-        emptyStateMessage="No activity data available" chartTitle="Monthly Application Volume"
-        [chartData]="monthlyChartData()" orientation="horizontal" [chartWidth]="800" [chartHeight]="350"
-        [showChartTitle]="false" [showGrid]="showGrid()">
-      </app-activity-bar-chart>
-
+    <!-- Quick Stats Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      @for (stat of quickStats(); track $index) {
+        <ng-container
+          *ngTemplateOutlet="
+            quickStatCard;
+            context: {
+              label: stat.label,
+              value: stat.value,
+              icon: stat.icon,
+              colorClass: stat.colorClass,
+              bgClass: stat.bgClass,
+              link: stat.link,
+            }
+          "
+        ></ng-container>
+      }
     </div>
 
-    <!-- Quick Actions -->
-    <div class="col-span-1 card py-6 rounded-lg shadow-md">
-      <div class="px-6">
-        <h2 class="text-lg font-semibold text-[var(--color-text-primary)] mb-4">Quick Actions</h2>
-        <div class="grid grid-cols-1 gap-4">
-          @for (action of quickActions(); track action.label) {
-          <ng-container *ngTemplateOutlet="quickActionCard; context:{
-                link: action.link,
-                label: action.label,
-                icon: action.icon,
-                description: action.description
-              }"></ng-container>
-          }
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <!-- Application Activity Chart -->
+      <div class="col-span-1 lg:col-span-2 inset-0 card rounded-lg py-6 px-6 relative z-2">
+        <a
+          [routerLink]="'/dashboard/stats'"
+          class="absolute right-6 top-10 text-sm font-medium text-[var(--color-brand-accent)] hover:underline"
+        >
+          View Details
+        </a>
+        <app-activity-bar-chart
+          title="Application Activity"
+          subtitle="Last 6 months"
+          emptyStateMessage="No activity data available"
+          chartTitle="Monthly Application Volume"
+          [chartData]="monthlyChartData()"
+          orientation="horizontal"
+          [chartWidth]="800"
+          [chartHeight]="350"
+          [showChartTitle]="false"
+          [showGrid]="showGrid()"
+        >
+        </app-activity-bar-chart>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="col-span-1 card py-6 rounded-lg shadow-md">
+        <div class="px-6">
+          <h2 class="text-lg font-semibold text-[var(--color-text-primary)] mb-4">Quick Actions</h2>
+          <div class="grid grid-cols-1 gap-4">
+            @for (action of quickActions(); track action.label) {
+              <ng-container
+                *ngTemplateOutlet="
+                  quickActionCard;
+                  context: {
+                    link: action.link,
+                    label: action.label,
+                    icon: action.icon,
+                    description: action.description,
+                  }
+                "
+              ></ng-container>
+            }
+          </div>
         </div>
       </div>
     </div>
-  </div>
-
-
   } @else {
-  <div class="flex flex-col items-center justify-center py-12">
-    <p class="text-[var(--color-text-secondary)]">Unable to load dashboard data</p>
-  </div>
+    <div class="flex flex-col items-center justify-center py-12">
+      <p class="text-[var(--color-text-secondary)]">Unable to load dashboard data</p>
+    </div>
   }
 </div>

@@ -9,12 +9,16 @@ export interface UserProfileState {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class UsersService {
   private readonly userApi = inject(UserApi);
 
-  private readonly state = signal<UserProfileState>({ profile: null, status: 'loading', error: null });
+  private readonly state = signal<UserProfileState>({
+    profile: null,
+    status: 'loading',
+    error: null,
+  });
 
   readonly currentUser = computed(() => {
     const state = this.state();
@@ -23,8 +27,8 @@ export class UsersService {
       isLoading: state.status === 'loading',
       isUpdated: state.status === 'updated',
       error: state.error,
-    }
-  })
+    };
+  });
 
   getProfile(): void {
     const currentState = this.state();
@@ -35,26 +39,34 @@ export class UsersService {
     this.state.set({ profile: null, status: 'loading', error: null });
 
     this.userApi.getProfile().subscribe({
-      next: (profile) => {
+      next: profile => {
         if (profile) {
           this.state.set({ profile, status: 'fetched', error: null });
         }
       },
-      error: (err) => {
-        this.state.set({ profile: null, status: 'error', error: 'Failed to load profile.' });
+      error: err => {
+        this.state.set({
+          profile: null,
+          status: 'error',
+          error: 'Failed to load profile.',
+        });
         console.error(err);
-      }
+      },
     });
   }
 
-  updateProfile(payload: Partial<UserProfile>) {
+  updateProfile(payload: Partial<UserProfile>): void {
     this.userApi.updateProfile(payload).subscribe({
-      next: (profile) => {
+      next: profile => {
         this.state.set({ profile, status: 'updated', error: null });
       },
       error: () => {
-        this.state.update(old => ({ ...old, status: 'error', error: 'Failed to update profile.' }));
-      }
+        this.state.update(old => ({
+          ...old,
+          status: 'error',
+          error: 'Failed to update profile.',
+        }));
+      },
     });
   }
 

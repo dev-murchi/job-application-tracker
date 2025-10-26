@@ -1,5 +1,5 @@
-import { ValidatorFn } from "@angular/forms";
-import { InputElementBase } from "./input-element-base";
+import { ValidatorFn } from '@angular/forms';
+import { InputElementBase } from './input-element-base';
 
 export class InputElementText<T> extends InputElementBase<T> {
   constructor(options: {

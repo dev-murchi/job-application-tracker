@@ -1,12 +1,11 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable, inject } from '@angular/core';
-import { Observable, forkJoin, of } from 'rxjs';
+import { inject, Injectable } from '@angular/core';
+import { forkJoin, Observable, of } from 'rxjs';
 import { catchError, map, shareReplay, tap } from 'rxjs/operators';
 import { svgConfig, SvgNameType } from '../../svg.config';
 
-
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class SvgService {
   private http = inject(HttpClient);
@@ -20,14 +19,14 @@ export class SvgService {
         catchError(err => {
           console.error(`Error loading icon: ${iconName}`, err);
           return of(null);
-        })
+        }),
       );
     });
 
     return forkJoin(observables).pipe(
       map(() => true),
       catchError(() => of(false)),
-      shareReplay(1)
+      shareReplay(1),
     );
   }
 

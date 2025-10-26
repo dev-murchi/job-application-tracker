@@ -2,20 +2,18 @@ import { Injectable, signal } from '@angular/core';
 import { v4 as uuidv4 } from 'uuid';
 import { Alert, AlertType } from '../../types/alert.data';
 
-
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AlertService {
   readonly alerts = signal<Alert[]>([]);
   private autoHideTime = 3000;
 
   show(message: string, type: AlertType): void {
-
     const newAlert: Alert = {
       id: uuidv4(),
       message,
-      type
+      type,
     };
 
     this.alerts.update(currentAlerts => [newAlert, ...currentAlerts]);

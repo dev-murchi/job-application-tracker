@@ -1,20 +1,24 @@
 <div class="page flex flex-col w-full max-w-screen h-screen main-content font-inter antialiased">
+  <app-topbar class="topbar h-16 hidden sm:flex"></app-topbar>
+  <!-- Mobile Navbar encapsulated -->
+  <app-mobile-navbar
+    class="topbar sm:hidden w-full sticky z-80"
+    [items]="mobileMenuLinks"
+  ></app-mobile-navbar>
 
-    <app-topbar class="topbar h-16 hidden sm:flex"></app-topbar>
-    <!-- Mobile Navbar encapsulated -->
-    <app-mobile-navbar class="topbar sm:hidden w-full sticky z-80" [items]="mobileMenuLinks"></app-mobile-navbar>
+  <!-- Content area -->
+  <div class="flex flex-row flex-1 w-full overflow-hidden m-0 p-0 gap-x-4 h-full">
+    <!-- Sidebar for large screens -->
+    <app-sidebar
+      [items]="sidebarItems"
+      class="hidden sm:flex sm:flex-col flex-shrink-0"
+    ></app-sidebar>
 
-    <!-- Content area -->
-    <div class="flex flex-row flex-1 w-full overflow-hidden m-0 p-0 gap-x-4 h-full">
-        <!-- Sidebar for large screens -->
-        <app-sidebar [items]="sidebarItems"
-            class="hidden sm:flex sm:flex-col flex-shrink-0"></app-sidebar>
-
-        <!-- Main content area -->
-        <main class="flex flex-col w-full overflow-x-hidden overflow-y-auto rounded-lg">
-            <div class="flex-1 rounded-lg p-4 md:p-6">
-                <router-outlet />
-            </div>
-        </main>
-    </div>
+    <!-- Main content area -->
+    <main class="flex flex-col w-full overflow-x-hidden overflow-y-auto rounded-lg">
+      <div class="flex-1 rounded-lg p-4 md:p-6">
+        <router-outlet />
+      </div>
+    </main>
+  </div>
 </div>

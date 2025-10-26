@@ -6,18 +6,17 @@ import { JobQuery, JobQueryResult } from '../shared/types/job-query.data';
 import { JobStats } from '../shared/types/job-stats.data';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class JobsApi {
   private readonly apiurl = '/api/jobs';
   private readonly http = inject(HttpClient);
 
-  createJob(payload: JobDetail) {
+  createJob(payload: JobDetail): Observable<{ job: JobDetail }> {
     return this.http.post<{ job: JobDetail }>(`${this.apiurl}`, payload);
   }
 
   getJobs(query: JobQuery = {} as JobQuery): Observable<JobQueryResult> {
-
     const { status, jobType, sort, search, page, limit } = query;
 
     const params = {
@@ -30,22 +29,23 @@ export class JobsApi {
     };
 
     return this.http.get<JobQueryResult>(`${this.apiurl}`, {
-      params: params
-    })
+      params: params,
+    });
   }
 
-  updateJob(jobId: string, payload: Partial<JobDetail>) {
+  updateJob(jobId: string, payload: Partial<JobDetail>): Observable<{ job: JobDetail }> {
     return this.http.patch<{ job: JobDetail }>(`${this.apiurl}/${jobId}`, payload);
   }
 
-  deleteJob(jobId: string) {
+  deleteJob(jobId: string): Observable<JobDetail> {
     return this.http.delete<JobDetail>(`${this.apiurl}/${jobId}`);
   }
 
-  getJobStatistics() {
+  getJobStatistics(): Observable<JobStats> {
     return this.http.get<JobStats>(`${this.apiurl}/stats`);
   }
-  getJob(id: string) {
+
+  getJob(id: string): Observable<{ job: JobDetail }> {
     return this.http.get<{ job: JobDetail }>(`${this.apiurl}/${id}`);
   }
 }

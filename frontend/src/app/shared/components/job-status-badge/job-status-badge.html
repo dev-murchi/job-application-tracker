@@ -1,6 +1,10 @@
-<span class="inline-flex items-center mt-3 gap-2 px-2 py-1 rounded-sm text-xs font-semibold {{colorCssClass().background}} {{colorCssClass().text}}">
-  @if(icon()){
-  <app-svg [svgName]="icon()!" class="size-4" fill="currentColor" />
+<span
+  class="inline-flex items-center mt-3 gap-2 px-2 py-1 rounded-sm text-xs font-semibold {{
+    colorCssClass().background
+  }} {{ colorCssClass().text }}"
+>
+  @if (icon()) {
+    <app-svg [svgName]="icon()!" class="size-4" fill="currentColor" />
   }
   <span class="capitalize">{{ status() }}</span>
 </span>

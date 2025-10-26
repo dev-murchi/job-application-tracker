@@ -1,5 +1,5 @@
-import { ValidatorFn } from "@angular/forms";
-import { InputElementBase } from "./input-element-base";
+import { ValidatorFn } from '@angular/forms';
+import { InputElementBase } from './input-element-base';
 
 export class InputElementSelect<T> extends InputElementBase<T> {
   constructor(options: {
@@ -11,6 +11,6 @@ export class InputElementSelect<T> extends InputElementBase<T> {
     placeholder?: string;
     validators?: ValidatorFn[];
   }) {
-    super({ ...options, controlType: 'select' })
+    super({ ...options, controlType: 'select' });
   }
 }

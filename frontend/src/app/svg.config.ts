@@ -1,6 +1,4 @@
-
-export const svgConfig =
-{
+export const svgConfig = {
   error404: 'images/404.svg',
   accountCircleIcon: 'images/account-circle-icon.svg',
   addJobApplicationIcon: 'images/add-job-application-icon.svg',
@@ -33,7 +31,7 @@ export const svgConfig =
   deleteIcon: 'images/delete-icon.svg',
   visibilityIcon: 'images/visibility-icon.svg',
   warningIcon: 'images/warning-icon.svg',
-  locationIcon:'images/location-city-icon.svg',
+  locationIcon: 'images/location-city-icon.svg',
   scheduleIcon: 'images/schedule-icon.svg',
   segmentIcon: 'images/segment-icon.svg',
   pendingActionsIcon: 'images/pending-actions-icon.svg',

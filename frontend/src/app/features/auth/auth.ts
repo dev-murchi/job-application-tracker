@@ -1,17 +1,17 @@
-import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterOutlet, RouterLink, Router, NavigationEnd } from '@angular/router';
-import { filter, tap } from 'rxjs/operators';
+import { Component, inject, OnInit } from '@angular/core';
+import { NavigationEnd, Router, RouterLink, RouterOutlet } from '@angular/router';
 import { startWith } from 'rxjs';
-import { ThemeSwitch } from '../../shared/components/theme-switch/theme-switch';
+import { filter } from 'rxjs/operators';
 import { SvgComponent } from '../../shared/components/svg/svg';
+import { ThemeSwitch } from '../../shared/components/theme-switch/theme-switch';
 import { SvgNameType } from '../../svg.config';
 
 @Component({
   standalone: true,
   selector: 'app-auth',
   imports: [CommonModule, RouterOutlet, RouterLink, ThemeSwitch, SvgComponent],
-  templateUrl: './auth.html'
+  templateUrl: './auth.html',
 })
 export class Auth implements OnInit {
   promptText = '';
@@ -21,17 +21,19 @@ export class Auth implements OnInit {
 
   private router = inject(Router);
 
-  ngOnInit() {
-    this.router.events.pipe(
-      filter(event => event instanceof NavigationEnd),
-      startWith(new NavigationEnd(0, this.router.url, this.router.url)),
-    ).subscribe((event: NavigationEnd) => {
-      const path = event.urlAfterRedirects.split('/').pop();
-      this.updatePrompt(path);
-    });
+  ngOnInit(): void {
+    this.router.events
+      .pipe(
+        filter(event => event instanceof NavigationEnd),
+        startWith(new NavigationEnd(0, this.router.url, this.router.url)),
+      )
+      .subscribe((event: NavigationEnd) => {
+        const path = event.urlAfterRedirects.split('/').pop();
+        this.updatePrompt(path);
+      });
   }
 
-  private updatePrompt(path: string | undefined) {
+  private updatePrompt(path: string | undefined): void {
     if (path === 'login') {
       this.promptText = "Don't have an account?";
       this.linkText = 'Register here';

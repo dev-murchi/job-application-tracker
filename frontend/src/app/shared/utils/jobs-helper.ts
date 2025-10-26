@@ -1,19 +1,22 @@
-
-import { CacheEntry, CacheModel } from "../../jobs-state.data";
-import { JobDetail } from "../types/job-detail.data";
-import { JobQuery, JobQueryResult } from "../types/job-query.data";
+import { CacheEntry, CacheModel } from '../../jobs-state.data';
+import { JobDetail } from '../types/job-detail.data';
+import { JobQuery, JobQueryResult } from '../types/job-query.data';
+import { JobStats } from '../types/job-stats.data';
 
 export class JobsHelper {
-    static sortKeys(obj: any): any {
+  static sortKeys(obj: any): any {
     if (Array.isArray(obj)) {
       return obj.map(JobsHelper.sortKeys);
     } else if (obj !== null && typeof obj === 'object') {
       return Object.keys(obj)
         .sort()
-        .reduce((result: any, key: string) => ({
-          ...result,
-          [key]: JobsHelper.sortKeys(obj[key])
-        }), {});
+        .reduce(
+          (result: any, key: string) => ({
+            ...result,
+            [key]: JobsHelper.sortKeys(obj[key]),
+          }),
+          {},
+        );
     }
     return obj;
   }
@@ -22,11 +25,18 @@ export class JobsHelper {
     return JSON.stringify(JobsHelper.sortKeys(query));
   }
 
-  static withUpdatedJobCache(caches: CacheModel, job: JobDetail) {
+  static withUpdatedJobCache(
+    caches: CacheModel,
+    job: JobDetail,
+  ): {
+    jobs: Map<string, CacheEntry<JobDetail>>;
+    queries: ReadonlyMap<string, CacheEntry<JobQueryResult>>;
+    statistics: CacheEntry<JobStats> | null;
+  } {
     return {
       ...caches,
       jobs: new Map(caches.jobs).set(job._id!, { data: job, timestamp: Date.now() }),
-    }
+    };
   }
 
   static withRemovedJobCache(caches: CacheModel, jobId: string): CacheModel {
@@ -35,7 +45,7 @@ export class JobsHelper {
 
     const newQueriesMap = new Map<string, CacheEntry<JobQueryResult>>();
     caches.queries.forEach((value, key) => {
-      const updatedJobs = value.data.jobs.filter((job) => job._id !== jobId);
+      const updatedJobs = value.data.jobs.filter(job => job._id !== jobId);
       if (updatedJobs.length === value.data.jobs.length) {
         newQueriesMap.set(key, value);
       } else {
@@ -59,6 +69,6 @@ export class JobsHelper {
       ...caches,
       queries: new Map(),
       statistics: null,
-    }
+    };
   }
 }

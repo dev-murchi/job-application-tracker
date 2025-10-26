@@ -42,7 +42,9 @@ describe('Topbar', () => {
       ],
     })
       .overrideComponent(Topbar, {
-        remove: { imports: [NavLinkComponent, ThemeSwitch, SvgComponent, ClickOutsideDirective] },
+        remove: {
+          imports: [NavLinkComponent, ThemeSwitch, SvgComponent, ClickOutsideDirective],
+        },
         add: {
           imports: [
             NavLinkComponentMock,

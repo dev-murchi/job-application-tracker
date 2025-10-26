@@ -9,18 +9,17 @@ import { NavLink } from '../../types/nav-link.data';
   standalone: true,
   imports: [NavLinkComponent, SvgComponent],
   templateUrl: './sidebar.html',
-  styleUrls: ['./sidebar.css']
+  styleUrls: ['./sidebar.css'],
 })
 export class Sidebar {
-  items = input<NavLink[]>([]);
+  readonly items = input<NavLink[]>([]);
 
   isCollapsed = false;
 
   panelCloseIcon: SvgNameType = 'leftPanelCloseIcon';
   panelOpenIcon: SvgNameType = 'leftPanelOpenIcon';
 
-
-  toggle() {
+  toggle(): void {
     this.isCollapsed = !this.isCollapsed;
   }
 }

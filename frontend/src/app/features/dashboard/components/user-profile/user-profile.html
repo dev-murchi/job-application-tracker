@@ -1,135 +1,156 @@
 <div class="max-w-4xl mx-auto flex flex-col space-y-6">
-
   <!-- loading spinner -->
-  @if(currentUser().isLoading) {
+  @if (currentUser().isLoading) {
     <app-loading-spinner text="Loading user profile..." />
-  }
-  @else if (currentUser().profile) {
-  <!-- Profile Header Card -->
-  <div class="card rounded-lg shadow-lg overflow-hidden">
+  } @else if (currentUser().profile) {
+    <!-- Profile Header Card -->
+    <div class="card rounded-lg shadow-lg overflow-hidden">
+      <!-- Cover Image -->
+      <div class="h-32 bg-[var(--color-brand-accent)]"></div>
 
-    <!-- Cover Image -->
-    <div class="h-32 bg-[var(--color-brand-accent)]"></div>
+      <!-- Profile Info -->
+      <div class="px-6 pb-6 -mt-16">
+        <div class="flex flex-col sm:flex-row items-start sm:items-end gap-6">
+          <!-- Avatar -->
+          <div>
+            @if (currentUser().profile?.avatar) {
+              <img
+                [src]="currentUser().profile?.avatar"
+                alt="Profile Picture"
+                class="size-32 rounded-2xl object-cover border-4 border-[var(--color-brand-primary)] shadow-xl"
+              />
+            } @else {
+              <img
+                [src]="defaultAvatar"
+                alt="Profile Picture"
+                class="size-32 rounded-2xl object-cover bg-[var(--color-bg-active)] border-4 border-[var(--color-brand-primary)] shadow-xl"
+              />
+            }
+          </div>
 
-    <!-- Profile Info -->
-    <div class="px-6 pb-6 -mt-16">
-      <div class="flex flex-col sm:flex-row items-start sm:items-end gap-6">
-        <!-- Avatar -->
-        <div>
-          @if(currentUser().profile?.avatar) {
-          <img [src]="currentUser().profile?.avatar" alt="Profile Picture"
-            class="size-32 rounded-2xl object-cover border-4 border-[var(--color-brand-primary)] shadow-xl" />
-          } @else {
-          <img [src]="defaultAvatar" alt="Profile Picture"
-            class="size-32 rounded-2xl object-cover bg-[var(--color-bg-active)] border-4 border-[var(--color-brand-primary)] shadow-xl" />
+          <!-- User Info -->
+          <div class="flex-1 space-y-3">
+            <h1
+              class="text-3xl font-bold text-[var(--color-text-primary)] sm:text-[var(--color-text-on-brand)] capitalize"
+            >
+              {{ currentUser().profile?.name }} {{ currentUser().profile?.lastName }}
+            </h1>
+            <p class="text-[var(--color-text-secondary)] mt-1 flex items-center gap-2">
+              <app-svg [svgName]="accountIcon" class="size-5" fill="currentColor" />
+              {{ currentUser().profile?.email }}
+            </p>
+            <div class="flex items-center gap-2 mt-2 text-sm text-[var(--color-text-secondary)]">
+              <app-svg [svgName]="locationIcon" class="size-4" fill="currentColor" />
+              <span>{{ currentUser().profile?.location }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Edit Profile Form Card -->
+    <div class="card rounded-lg shadow-md">
+      <!-- Header -->
+      <div class="px-6 py-5 border-b border-[var(--color-border-default)]">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="size-10 rounded-lg flex items-center justify-center">
+              <app-svg
+                [svgName]="accountIcon"
+                class="size-6 text-[var(--color-brand-accent)]"
+                fill="currentColor"
+              />
+            </div>
+            <div>
+              <h2 class="text-xl font-semibold text-[var(--color-text-primary)]">
+                Profile Information
+              </h2>
+              <p class="text-sm text-[var(--color-text-secondary)]">
+                Manage your personal information
+              </p>
+            </div>
+          </div>
+
+          @if (!editMode()) {
+            <button
+              type="button"
+              (click)="enableFormEditing()"
+              class="flex items-center gap-2 px-4 py-2 rounded-lg bg-[var(--color-brand-primary)] text-[var(--color-text-on-brand)] hover:bg-[var(--color-brand-hover)] font-medium shadow-md hover:shadow-lg transition-all duration-200"
+            >
+              <app-svg [svgName]="editIcon" class="size-5" fill="currentColor" />
+              <span class="hidden sm:inline">Edit Profile</span>
+            </button>
           }
         </div>
-
-        <!-- User Info -->
-        <div class="flex-1 space-y-3">
-          <h1
-            class="text-3xl font-bold text-[var(--color-text-primary)] sm:text-[var(--color-text-on-brand)] capitalize">
-            {{currentUser().profile?.name}} {{currentUser().profile?.lastName}}
-          </h1>
-          <p class="text-[var(--color-text-secondary)] mt-1 flex items-center gap-2">
-            <app-svg [svgName]="accountIcon" class="size-5" fill="currentColor" />
-            {{currentUser().profile?.email}}
-          </p>
-          <div class="flex items-center gap-2 mt-2 text-sm text-[var(--color-text-secondary)]">
-            <app-svg [svgName]="locationIcon" class="size-4" fill="currentColor" />
-            <span>{{currentUser().profile?.location}}</span>
-          </div>
-        </div>
       </div>
-    </div>
-  </div>
 
-
-  <!-- Edit Profile Form Card -->
-  <div class="card rounded-lg shadow-md">
-
-    <!-- Header -->
-    <div class="px-6 py-5 border-b border-[var(--color-border-default)]">
-      <div class="flex items-center justify-between">
-        <div class="flex items-center gap-3">
-          <div class="size-10 rounded-lg flex items-center justify-center">
-            <app-svg [svgName]="accountIcon" class="size-6 text-[var(--color-brand-accent)]" fill="currentColor" />
-          </div>
-          <div>
-            <h2 class="text-xl font-semibold text-[var(--color-text-primary)]">Profile Information</h2>
-            <p class="text-sm text-[var(--color-text-secondary)]">Manage your personal information</p>
-          </div>
-        </div>
-
-        @if (!editMode()) {
-        <button type="button" (click)="enableFormEditing()"
-          class="flex items-center gap-2 px-4 py-2 rounded-lg bg-[var(--color-brand-primary)] text-[var(--color-text-on-brand)] hover:bg-[var(--color-brand-hover)] font-medium shadow-md hover:shadow-lg transition-all duration-200">
-          <app-svg [svgName]="editIcon" class="size-5" fill="currentColor" />
-          <span class="hidden sm:inline">Edit Profile</span>
-        </button>
-
-        }
-      </div>
-    </div>
-
-    <!-- Info Banner (when in edit mode) -->
-    @if (editMode()) {
-    <div class="mx-6 mt-6 p-4 rounded-lg bg-[var(--color-bg-active)]/50 border border-[var(--color-border-default)]">
-      <div class="flex items-start gap-3">
-        <app-svg [svgName]="warningIcon" class="size-5 text-[var(--color-text-secondary)] mt-1 flex-shrink-0"
-          fill="currentColor" />
-        <div class="flex-1">
-          <p class="text-sm text-[var(--color-text-secondary)]font-medium">Editing Profile</p>
-          <p class="text-xs text-[var(--color-text-secondary)] mt-1">
-            Make changes to your profile information below. Click "Update Profile" to save your changes.
-          </p>
-        </div>
-      </div>
-    </div>
-
-    }
-
-    <!-- Form Body -->
-    <div class="px-6 py-6">
-      <form [formGroup]="profileForm" (submit)="updateProfile();" (reset)="resetForm($event)">
-
-        <!-- Form Fields -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-          <div>
-            <app-input [form]="profileForm" [inputElement]="firstNameIput" />
-          </div>
-          <div>
-            <app-input [form]="profileForm" [inputElement]="lastNameIput" />
-          </div>
-          <div class="md:col-span-2">
-            <app-input [form]="profileForm" [inputElement]="emailInput" />
-          </div>
-          <div class="md:col-span-2">
-            <app-input [form]="profileForm" [inputElement]="locationIput" />
-          </div>
-        </div>
-
-        <!-- Form Actions -->
+      <!-- Info Banner (when in edit mode) -->
+      @if (editMode()) {
         <div
-          class="flex flex-col sm:flex-row justify-end items-center gap-3 pt-6 border-t border-[var(--color-border-default)]">
-          @if (editMode()) {
-          <button type="reset"
-            class="flex items-center justify-center gap-2 px-5 py-2 w-full sm:w-auto rounded-lg border-1 border-[var(--color-border-default)] text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-active)] font-medium transition-all duration-200">
-            <app-svg [svgName]="cancelIcon" class="size-5" fill="currentColor" />
-            Cancel
-          </button>
-          <app-submit-button [icon]="sendIcon" text="Update Profile"
-            [isDisabled]="profileForm.invalid || profileForm.pristine" class="w-full sm:w-auto" />
-          }
+          class="mx-6 mt-6 p-4 rounded-lg bg-[var(--color-bg-active)]/50 border border-[var(--color-border-default)]"
+        >
+          <div class="flex items-start gap-3">
+            <app-svg
+              [svgName]="warningIcon"
+              class="size-5 text-[var(--color-text-secondary)] mt-1 flex-shrink-0"
+              fill="currentColor"
+            />
+            <div class="flex-1">
+              <p class="text-sm text-[var(--color-text-secondary)]font-medium">Editing Profile</p>
+              <p class="text-xs text-[var(--color-text-secondary)] mt-1">
+                Make changes to your profile information below. Click "Update Profile" to save your
+                changes.
+              </p>
+            </div>
+          </div>
         </div>
-      </form>
-    </div>
-  </div>
-  }
-  @else {
-  <div class="flex justify-center items-center py-8">
-    <span class="text-xl md:text-2xl font-medium text-primary">Something went wrong...</span>
-  </div>
-  }
+      }
 
+      <!-- Form Body -->
+      <div class="px-6 py-6">
+        <form [formGroup]="profileForm" (submit)="updateProfile()" (reset)="resetForm($event)">
+          <!-- Form Fields -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <div>
+              <app-input [form]="profileForm" [inputElement]="firstNameIput" />
+            </div>
+            <div>
+              <app-input [form]="profileForm" [inputElement]="lastNameIput" />
+            </div>
+            <div class="md:col-span-2">
+              <app-input [form]="profileForm" [inputElement]="emailInput" />
+            </div>
+            <div class="md:col-span-2">
+              <app-input [form]="profileForm" [inputElement]="locationIput" />
+            </div>
+          </div>
+
+          <!-- Form Actions -->
+          <div
+            class="flex flex-col sm:flex-row justify-end items-center gap-3 pt-6 border-t border-[var(--color-border-default)]"
+          >
+            @if (editMode()) {
+              <button
+                type="reset"
+                class="flex items-center justify-center gap-2 px-5 py-2 w-full sm:w-auto rounded-lg border-1 border-[var(--color-border-default)] text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-active)] font-medium transition-all duration-200"
+              >
+                <app-svg [svgName]="cancelIcon" class="size-5" fill="currentColor" />
+                Cancel
+              </button>
+              <app-submit-button
+                [icon]="sendIcon"
+                text="Update Profile"
+                [isDisabled]="profileForm.invalid || profileForm.pristine"
+                class="w-full sm:w-auto"
+              />
+            }
+          </div>
+        </form>
+      </div>
+    </div>
+  } @else {
+    <div class="flex justify-center items-center py-8">
+      <span class="text-xl md:text-2xl font-medium text-primary">Something went wrong...</span>
+    </div>
+  }
 </div>

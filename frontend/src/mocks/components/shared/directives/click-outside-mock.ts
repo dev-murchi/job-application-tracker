@@ -4,5 +4,5 @@ import { Directive, output } from '@angular/core';
   selector: '[clickOutside]',
 })
 export class ClickOutsideDirectiveMock {
-  clickOutside = output<void>();
+  readonly clickOutside = output<void>();
 }

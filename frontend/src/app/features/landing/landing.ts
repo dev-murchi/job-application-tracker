@@ -7,9 +7,9 @@ import { SvgComponent } from '../../shared/components/svg/svg';
   selector: 'app-landing',
   imports: [RouterLink, SvgComponent],
   templateUrl: './landing.html',
-  styleUrl: './landing.css'
+  styleUrl: './landing.css',
 })
 export class Landing {
   logo: SvgNameType = 'logo';
-  landingPageLogo: SvgNameType = 'landingPageLogo'
+  landingPageLogo: SvgNameType = 'landingPageLogo';
 }

@@ -1,13 +1,13 @@
-import { Injectable, computed, inject } from '@angular/core';
-import { firstValueFrom, Observable, of, throwError } from 'rxjs';
+import { inject, Injectable } from '@angular/core';
+import { toObservable } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
+import { firstValueFrom, Observable, throwError } from 'rxjs';
 import { catchError, filter, map, tap } from 'rxjs/operators';
-import { AlertService } from '../../shared/components/alert/alert-service';
 import { AuthApi } from '../../api/auth-api';
+import { AlertService } from '../../shared/components/alert/alert-service';
 import { UserLogin } from '../../shared/types/user-login.data';
 import { UserRegister } from '../../shared/types/user-register.data';
 import { UsersService } from './users';
-import { toObservable } from '@angular/core/rxjs-interop';
 
 @Injectable({
   providedIn: 'root',
@@ -24,7 +24,7 @@ export class AuthService {
         this.alertService.show('Registration successful!', 'success');
         this.router.navigate(['/auth/login']);
       }),
-      catchError((err) => {
+      catchError(err => {
         this.alertService.show('Registration failed! Please try again.', 'error');
         return throwError(() => err);
       }),
@@ -37,7 +37,7 @@ export class AuthService {
         this.alertService.show('Login successful!', 'success');
         this.router.navigate(['/dashboard']);
       }),
-      catchError((err) => {
+      catchError(err => {
         this.alertService.show('Login failed! Please check your credentials.', 'error');
         return throwError(() => err);
       }),
@@ -54,8 +54,8 @@ export class AuthService {
     return await firstValueFrom(
       toObservable(this.usersService.currentUser).pipe(
         filter(state => !state.isLoading),
-        map(state => !!state.profile)
-      )
+        map(state => !!state.profile),
+      ),
     );
   }
 

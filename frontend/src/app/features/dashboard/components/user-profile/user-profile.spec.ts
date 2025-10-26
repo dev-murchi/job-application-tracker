@@ -41,7 +41,9 @@ describe('UserProfileComponent', () => {
     })
       .overrideComponent(UserProfileComponent, {
         remove: { imports: [SvgComponent, CustomInput, SubmitButton, LoadingSpinner] },
-        add: { imports: [SvgComponentMock, CustomInputMock, SubmitButtonMock, LoadingSpinnerMock] },
+        add: {
+          imports: [SvgComponentMock, CustomInputMock, SubmitButtonMock, LoadingSpinnerMock],
+        },
       })
       .compileComponents();
 

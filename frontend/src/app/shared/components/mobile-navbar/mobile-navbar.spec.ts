@@ -28,7 +28,9 @@ describe('MobileNavbar', () => {
       ],
     })
       .overrideComponent(MobileNavbar, {
-        remove: { imports: [ThemeSwitch, NavLinkComponent, SvgComponent, ClickOutsideDirective] },
+        remove: {
+          imports: [ThemeSwitch, NavLinkComponent, SvgComponent, ClickOutsideDirective],
+        },
         add: {
           imports: [
             ThemeSwitchMock,

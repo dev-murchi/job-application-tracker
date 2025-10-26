@@ -2,24 +2,27 @@ import { Component, DestroyRef, effect, inject, input, OnInit, output } from '@a
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { debounceTime, distinctUntilChanged, map } from 'rxjs';
-import { SvgComponent } from "../../../../../../shared/components/svg/svg";
+import { SvgComponent } from '../../../../../../shared/components/svg/svg';
 import { InputElementText } from '../../../../../../shared/components/form-helpers/input-element-text';
 import { InputControlService } from '../../../../../../shared/components/form-helpers/input-control-service';
 import { InputElementSelect } from '../../../../../../shared/components/form-helpers/input-element-select';
 import { JobType } from '../../../../../../shared/types/job-type';
 import { JobStatus } from '../../../../../../shared/types/job-status';
-import { CustomInput } from "../../../../../../shared/components/form-items/input/input";
+import { CustomInput } from '../../../../../../shared/components/form-items/input/input';
 import { JobSortOption } from '../../../../../../shared/types/job-sort-option';
 import { SvgNameType } from '../../../../../../svg.config';
 
-type SelectOption = { key: string; value: string }
+interface SelectOption {
+  key: string;
+  value: string;
+}
 // --- Type Definitions ---
-export type JobSearchFormData = {
+export interface JobSearchFormData {
   search: string;
   sort: string;
   type: JobType;
   status: JobStatus;
-};
+}
 
 // --- Constants for Configuration (DRY) ---
 const FORM_KEYS = {
@@ -53,48 +56,59 @@ const SORT_OPTIONS: SelectOption[] = [
 ];
 
 // --- Output Event Type ---
-export type JobSearchFormOutput = {
+export interface JobSearchFormOutput {
   value: JobSearchFormData;
   operation: 'search' | 'reset';
-};
+}
 
 @Component({
   selector: 'app-job-search-form',
   imports: [ReactiveFormsModule, SvgComponent, CustomInput],
   templateUrl: './job-search-form.html',
-  styleUrl: './job-search-form.css'
+  styleUrl: './job-search-form.css',
 })
 export class JobSearchForm implements OnInit {
   readonly debounceDelay = input.required<number>();
-  initialSearchText = input.required<string>();
-  initialJobStatus = input.required<JobStatus>();
-  initialJobType = input.required<JobType>();
-  initialSortOption = input.required<JobSortOption>();
+  readonly initialSearchText = input.required<string>();
+  readonly initialJobStatus = input.required<JobStatus>();
+  readonly initialJobType = input.required<JobType>();
+  readonly initialSortOption = input.required<JobSortOption>();
 
   readonly jobSearchEvent = output<JobSearchFormOutput>();
 
   private destroyRef = inject(DestroyRef);
   clearIcon: SvgNameType = 'clearIcon';
 
-
   readonly searchBox = new InputElementText({
     value: '',
     key: FORM_KEYS.SEARCH,
     label: 'Search',
     type: 'text',
-    placeholder: 'Search for jobs..'
+    placeholder: 'Search for jobs..',
   });
 
   readonly statusSelection = new InputElementSelect<string>({
-    value: 'all', key: FORM_KEYS.STATUS, label: 'Status', type: 'select', options: STATUS_OPTIONS
+    value: 'all',
+    key: FORM_KEYS.STATUS,
+    label: 'Status',
+    type: 'select',
+    options: STATUS_OPTIONS,
   });
 
   readonly typeSelection = new InputElementSelect<string>({
-    value: 'all', key: FORM_KEYS.TYPE, label: 'Type', type: 'select', options: TYPE_OPTIONS
+    value: 'all',
+    key: FORM_KEYS.TYPE,
+    label: 'Type',
+    type: 'select',
+    options: TYPE_OPTIONS,
   });
 
   readonly sortSelection = new InputElementSelect<string>({
-    value: 'newest', key: FORM_KEYS.SORT, label: 'Sort', type: 'select', options: SORT_OPTIONS
+    value: 'newest',
+    key: FORM_KEYS.SORT,
+    label: 'Sort',
+    type: 'select',
+    options: SORT_OPTIONS,
   });
 
   readonly form: FormGroup;
@@ -117,30 +131,42 @@ export class JobSearchForm implements OnInit {
   }
 
   ngOnInit(): void {
-    this.form.valueChanges.pipe(
-      debounceTime(this.debounceDelay()),
-      map((formValue) => this.formValueToJobSearchData(formValue)),
-      distinctUntilChanged((prev, curr) =>
-        prev.search === curr.search &&
-        prev.status === curr.status &&
-        prev.type === curr.type &&
-        prev.sort === curr.sort
-      ),
-      takeUntilDestroyed(this.destroyRef)
-    ).subscribe(formData => {
-      this.jobSearchEvent.emit({ value: formData, operation: 'search' });
-    });
+    this.form.valueChanges
+      .pipe(
+        debounceTime(this.debounceDelay()),
+        map(formValue => this.formValueToJobSearchData(formValue)),
+        distinctUntilChanged(
+          (prev, curr) =>
+            prev.search === curr.search &&
+            prev.status === curr.status &&
+            prev.type === curr.type &&
+            prev.sort === curr.sort,
+        ),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe(formData => {
+        this.jobSearchEvent.emit({ value: formData, operation: 'search' });
+      });
   }
 
   clearFormValues(): void {
     this.form.reset(this.initialFormState, { emitEvent: false });
-    this.jobSearchEvent.emit({ value: this.formValueToJobSearchData(this.initialFormState), operation: 'reset' });
+    this.jobSearchEvent.emit({
+      value: this.formValueToJobSearchData(this.initialFormState),
+      operation: 'reset',
+    });
   }
 
-  private patchFormValues() {
-    this.form.controls[FORM_KEYS.SEARCH].patchValue(this.initialSearchText(), { emitEvent: false });
-    this.form.controls[FORM_KEYS.SORT].patchValue(this.initialSortOption(), { emitEvent: false });
-    this.form.controls[FORM_KEYS.STATUS].patchValue(this.initialJobStatus(), { emitEvent: false });
+  private patchFormValues(): void {
+    this.form.controls[FORM_KEYS.SEARCH].patchValue(this.initialSearchText(), {
+      emitEvent: false,
+    });
+    this.form.controls[FORM_KEYS.SORT].patchValue(this.initialSortOption(), {
+      emitEvent: false,
+    });
+    this.form.controls[FORM_KEYS.STATUS].patchValue(this.initialJobStatus(), {
+      emitEvent: false,
+    });
     this.form.controls[FORM_KEYS.TYPE].patchValue(this.initialJobType(), { emitEvent: false });
   }
 

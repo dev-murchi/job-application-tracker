@@ -1,34 +1,54 @@
-<header class="w-full h-20 flex flex-row items-center justify-between px-2 text-[var(--color-brand-accent)] shadow-lg">
-    <app-svg [svgName]="logoImage" [mode]="'image'" class="h-12" fill="currentColor" />
+<header
+  class="w-full h-20 flex flex-row items-center justify-between px-2 text-[var(--color-brand-accent)] shadow-lg"
+>
+  <app-svg [svgName]="logoImage" [mode]="'image'" class="h-12" fill="currentColor" />
 
-    <div class="flex flex-row items-center justify-end gap-1">
-        <app-theme-switch />
-        <app-svg [svgName]="mobileMenuIcon" class="p-1 size-10 cursor-pointer" fill="currentColor"
-            (click)="onToggleMenu()" />
-    </div>
+  <div class="flex flex-row items-center justify-end gap-1">
+    <app-theme-switch />
+    <app-svg
+      [svgName]="mobileMenuIcon"
+      class="p-1 size-10 cursor-pointer"
+      fill="currentColor"
+      (click)="onToggleMenu()"
+    />
+  </div>
 </header>
 
-
 @if (mobileMenuOpen) {
-<div class="fixed inset-0 bg-neutral-900/90"></div>
-<div (clickOutside)="closeMenu()" class="sidebar fixed top-0 left-0 h-full flex flex-col w-64 py-4 px-2">
-    <header class="h-16 flex items-center justify-between text-[var(--color-brand-accent)] border-b-2 pr-2 gap-3 ">
-        <app-svg [svgName]="logoImage" [mode]="'image'" class="h-12" fill="currentColor" />
-        <app-svg [svgName]="closeIcon" class="p-1 h-8 cursor-pointer border-1 rounded-lg" fill="currentColor"
-            (click)="closeMenu()" />
+  <div class="fixed inset-0 bg-neutral-900/90"></div>
+  <div
+    (clickOutside)="closeMenu()"
+    class="sidebar fixed top-0 left-0 h-full flex flex-col w-64 py-4 px-2"
+  >
+    <header
+      class="h-16 flex items-center justify-between text-[var(--color-brand-accent)] border-b-2 pr-2 gap-3"
+    >
+      <app-svg [svgName]="logoImage" [mode]="'image'" class="h-12" fill="currentColor" />
+      <app-svg
+        [svgName]="closeIcon"
+        class="p-1 h-8 cursor-pointer border-1 rounded-lg"
+        fill="currentColor"
+        (click)="closeMenu()"
+      />
     </header>
 
     <nav class="flex-1 mt-8 px-2 space-y-2 overflow-y-auto">
-        @for (item of items(); track item.link) {
-        <app-nav-link [link]="item.link" [icon]="item.icon!" [text]="item.text"
-            [cssClass]="'p-2 rounded-lg gap-2 flex-row flex w-full justify-start'"></app-nav-link>
-        }
+      @for (item of items(); track item.link) {
+        <app-nav-link
+          [link]="item.link"
+          [icon]="item.icon!"
+          [text]="item.text"
+          [cssClass]="'p-2 rounded-lg gap-2 flex-row flex w-full justify-start'"
+        ></app-nav-link>
+      }
     </nav>
 
-    <button (click)="logout()"
-        class="h-10 flex flex-row w-full items-center justify-center text-sm text-red-600 font-bold gap-2 p-2 my-3 rounded-lg border-1 outline-none hover:bg-red-600 hover:text-white cursor-pointer ">
-        <app-svg [svgName]="logoutIcon" fill="currentColor" />
-        <span>Logout</span>
+    <button
+      (click)="logout()"
+      class="h-10 flex flex-row w-full items-center justify-center text-sm text-red-600 font-bold gap-2 p-2 my-3 rounded-lg border-1 outline-none hover:bg-red-600 hover:text-white cursor-pointer"
+    >
+      <app-svg [svgName]="logoutIcon" fill="currentColor" />
+      <span>Logout</span>
     </button>
-</div>
+  </div>
 }

@@ -6,36 +6,36 @@ import { SvgNameType } from '../../../svg.config';
   selector: 'app-pagination',
   imports: [SvgComponent],
   templateUrl: './pagination.html',
-  styleUrl: './pagination.css'
+  styleUrl: './pagination.css',
 })
 export class Pagination {
-  currentPage = input.required<number>();
-  totalPages = input.required<number>();
-  requestedPage = output<number>();
+  readonly currentPage = input.required<number>();
+  readonly totalPages = input.required<number>();
+  readonly requestedPage = output<number>();
 
-  prevActive = computed(() => this.currentPage() > 1);
-  nextActive = computed(() => this.currentPage() < this.totalPages());
+  readonly prevActive = computed(() => this.currentPage() > 1);
+  readonly nextActive = computed(() => this.currentPage() < this.totalPages());
 
   firstPageButtonIcon: SvgNameType = 'paginationFirstPageIcon';
   prevPageButtonIcon: SvgNameType = 'paginationPrevPageIcon';
   nextPageButtonIcon: SvgNameType = 'paginationNextPageIcon';
   lastPageButtonIcon: SvgNameType = 'paginationLastPageIcon';
 
-  firstPageClick() {
+  firstPageClick(): void {
     this.requestedPage.emit(1);
   }
 
-  lastPageClick() {
+  lastPageClick(): void {
     this.requestedPage.emit(this.totalPages());
   }
 
-  prevPageClick() {
+  prevPageClick(): void {
     if (this.currentPage() > 1) {
       this.requestedPage.emit(this.currentPage() - 1);
-    } 
+    }
   }
 
-  nextPageClick() {
+  nextPageClick(): void {
     if (this.currentPage() < this.totalPages()) {
       this.requestedPage.emit(this.currentPage() + 1);
     }

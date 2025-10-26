@@ -23,7 +23,12 @@ describe('JobForm', () => {
   let alertServiceSpy: jasmine.SpyObj<AlertService>;
 
   beforeEach(async () => {
-    const jobDetailSignal = signal({ data: null, isLoading: false, error: null, operation: null });
+    const jobDetailSignal = signal({
+      data: null,
+      isLoading: false,
+      error: null,
+      operation: null,
+    });
 
     jobsServiceSpy = jasmine.createSpyObj('JobsService', ['getJob', 'update', 'create'], {
       jobDetail: jobDetailSignal,
@@ -41,7 +46,9 @@ describe('JobForm', () => {
       ],
     })
       .overrideComponent(JobForm, {
-        remove: { imports: [SubmitButton, CustomInput, NavLink, SvgComponent, LoadingSpinner] },
+        remove: {
+          imports: [SubmitButton, CustomInput, NavLink, SvgComponent, LoadingSpinner],
+        },
         add: {
           imports: [
             SubmitButtonMock,

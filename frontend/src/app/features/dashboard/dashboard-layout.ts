@@ -9,7 +9,7 @@ import { NavLink } from '../../shared/types/nav-link.data';
   selector: 'app-dashboard-layout',
   imports: [RouterOutlet, Sidebar, MobileNavbar, Topbar],
   templateUrl: './dashboard-layout.html',
-  styleUrl: './dashboard-layout.css'
+  styleUrl: './dashboard-layout.css',
 })
 export class DashboardLayout {
   sidebarItems: NavLink[] = [

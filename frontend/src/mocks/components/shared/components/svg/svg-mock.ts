@@ -6,11 +6,11 @@ import { SvgNameType } from '../../../../../app/svg.config';
   template: '',
 })
 export class SvgComponentMock {
-  svgName = input.required<SvgNameType>();
-  mode = input<'icon' | 'image'>('icon');
-  width = input<string>();
-  height = input<string>();
-  fill = input<string>();
-  stroke = input<string>();
-  class = input<string>('');
+  readonly svgName = input.required<SvgNameType>();
+  readonly mode = input<'icon' | 'image'>('icon');
+  readonly width = input<string>();
+  readonly height = input<string>();
+  readonly fill = input<string>();
+  readonly stroke = input<string>();
+  readonly class = input<string>('');
 }

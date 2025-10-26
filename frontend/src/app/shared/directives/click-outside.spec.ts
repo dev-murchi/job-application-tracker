@@ -11,7 +11,7 @@ import { ClickOutsideDirective } from './click-outside';
 })
 class TestComponent {
   clicked = false;
-  onClickOutside() {
+  onClickOutside(): void {
     this.clicked = true;
   }
 }

@@ -1,20 +1,27 @@
-<a class="cursor-pointer hover:bg-[var(--color-bg-active)] hover:text-[var(--color-brand-accent)] flex flex-row items-center w-fit {{cssClass()}}"
-  [class.justify-start]="icon() && text()" [class.justify-center]="icon() && !text()"
-  [class.text-[var(--color-text-secondary)]]="!rla.isActive" [class.text-[var(--color-brand-accent)]]="rla.isActive"
-  [class.bg-[var(--color-bg-active)]]="rla.isActive" [routerLink]="link()" routerLinkActive #rla="routerLinkActive"
+<a
+  class="cursor-pointer hover:bg-[var(--color-bg-active)] hover:text-[var(--color-brand-accent)] flex flex-row items-center w-fit {{
+    cssClass()
+  }}"
+  [class.justify-start]="icon() && text()"
+  [class.justify-center]="icon() && !text()"
+  [class.text-[var(--color-text-secondary)]]="!rla.isActive"
+  [class.text-[var(--color-brand-accent)]]="rla.isActive"
+  [class.bg-[var(--color-bg-active)]]="rla.isActive"
+  [routerLink]="link()"
+  routerLinkActive
+  #rla="routerLinkActive"
   [routerLinkActiveOptions]="{
-      exact: true,
-      paths: 'exact',
-      queryParams: 'ignored',
-      matrixParams: 'ignored',
-      fragment: 'ignored',
-    }">
-
-  @if(icon()) {
-  <app-svg [svgName]="icon()!" class="h-full" fill="currentColor"></app-svg>
+    exact: true,
+    paths: 'exact',
+    queryParams: 'ignored',
+    matrixParams: 'ignored',
+    fragment: 'ignored',
+  }"
+>
+  @if (icon()) {
+    <app-svg [svgName]="icon()!" class="h-full" fill="currentColor"></app-svg>
   }
-
-  @if(text()) {
-  <span class="whitespace-nowrap">{{ text() }}</span>
+  @if (text()) {
+    <span class="whitespace-nowrap">{{ text() }}</span>
   }
 </a>

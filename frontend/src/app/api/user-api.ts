@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 import { UserProfile } from '../shared/types/user-profile.data';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class UserApi {
   private readonly apiUrl = '/api/users';

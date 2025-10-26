@@ -13,10 +13,10 @@ import { ClickOutsideDirective } from '../../../../shared/directives/click-outsi
   selector: 'app-topbar',
   imports: [NavLinkComponent, ThemeSwitch, SvgComponent, RouterLink, ClickOutsideDirective],
   templateUrl: './topbar.html',
-  styleUrl: './topbar.css'
+  styleUrl: './topbar.css',
 })
 export class Topbar implements OnInit {
-  showDropdown = signal(false);
+  readonly showDropdown = signal(false);
 
   readonly profileNavigation: NavLink = {
     link: '/dashboard/profile',
@@ -33,19 +33,19 @@ export class Topbar implements OnInit {
 
   readonly user = this.usersService.currentUser;
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.usersService.getProfile();
   }
 
-  logout() {
+  logout(): void {
     this.authService.logout().subscribe();
   }
 
-  toggleDropdown() {
+  toggleDropdown(): void {
     this.showDropdown.update(old => !old);
   }
 
-  closeDropdown() {
+  closeDropdown(): void {
     this.showDropdown.set(false);
   }
 }

@@ -6,7 +6,7 @@ import { SvgNameType } from '../../../../../../app/svg.config';
   template: '',
 })
 export class SubmitButtonMock {
-  icon = input<SvgNameType | undefined>(undefined);
-  text = input<string>('');
-  isDisabled = input<boolean>(false);
+  readonly icon = input<SvgNameType | undefined>(undefined);
+  readonly text = input<string>('');
+  readonly isDisabled = input<boolean>(false);
 }

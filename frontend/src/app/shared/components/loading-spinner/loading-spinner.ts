@@ -4,8 +4,8 @@ import { Component, input } from '@angular/core';
   selector: 'app-loading-spinner',
   imports: [],
   templateUrl: './loading-spinner.html',
-  styleUrl: './loading-spinner.css'
+  styleUrl: './loading-spinner.css',
 })
 export class LoadingSpinner {
-  text = input<string>();
+  readonly text = input<string>();
 }

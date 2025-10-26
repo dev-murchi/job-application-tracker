@@ -6,5 +6,5 @@ import { NavLink } from '../../../../../app/shared/types/nav-link.data';
   template: '',
 })
 export class SidebarMock {
-  items = input<NavLink[]>([]);
+  readonly items = input<NavLink[]>([]);
 }

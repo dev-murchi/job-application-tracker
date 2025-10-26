@@ -1,30 +1,38 @@
-import { Component, inject, signal, effect, DestroyRef } from '@angular/core';
-import { SubmitButton } from "../../../../shared/components/buttons/submit-button/submit-button";
+import { CommonModule } from '@angular/common';
+import { Component, DestroyRef, effect, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { CustomInput } from "../../../../shared/components/form-items/input/input";
-import { InputElementText } from '../../../../shared/components/form-helpers/input-element-text';
+import { ActivatedRoute, Router } from '@angular/router';
+import { JobsService } from '../../../../core/services/jobs';
+import { AlertService } from '../../../../shared/components/alert/alert-service';
+import { SubmitButton } from '../../../../shared/components/buttons/submit-button/submit-button';
 import { InputControlService } from '../../../../shared/components/form-helpers/input-control-service';
 import { InputElementSelect } from '../../../../shared/components/form-helpers/input-element-select';
+import { InputElementText } from '../../../../shared/components/form-helpers/input-element-text';
+import { CustomInput } from '../../../../shared/components/form-items/input/input';
+import { LoadingSpinner } from '../../../../shared/components/loading-spinner/loading-spinner';
+import { NavLink } from '../../../../shared/components/nav-link/nav-link';
+import { SvgComponent } from '../../../../shared/components/svg/svg';
 import { JobStatus } from '../../../../shared/types/job-status';
 import { JobType } from '../../../../shared/types/job-type';
-import { JobsService } from '../../../../core/services/jobs';
-import { Router, ActivatedRoute } from '@angular/router';
-import { AlertService } from '../../../../shared/components/alert/alert-service';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { SvgNameType } from '../../../../svg.config';
-import { NavLink } from "../../../../shared/components/nav-link/nav-link";
-import { CommonModule } from '@angular/common';
-import { SvgComponent } from '../../../../shared/components/svg/svg';
-import { LoadingSpinner } from "../../../../shared/components/loading-spinner/loading-spinner";
 
 @Component({
   selector: 'app-job-form',
-  imports: [CommonModule, ReactiveFormsModule, SubmitButton, CustomInput, NavLink, SvgComponent, LoadingSpinner],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    SubmitButton,
+    CustomInput,
+    NavLink,
+    SvgComponent,
+    LoadingSpinner,
+  ],
   templateUrl: './job-form.html',
-  styleUrl: './job-form.css'
+  styleUrl: './job-form.css',
 })
 export class JobForm {
-  title = signal('Add Job Application');
+  readonly title = signal('Add Job Application');
   jobId: string | null = null;
   isEditMode = false;
   readonly backToPageIcon: SvgNameType = 'paginationPrevPageIcon';
@@ -38,7 +46,7 @@ export class JobForm {
       type: 'text',
       label: 'Company Name',
       placeholder: 'e.g., Google, Microsoft',
-      validators: [Validators.required, Validators.maxLength(50)]
+      validators: [Validators.required, Validators.maxLength(50)],
     }),
     position: new InputElementText({
       value: '',
@@ -46,7 +54,7 @@ export class JobForm {
       type: 'text',
       label: 'Job Position',
       placeholder: 'e.g., Senior Software Engineer',
-      validators: [Validators.required, Validators.maxLength(100)]
+      validators: [Validators.required, Validators.maxLength(100)],
     }),
     location: new InputElementText({
       value: '',
@@ -54,7 +62,7 @@ export class JobForm {
       type: 'text',
       label: 'Job Location',
       placeholder: 'e.g., San Francisco, CA or Remote',
-      validators: [Validators.required]
+      validators: [Validators.required],
     }),
     companyWebsite: new InputElementText({
       value: '',
@@ -62,7 +70,7 @@ export class JobForm {
       type: 'url',
       label: 'Company Website',
       placeholder: 'https://company.com',
-      validators: [Validators.required]
+      validators: [Validators.required],
     }),
     jobPostingUrl: new InputElementText({
       value: '',
@@ -70,8 +78,8 @@ export class JobForm {
       type: 'url',
       label: 'Job Posting URL (Optional)',
       placeholder: 'https://jobs.company.com/position-id',
-      validators: []
-    })
+      validators: [],
+    }),
   };
 
   readonly statusSelection = new InputElementSelect<string>({
@@ -85,7 +93,7 @@ export class JobForm {
       { key: 'Offer Received', value: JobStatus.Offered },
       { key: 'Offer Accepted', value: JobStatus.Accepted },
       { key: 'Application Declined', value: JobStatus.Declined },
-    ]
+    ],
   });
 
   readonly typeSelection = new InputElementSelect<string>({
@@ -97,7 +105,7 @@ export class JobForm {
       { key: 'Full-Time', value: JobType.Fulltime },
       { key: 'Part-Time', value: JobType.PartTime },
       { key: 'Internship', value: JobType.Internship },
-    ]
+    ],
   });
 
   readonly form: FormGroup;
@@ -112,10 +120,13 @@ export class JobForm {
   constructor() {
     const ics = inject(InputControlService);
 
-    const controls = Object.values(this.inputConfigs).reduce((acc, input) => {
-      acc[input.key] = ics.toFormControl(input);
-      return acc;
-    }, {} as Record<string, any>);
+    const controls = Object.values(this.inputConfigs).reduce(
+      (acc, input) => {
+        acc[input.key] = ics.toFormControl(input);
+        return acc;
+      },
+      {} as Record<string, any>,
+    );
 
     controls[this.statusSelection.key] = ics.toFormControl(this.statusSelection);
     controls[this.typeSelection.key] = ics.toFormControl(this.typeSelection);
@@ -132,14 +143,13 @@ export class JobForm {
       }
     });
 
-    effect(() => {
+    effect((): void => {
       const state = this.jobDetail();
 
       if (this.isEditMode) {
         if (state.isLoading) {
           console.log('Loading job detail...');
-        }
-        else if (state.error) {
+        } else if (state.error) {
           this.alertService.show(state.error, 'error');
         }
         // fetched
@@ -151,7 +161,6 @@ export class JobForm {
           this.alertService.show('Job application updated successfully!', 'success');
           this.router.navigate([`/dashboard/jobs/${state.data._id}`]);
         }
-
       } else {
         if (state.operation === 'create') {
           // error
@@ -169,7 +178,7 @@ export class JobForm {
   }
 
   // Helper to patch form with loaded job data
-  private patchFormOnJobLoad() {
+  private patchFormOnJobLoad(): void {
     const state = this.jobsService.jobDetail();
     if (state && state.data) {
       const patch: Record<string, any> = {
@@ -186,7 +195,7 @@ export class JobForm {
   }
 
   // Build payload from form values using inputConfigs for DRY
-  private buildPayload() {
+  private buildPayload(): Record<string, any> {
     const payload: Record<string, any> = {
       company: this.form.value['companyControl'],
       position: this.form.value['positionControl'],
@@ -199,7 +208,7 @@ export class JobForm {
     return payload;
   }
 
-  onSubmit() {
+  onSubmit(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       this.alertService.show('Please fill in all required fields correctly.', 'error');
@@ -220,7 +229,7 @@ export class JobForm {
     }
   }
 
-  cancelEdit() {
+  cancelEdit(): void {
     if (this.jobId) {
       this.router.navigate([`/dashboard/jobs/${this.jobId}`]);
     } else {

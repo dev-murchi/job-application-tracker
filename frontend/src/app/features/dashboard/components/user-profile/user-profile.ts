@@ -3,19 +3,26 @@ import { Component, effect, inject, OnInit, signal } from '@angular/core';
 import { FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { UsersService } from '../../../../core/services/users';
 import { AlertService } from '../../../../shared/components/alert/alert-service';
-import { SubmitButton } from "../../../../shared/components/buttons/submit-button/submit-button";
+import { SubmitButton } from '../../../../shared/components/buttons/submit-button/submit-button';
 import { InputControlService } from '../../../../shared/components/form-helpers/input-control-service';
 import { InputElementText } from '../../../../shared/components/form-helpers/input-element-text';
 import { CustomInput } from '../../../../shared/components/form-items/input/input';
 import { SvgComponent } from '../../../../shared/components/svg/svg';
 import { SvgNameType } from '../../../../svg.config';
-import { LoadingSpinner } from "../../../../shared/components/loading-spinner/loading-spinner";
+import { LoadingSpinner } from '../../../../shared/components/loading-spinner/loading-spinner';
 
 @Component({
   selector: 'app-user-profile',
-  imports: [CommonModule, ReactiveFormsModule, SvgComponent, CustomInput, SubmitButton, LoadingSpinner],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    SvgComponent,
+    CustomInput,
+    SubmitButton,
+    LoadingSpinner,
+  ],
   templateUrl: './user-profile.html',
-  styleUrl: './user-profile.css'
+  styleUrl: './user-profile.css',
 })
 export class UserProfileComponent implements OnInit {
   private readonly usersService = inject(UsersService);
@@ -35,7 +42,7 @@ export class UserProfileComponent implements OnInit {
     label: 'First Name',
     type: 'text',
     placeholder: 'John',
-    validators: [Validators.required, Validators.minLength(3), Validators.maxLength(20)]
+    validators: [Validators.required, Validators.minLength(3), Validators.maxLength(20)],
   });
   readonly lastNameIput = new InputElementText({
     value: '',
@@ -43,7 +50,7 @@ export class UserProfileComponent implements OnInit {
     label: 'Last Name',
     type: 'text',
     placeholder: 'Doe',
-    validators: [Validators.required, Validators.maxLength(20)]
+    validators: [Validators.required, Validators.maxLength(20)],
   });
   readonly emailInput = new InputElementText({
     value: '',
@@ -51,7 +58,7 @@ export class UserProfileComponent implements OnInit {
     label: 'Email Address',
     type: 'email',
     placeholder: 'your@email.com',
-    validators: [Validators.required, Validators.email]
+    validators: [Validators.required, Validators.email],
   });
   readonly locationIput = new InputElementText({
     value: '',
@@ -59,12 +66,12 @@ export class UserProfileComponent implements OnInit {
     label: 'Location',
     type: 'text',
     placeholder: 'San Francisco, CA',
-    validators: [Validators.required, Validators.maxLength(20)]
+    validators: [Validators.required, Validators.maxLength(20)],
   });
   readonly currentUser = this.usersService.currentUser;
 
   readonly profileForm: FormGroup;
-  editMode = signal<boolean>(false);
+  readonly editMode = signal<boolean>(false);
 
   constructor() {
     const ics = inject(InputControlService);
@@ -73,7 +80,7 @@ export class UserProfileComponent implements OnInit {
       [`${this.lastNameIput.key}`]: ics.toFormControl(this.lastNameIput),
       [`${this.emailInput.key}`]: ics.toFormControl(this.emailInput),
       [`${this.locationIput.key}`]: ics.toFormControl(this.locationIput),
-    })
+    });
 
     this.profileForm.disable();
 
@@ -97,12 +104,11 @@ export class UserProfileComponent implements OnInit {
     });
   }
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.usersService.getProfile();
   }
 
   updateProfile(): void {
-
     if (this.profileForm.invalid) {
       this.profileForm.markAllAsTouched();
       this.alertService.show('Please fix the errors in the form before updating.', 'error');
@@ -124,17 +130,17 @@ export class UserProfileComponent implements OnInit {
     this.usersService.updateProfile(payload);
   }
 
-  enableFormEditing() {
+  enableFormEditing(): void {
     this.editMode.set(true);
     this.profileForm.enable();
   }
 
-  disableFormEditing() {
+  disableFormEditing(): void {
     this.editMode.set(false);
     this.profileForm.disable();
   }
 
-  resetForm(event: Event) {
+  resetForm(event: Event): void {
     event.preventDefault();
     const user = this.currentUser();
     if (user) {
@@ -145,7 +151,7 @@ export class UserProfileComponent implements OnInit {
     }
   }
 
-  private patchFormWithUser(user: any) {
+  private patchFormWithUser(user: any): void {
     this.profileForm.patchValue({
       [`${this.firstNameIput.key}`]: user.name ?? '',
       [`${this.lastNameIput.key}`]: user.lastName ?? '',

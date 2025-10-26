@@ -18,7 +18,7 @@ export const routes: Routes = [
   {
     path: 'dashboard',
     canActivateChild: [authGuard],
-    children: dashboardRoutes
+    children: dashboardRoutes,
   },
   {
     path: 'not-found',

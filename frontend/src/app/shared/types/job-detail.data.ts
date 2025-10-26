@@ -1,5 +1,5 @@
-import { JobStatus } from "./job-status";
-import { JobType } from "./job-type";
+import { JobStatus } from './job-status';
+import { JobType } from './job-type';
 
 export interface JobDetail {
   _id?: string;

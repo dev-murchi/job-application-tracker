@@ -1,10 +1,6 @@
-
-import { JobDetail } from "./shared/types/job-detail.data";
-import { JobQueryResult } from "./shared/types/job-query.data";
-import { JobStats } from "./shared/types/job-stats.data";
-
-
-
+import { JobDetail } from './shared/types/job-detail.data';
+import { JobQueryResult } from './shared/types/job-query.data';
+import { JobStats } from './shared/types/job-stats.data';
 
 export interface LoadingState<T> {
   data: T | null;
@@ -12,11 +8,14 @@ export interface LoadingState<T> {
   readonly error: string | null;
 }
 
-export interface JobDetailState extends LoadingState<JobDetail> {
+export type JobDetailState = {
   readonly operation: 'fetch' | 'create' | 'update' | 'delete' | null;
-}
+} & LoadingState<JobDetail>;
 
-export type CacheEntry<T> = { data: T; timestamp: number };
+export interface CacheEntry<T> {
+  data: T;
+  timestamp: number;
+}
 
 export interface CacheModel {
   readonly queries: ReadonlyMap<string, CacheEntry<JobQueryResult>>;

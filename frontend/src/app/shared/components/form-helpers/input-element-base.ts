@@ -1,4 +1,4 @@
-import { ValidatorFn } from "@angular/forms";
+import { ValidatorFn } from '@angular/forms';
 
 export class InputElementBase<T> {
   controlType: string;
@@ -11,18 +11,16 @@ export class InputElementBase<T> {
   validators?: ValidatorFn[];
   debounceTime?: number;
 
-  constructor(
-    options: {
-      controlType: string;
-      value: T;
-      type: string;
-      key: string;
-      label?: string;
-      options?: { key: string; value: string }[];
-      placeholder?: string;
-      validators?: ValidatorFn[];
-    },
-  ) {
+  constructor(options: {
+    controlType: string;
+    value: T;
+    type: string;
+    key: string;
+    label?: string;
+    options?: { key: string; value: string }[];
+    placeholder?: string;
+    validators?: ValidatorFn[];
+  }) {
     this.controlType = options.controlType;
     this.key = options.key;
     this.value = options.value;
@@ -30,6 +28,6 @@ export class InputElementBase<T> {
     this.label = options.label || '';
     this.options = options.options || [];
     this.placeholder = options.placeholder || '';
-    this.validators = options.validators || []
+    this.validators = options.validators || [];
   }
 }
