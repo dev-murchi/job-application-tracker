@@ -52,7 +52,7 @@ const JobCreateSchema = z
       error: () => ({ message: 'Invalid status' }),
     }),
     companyWebsite: z.httpUrl('Invalid URL format'),
-    jobPostingUrl: z.httpUrl('Invalid URL format').optional(),
+    jobPostingUrl: z.union([z.httpUrl('Invalid URL format'), z.literal('')]).optional(),
   })
   .strict();
 
