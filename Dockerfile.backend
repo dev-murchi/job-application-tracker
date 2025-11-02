@@ -1,19 +1,60 @@
-FROM node:22-alpine
-
-RUN apk --no-cache update
+FROM node:22-alpine AS base
 
 WORKDIR /usr/src/app
 
-# Copy root files and install dependencies for all workspaces
-COPY backend/package*.json .
-RUN npm ci
+# ===== Dependencies Stage =====
+FROM base AS dependencies
 
-# Copy source code
-COPY backend .
+# Copy only dependency manifests for better caching
+COPY backend/package*.json ./
 
-# Set environment variables for development
+# Install dependencies with npm ci for reproducible builds
+RUN npm ci --omit=dev && \
+    mv node_modules /tmp/prod_node_modules && \
+    npm ci --include=dev
+
+# ===== Development Stage =====
+FROM base AS dev
 ENV NODE_ENV=development
+COPY --from=dependencies /usr/src/app/node_modules ./node_modules
+# Copy application source
+COPY backend/ ./
+CMD [ "npm", "run", "dev" ]
 
-EXPOSE 3001
+# ===== Test Stage (for CI) =====
+FROM base AS test
+ENV NODE_ENV=test
 
-CMD ["npm", "run", "dev"]
+# Create mount point directories before copying files
+RUN mkdir -p coverage logs
+
+COPY --from=dependencies /usr/src/app/node_modules ./node_modules
+COPY backend/ ./
+CMD ["npm", "run", "test"]
+
+# ===== Production Stage =====
+FROM base AS production
+ENV NODE_ENV=production
+
+# Create non-root user early
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+
+# Copy production dependencies and application with correct ownership
+COPY --from=dependencies --chown=appuser:appgroup /tmp/prod_node_modules ./node_modules
+COPY --chown=appuser:appgroup backend/package*.js ./
+COPY --chown=appuser:appgroup backend/app.js backend/server.js ./
+COPY --chown=appuser:appgroup backend/config ./config
+COPY --chown=appuser:appgroup backend/controllers ./controllers
+COPY --chown=appuser:appgroup backend/db ./db
+COPY --chown=appuser:appgroup backend/errors ./errors
+COPY --chown=appuser:appgroup backend/middleware ./middleware
+COPY --chown=appuser:appgroup backend/models ./models
+COPY --chown=appuser:appgroup backend/routes ./routes
+COPY --chown=appuser:appgroup backend/utils ./utils
+RUN mkdir logs && chown -R appuser:appgroup ./logs
+
+
+# Switch to the non-root user for runtime security
+USER appuser
+
+CMD ["node", "server.js"]
