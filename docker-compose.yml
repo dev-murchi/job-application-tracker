@@ -1,27 +1,57 @@
-services:
-  mongodb:
-    image: mongo
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USERNAME}
-      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD}
-      MONGO_INITDB_DATABASE: ${MONGO_DATABASE}
-    ports:
-      - "27017:27017"
-    networks:
-      - job-application-tracker
-    volumes:
-      - mongo-data:/data/db
-      - mongo-config:/data/configdb
+# Production-grade Docker Compose configuration
+# Usage:
+#   Development:           docker compose --profile dev --env-file .env.dev up
+#   Testing (Backend):     docker compose --profile backend-test --env-file .env.test up -d
+#   Testing (Frontend):    docker compose --profile frontend-test --env-file .env.test up -d
+#   Production:            docker compose --profile production --env-file .env.prod up
 
-  server:
+services:
+  # ===== MongoDB Database =====
+  mongodb:
+    image: mongo:8.0
+    restart: unless-stopped
+    profiles: ["dev", "production", "backend-test"]
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+    expose:
+      - "27017"
+    networks:
+      - backend-network
+    volumes:
+      - mongodb-data:/data/db
+      - mongodb-config:/data/configdb
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping').ok", "--quiet"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # ===== Backend API (Development) =====
+  backend-dev:
     build:
       context: .
       dockerfile: Dockerfile.backend
-    ports:
-      - "3001:3001"
+      target: dev
+    restart: unless-stopped
+    profiles: ["dev"]
     environment:
-      NODE_ENV: ${SERVER_NODE_ENV}
-      PORT: ${SERVER_PORT}
+      NODE_ENV: ${NODE_ENV}
+      SERVER_PORT: ${SERVER_PORT}
       MONGO_URL: ${MONGO_URL}
       JWT_SECRET: ${JWT_SECRET}
       JWT_LIFETIME: ${JWT_LIFETIME}
@@ -29,45 +59,240 @@ services:
       RATE_LIMIT_WINDOW_MS: ${RATE_LIMIT_WINDOW_MS}
       RATE_LIMIT_MAX_REQUESTS: ${RATE_LIMIT_MAX_REQUESTS}
       LOG_LEVEL: ${LOG_LEVEL}
-    depends_on:
-      - mongodb
+    ports:
+      - "${HOST_PORT}:${SERVER_PORT}"
     networks:
-      - job-application-tracker
+      - backend-network
+      - frontend-network
+    volumes:
+      - ./backend:/usr/src/app:cached
+      - backend-node-modules-dev:/usr/src/app/node_modules
+      - ./logs/backend:/usr/src/app/logs
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:${SERVER_PORT}/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # ===== Backend API (Test) =====
+  backend-test:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+      target: test
+    profiles: ["backend-test"]
+    restart: "no"
+    environment:
+      NODE_ENV: ${NODE_ENV}
+      SERVER_PORT: ${SERVER_PORT}
+      MONGO_URL: ${MONGO_URL}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_LIFETIME: ${JWT_LIFETIME}
+      CORS_ORIGIN: ${CORS_ORIGIN}
+      RATE_LIMIT_WINDOW_MS: ${RATE_LIMIT_WINDOW_MS}
+      RATE_LIMIT_MAX_REQUESTS: ${RATE_LIMIT_MAX_REQUESTS}
+      LOG_LEVEL: ${LOG_LEVEL}
+    networks:
+      - backend-network
     volumes:
       - ./backend:/usr/src/app
-      - /usr/src/app/node_modules
-    
+      - backend-node-modules-test:/usr/src/app/node_modules
+      - ./coverage/backend:/usr/src/app/coverage
+      - ./logs/backend-test:/usr/src/app/logs
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    command: ["tail", "-f", "/dev/null"]
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"
+        max-file: "2"
+
+  # ===== Backend API (Production) =====
+  backend-prod:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+      target: production
+    restart: always
+    profiles: ["production"]
+    environment:
+      NODE_ENV: ${NODE_ENV}
+      SERVER_PORT: ${SERVER_PORT}
+      MONGO_URL: ${MONGO_URL}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_LIFETIME: ${JWT_LIFETIME}
+      CORS_ORIGIN: ${CORS_ORIGIN}
+      RATE_LIMIT_WINDOW_MS: ${RATE_LIMIT_WINDOW_MS}
+      RATE_LIMIT_MAX_REQUESTS: ${RATE_LIMIT_MAX_REQUESTS}
+      LOG_LEVEL: ${LOG_LEVEL}
+    expose:
+      - ${SERVER_PORT}
+    networks:
+      - backend-network
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:${SERVER_PORT}/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "20m"
+        max-file: "5"
+        compress: "true"
+
+  # ===== Frontend (Development) =====
   frontend-dev:
-    profiles: ["dev"]
     build:
       context: .
       dockerfile: Dockerfile.frontend
       target: dev
+    restart: unless-stopped
+    profiles: ["dev"]
+    environment:
+      NODE_ENV: development
     ports:
-      - "4200:4200"
+      - "${FRONTEND_PORT}:4200"
     networks:
-      - job-application-tracker
+      - frontend-network
     volumes:
-      - ./frontend:/usr/src/app
-      - /usr/src/app/node_modules
+      - ./frontend:/usr/src/app:cached
+      - frontend-node-modules-dev:/usr/src/app/node_modules
+      - frontend-angular-cache:/usr/src/app/.angular
+    depends_on:
+      - backend-dev
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4200"]
+      interval: 60s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
-  frontend-prod:
-    profiles: ["prod"]
+  # ===== Frontend (Test) =====
+  frontend-test:
     build:
       context: .
       dockerfile: Dockerfile.frontend
-      target: prod
-    ports:
-      - "80:80"
+      target: test
+    profiles: ["frontend-test"]
+    environment:
+      NODE_ENV: test
     networks:
-      - job-application-tracker
+      - frontend-network
+    volumes:
+      - ./frontend:/usr/src/app
+      - frontend-node-modules-test:/usr/src/app/node_modules
+      - ./coverage/frontend:/usr/src/app/coverage
+    command: ["tail", "-f", "/dev/null"]
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"
+        max-file: "2"
 
+  # ===== Frontend (Production) =====
+  frontend-prod:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+      target: production
+    restart: always
+    profiles: ["production"]
+    ports:
+      - "${NGINX_HTTP_PORT}:80"
+      - "${NGINX_HTTPS_PORT}:443"
+    networks:
+      - backend-network
+      - frontend-network
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/conf.d/app.conf:/etc/nginx/conf.d/app.conf
+      - ./nginx/ssl:/etc/nginx/ssl
+      - ./logs/nginx:/var/log/nginx
+    depends_on:
+      backend-prod:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:80/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+        reservations:
+          cpus: '0.1'
+          memory: 64M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "20m"
+        max-file: "5"
+        compress: "true"
+
+# ===== Networks =====
 networks:
-  job-application-tracker:
+  backend-network:
     driver: bridge
+    name: jobs-tracker-backend
+  frontend-network:
+    driver: bridge
+    name: jobs-tracker-frontend
 
+# ===== Volumes =====
 volumes:
-  mongo-data:
+  mongodb-data:
     driver: local
-  mongo-config:
+  mongodb-config:
+    driver: local
+  backend-node-modules-dev:
+    driver: local
+  backend-node-modules-test:
+    driver: local
+  frontend-node-modules-dev:
+    driver: local
+  frontend-node-modules-test:
+    driver: local
+  frontend-angular-cache:
     driver: local
