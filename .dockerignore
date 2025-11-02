@@ -3,7 +3,7 @@ node_modules
 packages/*/node_modules
 **/node_modules
 
-# Ignore environment files except example
+# Ignore environment files except examples
 .env
 .env.*
 !.env.example
@@ -46,8 +46,19 @@ docker-compose*.yml
 *.md
 !README.md
 docs/
+scripts/
 
-# Ignore OS files
+# Ignore Docker and CI files
+docker-compose*.yml
+.dockerignore
+
+# Ignore new structure directories
+data/
+logs/
+nginx/cache
+nginx/ssl
+nginx/ssl/*.pem
+nginx/ssl/*.key
 .DS_Store
 Thumbs.db
 *.swp
@@ -70,4 +81,5 @@ temp/
 .editorconfig
 .eslintrc*
 .angular/
-mockData*.json
+backend/mockData*.json
+backend/populate.js

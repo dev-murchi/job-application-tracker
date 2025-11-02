@@ -21,6 +21,14 @@ pnpm-debug.log*
 logs/
 packages/*/logs/
 
+# Docker and data directories
+data/
+nginx/cache
+nginx/ssl
+nginx/ssl/*.pem
+nginx/ssl/*.key
+nginx/ssl/*.crt
+
 # Build output
 dist/
 build/
