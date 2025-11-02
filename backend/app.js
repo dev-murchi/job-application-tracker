@@ -33,6 +33,12 @@ const app = express();
 
 // Middleware setup
 
+app.set('trust proxy', 1);
+// Apply rate limiting in production
+if (config.isProduction) {
+  app.use(appLevelRateLimit);
+}
+
 // Body parsing with size limits
 app.use(
   express.json({
@@ -85,11 +91,6 @@ app.use(
 );
 app.use(cookieParser());
 
-// Apply rate limiting in production
-if (config.isProduction) {
-  app.use(appLevelRateLimit);
-}
-
 // Route setup
 
 // Root endpoint
@@ -99,6 +100,15 @@ app.get('/', (req, res) => {
     version: process.env.npm_package_version || '1.0.0',
     environment: config.nodeEnv,
     timestamp: new Date().toISOString(),
+  });
+});
+
+// Health check endpoint for CI/CD and monitoring
+app.get('/health', (_req, res) => {
+  res.status(StatusCodes.OK).json({
+    status: 'ok',
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
   });
 });
 

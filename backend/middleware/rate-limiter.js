@@ -7,6 +7,7 @@ const appLevelRateLimit = rateLimit({
   message: 'Too many requests from this IP, please try again later',
   standardHeaders: true,
   legacyHeaders: false,
+  skip: (req, _res) => req.method === 'GET' && req.path === '/health',
 });
 
 const authRouteRateLimit = rateLimit({

@@ -68,7 +68,7 @@ const JwtSecretSchema = z
 const ConfigSchema = z.object({
   // Application settings
   nodeEnv: z.enum(['development', 'production', 'test']),
-  port: z.coerce.number().int().min(PORT_MIN).max(PORT_MAX).default(DEFAULT_PORT),
+  port: z.coerce.number().int().min(PORT_MIN).max(PORT_MAX),
 
   // MongoDB configuration
   mongoUrl: z.string().min(1, 'MongoDB URL is required'),
@@ -152,7 +152,7 @@ const loadAndValidate = (schema, rawConfig) => {
 
 const rawConfig = {
   nodeEnv: process.env.NODE_ENV,
-  port: process.env.PORT,
+  port: process.env.SERVER_PORT,
   mongoUrl: process.env.MONGO_URL,
   jwtSecret: process.env.JWT_SECRET,
   jwtLifetime: process.env.JWT_LIFETIME,
