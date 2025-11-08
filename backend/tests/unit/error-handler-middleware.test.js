@@ -3,8 +3,6 @@ const logger = require('../../utils/logger');
 const config = require('../../config');
 const { StatusCodes } = require('http-status-codes');
 
-jest.mock('../../config');
-
 describe('Error Handler Middleware', () => {
   let req, res, next;
 

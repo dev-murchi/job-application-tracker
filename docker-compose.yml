@@ -1,16 +1,23 @@
 # Production-grade Docker Compose configuration
 # Usage:
-#   Development:           docker compose --profile dev --env-file .env.dev up
-#   Testing (Backend):     docker compose --profile backend-test --env-file .env.test up -d
-#   Testing (Frontend):    docker compose --profile frontend-test --env-file .env.test up -d
-#   Production:            docker compose --profile production --env-file .env.prod up
+#   Development:                  docker compose --profile dev --env-file .env.dev up
+#
+#   Testing (Backend):            docker compose --profile backend-test --env-file .env.test up -d
+#   Testing (unit+integration):   docker exec -it <backend-container-name> npm run test 
+#   Testing (unit):               docker exec -it <backend-container-name> npm run test:unit
+#   Testing (integration):        docker exec -it <backend-container-name> npm run test:integration
+#
+#   Testing (Frontend):           docker compose --profile frontend-test --env-file .env.test up -d
+#   Testing (unit):               docker exec -it <frontend-container-name> npm run test
+#
+#   Production:                   docker compose --profile production --env-file .env.prod up
 
 services:
-  # ===== MongoDB Database =====
-  mongodb:
+  # ===== MongoDB Database (Development) =====
+  mongodb-dev:
     image: mongo:8.0
     restart: unless-stopped
-    profiles: ["dev", "production", "backend-test"]
+    profiles: ["dev"]
     environment:
       MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
@@ -19,8 +26,8 @@ services:
     networks:
       - backend-network
     volumes:
-      - mongodb-data:/data/db
-      - mongodb-config:/data/configdb
+      - mongodb-data-dev:/data/db
+      - mongodb-config-dev:/data/configdb
     healthcheck:
       test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping').ok", "--quiet"]
       interval: 15s
@@ -30,16 +37,93 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '2'
-          memory: 2G
+          cpus: '4'
+          memory: 4G
         reservations:
-          cpus: '0.5'
-          memory: 512M
+          cpus: '1'
+          memory: 1G
     logging:
       driver: "json-file"
       options:
         max-size: "10m"
         max-file: "3"
+
+  # ===== MongoDB Database (Test) =====
+  mongodb-test:
+    image: mongo:8.0
+    restart: "no"
+    profiles: ["backend-test"]
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+    expose:
+      - "27017"
+    networks:
+      - backend-network
+    volumes:
+      - mongodb-data-test:/data/db
+      - mongodb-config-test:/data/configdb
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping').ok", "--quiet"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    deploy:
+      resources:
+        limits:
+          cpus: '1.5'
+          memory: 2G
+        reservations:
+          cpus: '0.25'
+          memory: 512M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "2"
+
+  # ===== MongoDB Database (Production) =====
+  mongodb-prod:
+    image: mongo:8.0
+    restart: always
+    profiles: ["prod"]
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+    expose:
+      - "27017"
+    networks:
+      - backend-network
+    volumes:
+      - mongodb-data-prod:/data/db
+      - mongodb-config-prod:/data/configdb
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping').ok", "--quiet"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+    deploy:
+      resources:
+        limits:
+          cpus: '4'
+          memory: 4G
+        reservations:
+          cpus: '1'
+          memory: 1G
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "20m"
+        max-file: "5"
+        compress: "true"
+
 
   # ===== Backend API (Development) =====
   backend-dev:
@@ -101,6 +185,7 @@ services:
       RATE_LIMIT_WINDOW_MS: ${RATE_LIMIT_WINDOW_MS}
       RATE_LIMIT_MAX_REQUESTS: ${RATE_LIMIT_MAX_REQUESTS}
       LOG_LEVEL: ${LOG_LEVEL}
+      REQUEST_SIZE_LIMIT: ${REQUEST_SIZE_LIMIT}
     networks:
       - backend-network
     volumes:
@@ -115,13 +200,13 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '1'
+          cpus: '0.5'
           memory: 512M
     logging:
       driver: "json-file"
       options:
-        max-size: "5m"
-        max-file: "2"
+        max-size: "10m"
+        max-file: "3"
 
   # ===== Backend API (Production) =====
   backend-prod:
@@ -141,6 +226,7 @@ services:
       RATE_LIMIT_WINDOW_MS: ${RATE_LIMIT_WINDOW_MS}
       RATE_LIMIT_MAX_REQUESTS: ${RATE_LIMIT_MAX_REQUESTS}
       LOG_LEVEL: ${LOG_LEVEL}
+      REQUEST_SIZE_LIMIT: ${REQUEST_SIZE_LIMIT}
     expose:
       - ${SERVER_PORT}
     networks:
@@ -157,11 +243,11 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '1'
-          memory: 512M
+          cpus: '2'
+          memory: 1G
         reservations:
-          cpus: '0.25'
-          memory: 128M
+          cpus: '0.5'
+          memory: 256M
       restart_policy:
         condition: on-failure
         delay: 5s
@@ -222,11 +308,18 @@ services:
       - frontend-node-modules-test:/usr/src/app/node_modules
       - ./coverage/frontend:/usr/src/app/coverage
     command: ["tail", "-f", "/dev/null"]
+    deploy:
+      limits:
+        cpus: '1'
+        memory: 1G
+      reservations:
+        cpus: '0.25'
+        memory: 512M
     logging:
       driver: "json-file"
       options:
-        max-size: "5m"
-        max-file: "2"
+        max-size: "10m"
+        max-file: "3"
 
   # ===== Frontend (Production) =====
   frontend-prod:
@@ -259,11 +352,11 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.5'
-          memory: 256M
+          cpus: '1'
+          memory: 512M
         reservations:
-          cpus: '0.1'
-          memory: 64M
+          cpus: '0.25'
+          memory: 128M
     logging:
       driver: "json-file"
       options:
@@ -282,14 +375,24 @@ networks:
 
 # ===== Volumes =====
 volumes:
-  mongodb-data:
+  mongodb-data-dev:
     driver: local
-  mongodb-config:
+  mongodb-config-dev:
     driver: local
+  mongodb-data-test:
+    driver: local
+  mongodb-config-test:
+    driver: local
+  mongodb-data-prod:
+    driver: local
+  mongodb-config-prod:
+    driver: local
+  
   backend-node-modules-dev:
     driver: local
   backend-node-modules-test:
     driver: local
+  
   frontend-node-modules-dev:
     driver: local
   frontend-node-modules-test:

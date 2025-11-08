@@ -5,9 +5,6 @@ const config = require('../../config');
 const dbService = require('../../db/db-service');
 
 jest.mock('jsonwebtoken');
-jest.mock('../../config', () => ({
-  jwtSecret: 'test-secret',
-}));
 jest.mock('../../db/db-service');
 
 // Mock User model

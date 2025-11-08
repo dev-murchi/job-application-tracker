@@ -1,0 +1,135 @@
+name: Backend CI/CD
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'backend/**'
+      - 'Dockerfile.backend'
+      - 'docker-compose.yml'
+      - '.github/workflows/backend-cicd.yml'
+      - '.github/actions/**'
+  pull_request:
+    branches: 
+      - main
+    paths:
+      - 'backend/**'
+      - 'Dockerfile.backend'
+      - 'docker-compose.yml'
+      - '.github/workflows/backend-cicd.yml'
+      - '.github/actions/**'
+
+env:
+  NODE_VERSION: '22'
+  WORKING_DIR: ./backend
+  CACHE_PATH: backend/package-lock.json
+
+jobs:
+  lint:
+    name: Lint & Format Check
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup Node.js environment
+      uses: ./.github/actions/setup-node
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        working-directory: ${{ env.WORKING_DIR }}
+        cache-dependency-path: ${{ env.CACHE_PATH }}
+
+    - name: Run ESLint
+      working-directory: ${{ env.WORKING_DIR }}
+      run: npm run lint
+    
+    - name: Run Prettier format check
+      working-directory: ${{ env.WORKING_DIR }}
+      run: npm run format:check
+
+  unit-tests:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    needs: lint
+    timeout-minutes: 5
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup Node.js environment
+      uses: ./.github/actions/setup-node
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        working-directory: ${{ env.WORKING_DIR }}
+        cache-dependency-path: ${{ env.CACHE_PATH }}
+
+    - name: Run unit tests
+      working-directory: ${{ env.WORKING_DIR }}
+      run: npm run test:unit
+
+    - name: Upload unit test coverage
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: backend-unit-coverage
+        path: backend/coverage/unit
+        retention-days: 7
+
+  integration-tests:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+    needs: lint
+    
+    env:
+      NODE_ENV: ${{ secrets.TEST_NODE_ENV }}
+      SERVER_PORT: ${{ secrets.S_PORT }}
+      MONGO_URL: mongodb://${{ secrets.TEST_MONGO_USERNAME }}:${{ secrets.TEST_MONGO_PASSWORD }}@localhost:27017/job-tracker-test?authSource=admin
+      JWT_SECRET: ${{ secrets.TEST_JWT_SECRET }}
+      JWT_LIFETIME: ${{ secrets.TEST_JWT_LIFETIME }}
+      CORS_ORIGIN: ${{ secrets.TEST_CORS_ORIGIN }}
+      LOG_LEVEL: ${{ secrets.TEST_LOG_LEVEL }}
+      RATE_LIMIT_WINDOW_MS: ${{ secrets.TEST_RATE_LIMIT_WINDOW_MS }}
+      RATE_LIMIT_MAX_REQUESTS: ${{ secrets.TEST_RATE_LIMIT_MAX_REQUESTS }}
+      REQUEST_SIZE_LIMIT: ${{ secrets.TEST_REQUEST_SIZE_LIMIT }}
+    
+    services:
+      mongodb:
+        image: mongo:8.0
+        env:
+          MONGO_INITDB_ROOT_USERNAME: ${{ secrets.TEST_MONGO_USERNAME }}
+          MONGO_INITDB_ROOT_PASSWORD: ${{ secrets.TEST_MONGO_PASSWORD }}
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd "mongosh --eval 'db.adminCommand({ping: 1}).ok' --quiet"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup Node.js environment
+      uses: ./.github/actions/setup-node
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        working-directory: ${{ env.WORKING_DIR }}
+        cache-dependency-path: ${{ env.CACHE_PATH }}
+
+    - name: Run integration tests
+      working-directory: ${{ env.WORKING_DIR }}
+      run: npm run test:integration
+
+    - name: Upload integration test coverage
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: backend-integration-coverage
+        path: backend/coverage/integration
+        retention-days: 7

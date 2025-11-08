@@ -1,5 +1,4 @@
 const { describe, beforeEach, afterEach, it, expect } = require('@jest/globals');
-jest.mock('../../config/index.js');
 
 const config = require('../../config');
 const attachCookie = require('../../utils/attach-cookie');
