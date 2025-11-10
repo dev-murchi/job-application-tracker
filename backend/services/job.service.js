@@ -3,6 +3,7 @@ const { checkPermissions } = require('../utils');
 const mongoose = require('mongoose');
 const { format } = require('date-fns');
 const dbService = require('../db/db-service');
+const { MONTHLY_STATS_LOOKBACK_MONTHS } = require('../constants');
 
 const Job = dbService.getModel('Job');
 
@@ -219,10 +220,13 @@ const getJobStats = async (userId) => {
     declined: stats.declined || 0,
   };
 
-  // Get monthly applications for last 6 months
+  // Get monthly applications for last N months
   const endDate = new Date(Date.now());
-  const N = 6;
-  const startDate = new Date(endDate.getFullYear(), endDate.getMonth() - (N - 1), 1);
+  const startDate = new Date(
+    endDate.getFullYear(),
+    endDate.getMonth() - (MONTHLY_STATS_LOOKBACK_MONTHS - 1),
+    1,
+  );
 
   const monthlyApplications = await Job.aggregate([
     { $match: { createdBy: userObjectId, createdAt: { $gte: startDate } } },
@@ -243,7 +247,7 @@ const getJobStats = async (userId) => {
   }, {});
 
   const monthlyApplicationsFilled = [];
-  for (let i = N - 1; i >= 0; i--) {
+  for (let i = MONTHLY_STATS_LOOKBACK_MONTHS - 1; i >= 0; i--) {
     const dateObj = new Date(endDate.getFullYear(), endDate.getMonth() - i, 1);
     const year = dateObj.getFullYear();
     const month = dateObj.getMonth() + 1;

@@ -1,6 +1,7 @@
 const { StatusCodes } = require('http-status-codes');
 const { attachCookie } = require('../utils');
 const { authService } = require('../services');
+const { ONE_SECOND_MS } = require('../constants');
 
 /**
  * Register a new user
@@ -25,10 +26,9 @@ const login = async (req, res) => {
  * Logout user by clearing authentication cookie
  */
 const logout = (req, res) => {
-  const oneSec = 1000;
   res.cookie('token', 'logout', {
     httpOnly: true,
-    expires: new Date(Date.now() + oneSec),
+    expires: new Date(Date.now() + ONE_SECOND_MS),
   });
   res.status(StatusCodes.OK).json({ msg: 'user logged out!' });
 };

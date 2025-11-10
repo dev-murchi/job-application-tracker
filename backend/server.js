@@ -5,16 +5,11 @@ const createConnectionManager = require('./db/connect');
 const dbService = require('./db/db-service');
 const { UserSchema, JobSchema } = require('./models');
 const http = require('http');
-
-// Magic numbers as constants
-const SECOND_IN_MS = 1000;
-const KEEP_ALIVE_TIMEOUT_SECONDS = 61;
-const HEADERS_TIMEOUT_SECONDS = 65;
-const GRACEFUL_SHUTDOWN_TIMEOUT_SECONDS = 30;
-
-const KEEP_ALIVE_TIMEOUT_MS = KEEP_ALIVE_TIMEOUT_SECONDS * SECOND_IN_MS;
-const HEADERS_TIMEOUT_MS = HEADERS_TIMEOUT_SECONDS * SECOND_IN_MS;
-const GRACEFUL_SHUTDOWN_TIMEOUT_MS = GRACEFUL_SHUTDOWN_TIMEOUT_SECONDS * SECOND_IN_MS;
+const {
+  KEEP_ALIVE_TIMEOUT_MS,
+  HEADERS_TIMEOUT_MS,
+  GRACEFUL_SHUTDOWN_TIMEOUT_MS,
+} = require('./constants');
 
 const createConfiguredServer = (requestListener, keepAliveTimeout, headersTimeout) => {
   const server = http.createServer(requestListener);

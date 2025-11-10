@@ -3,13 +3,14 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const validator = require('validator');
 const config = require('../config');
-
-const NAME_MIN_LENGTH = 3;
-const NAME_MAX_LENGTH = 50;
-const PASSWORD_MIN_LENGTH = 6;
-const LASTNAME_MAX_LENGTH = 20;
-const LOCATION_MAX_LENGTH = 20;
-const BCRYPT_SALT_ROUNDS = 10;
+const {
+  NAME_MIN_LENGTH,
+  NAME_MAX_LENGTH,
+  PASSWORD_MIN_LENGTH_MODEL,
+  LASTNAME_MAX_LENGTH,
+  LOCATION_MAX_LENGTH,
+  BCRYPT_SALT_ROUNDS,
+} = require('../constants');
 
 const UserSchema = new mongoose.Schema(
   {
@@ -32,7 +33,7 @@ const UserSchema = new mongoose.Schema(
     password: {
       type: String,
       required: [true, 'Please provide password'],
-      minlength: PASSWORD_MIN_LENGTH,
+      minlength: PASSWORD_MIN_LENGTH_MODEL,
       select: false,
     },
     lastName: {

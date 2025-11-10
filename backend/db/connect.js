@@ -1,39 +1,30 @@
 const mongoose = require('mongoose');
 const { logger } = require('../utils');
-
-// Constants for configuration (avoid magic numbers)
-const POOL_MAX_PROD = 50;
-const POOL_MAX_DEV = 10;
-const POOL_MIN_PROD = 5;
-const POOL_MIN_DEV = 2;
-
-const MAX_IDLE_TIME_MS = 30_000;
-const WAIT_QUEUE_TIMEOUT_MS = 5_000;
-
-const SERVER_SELECTION_TIMEOUT_MS = 5_000;
-const SOCKET_TIMEOUT_MS = 45_000;
-const CONNECT_TIMEOUT_MS = 10_000;
-
-const HEARTBEAT_FREQUENCY_MS = 10_000;
-
-const WRITE_CONCERN_W = 'majority';
-const WRITE_CONCERN_J = true;
-const WRITE_CONCERN_WTIMEOUT_MS = 5_000;
-
-const READ_CONCERN_LEVEL = 'majority';
-const READ_PREFERENCE = 'secondaryPreferred';
-
-const COMPRESSORS = ['zlib'];
-const ZLIB_COMPRESSION_LEVEL = 6;
-
-const MONITOR_COMMANDS_IN_DEV = true; // monitorCommands should be enabled in non-prod
-
-// Ready state codes
-const READY_STATE_DISCONNECTED = 0;
-const READY_STATE_CONNECTED = 1;
-const READY_STATE_CONNECTING = 2;
-const READY_STATE_DISCONNECTING = 3;
-const READY_STATE_UNINITIALIZED = 99;
+const {
+  POOL_MAX_PROD,
+  POOL_MAX_DEV,
+  POOL_MIN_PROD,
+  POOL_MIN_DEV,
+  MAX_IDLE_TIME_MS,
+  WAIT_QUEUE_TIMEOUT_MS,
+  SERVER_SELECTION_TIMEOUT_MS,
+  SOCKET_TIMEOUT_MS,
+  CONNECT_TIMEOUT_MS,
+  HEARTBEAT_FREQUENCY_MS,
+  WRITE_CONCERN_W,
+  WRITE_CONCERN_J,
+  WRITE_CONCERN_WTIMEOUT_MS,
+  READ_CONCERN_LEVEL,
+  READ_PREFERENCE,
+  COMPRESSORS,
+  ZLIB_COMPRESSION_LEVEL,
+  MONITOR_COMMANDS_IN_DEV,
+  READY_STATE_DISCONNECTED,
+  READY_STATE_CONNECTED,
+  READY_STATE_CONNECTING,
+  READY_STATE_DISCONNECTING,
+  READY_STATE_UNINITIALIZED,
+} = require('../constants');
 
 const createConnectionOptions = (isProduction) => ({
   // Connection pool settings

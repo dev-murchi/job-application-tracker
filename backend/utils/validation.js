@@ -1,17 +1,21 @@
 const { z } = require('zod');
 const mongoose = require('mongoose');
+const {
+  JOB_STATUS_ENUM,
+  JOB_TYPE_ENUM,
+  SORT_ORDER_ENUM,
+  NAME_MIN_LENGTH,
+  PASSWORD_MIN_LENGTH,
+  PAGE_DEFAULT,
+  LIMIT_DEFAULT,
+  LIMIT_MAX,
+  MONGOOSE_OBJECT_ID_LENGTH,
+} = require('../constants');
 
 // Reusable Schema Components
-const jobStatusEnum = ['interview', 'declined', 'pending', 'offered', 'accepted'];
-const jobTypeEnum = ['full-time', 'part-time', 'internship'];
-const sortOrderEnum = ['a-z', 'z-a', 'newest', 'oldest'];
-
-// Magic numbers as constants
-const NAME_MIN_LENGTH = 3;
-const PASSWORD_MIN_LENGTH = 8;
-const PAGE_DEFAULT = 1;
-const LIMIT_DEFAULT = 10;
-const LIMIT_MAX = 100;
+const jobStatusEnum = JOB_STATUS_ENUM;
+const jobTypeEnum = JOB_TYPE_ENUM;
+const sortOrderEnum = SORT_ORDER_ENUM;
 
 const UserRegisterSchema = z.object({
   name: z
@@ -67,8 +71,6 @@ const JobUpdateSchema = z
     jobPostingUrl: z.union([z.httpUrl('Invalid URL format'), z.literal('')]).optional(),
   })
   .strict();
-
-const MONGOOSE_OBJECT_ID_LENGTH = 24;
 
 const MongooseObjectIdSchema = z
   .string()

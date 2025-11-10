@@ -1,8 +1,7 @@
 const { StatusCodes } = require('http-status-codes');
 const config = require('../config');
 const { logger } = require('../utils');
-
-const MONGO_DUPLICATE_KEY_ERROR_CODE = 11000;
+const { MONGO_DUPLICATE_KEY_ERROR_CODE } = require('../constants');
 
 const errorHandlers = {
   ValidationError: (err) => ({

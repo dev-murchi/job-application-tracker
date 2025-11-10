@@ -2,29 +2,26 @@ require('dotenv').config({
   quiet: true,
 });
 const { z } = require('zod');
-
-// Constants for magic numbers
-const JWT_SECRET_MIN_LENGTH = 32; // 256 bits
-const JWT_SECRET_MIN_ENTROPY = 4.5;
-const JWT_LIFETIME_MAX_DAYS = 30;
-const JWT_LIFETIME_MAX_HOURS = 720; // 30 days * 24
-const JWT_LIFETIME_MAX_MINUTES = 43200; // 30 days * 24 * 60
-const JWT_LIFETIME_MAX_SECONDS = 2592000; // 30 days * 24 * 60 * 60
-const DEFAULT_JWT_LIFETIME = '7d';
-const DEFAULT_CORS_ORIGIN = '*';
-const DEFAULT_RATE_LIMIT_WINDOW_MS = 900000; // 15 minutes
-const DEFAULT_RATE_LIMIT_MAX_REQUESTS = 100;
-const DEFAULT_LOG_LEVEL = 'info';
-const DEFAULT_REQUEST_SIZE_LIMIT = '100kb';
-const PORT_MIN = 1;
-const PORT_MAX = 65535;
-
-// Regex patterns and error messages as constants
-const JWT_LIFETIME_REGEX = /^\d+[dhms]$/;
-const JWT_LIFETIME_REGEX_ERROR = 'JWT lifetime must be in format: 30d, 24h, 60m, 3600s';
-const REQUEST_SIZE_LIMIT_REGEX = /^\d+[kmgtpezy]?b?$/i;
-const REQUEST_SIZE_LIMIT_REGEX_ERROR =
-  'Invalid size format. Use formats like "10mb", "500kb", "1gb"';
+const {
+  JWT_SECRET_MIN_LENGTH,
+  JWT_SECRET_MIN_ENTROPY,
+  JWT_LIFETIME_MAX_DAYS,
+  JWT_LIFETIME_MAX_HOURS,
+  JWT_LIFETIME_MAX_MINUTES,
+  JWT_LIFETIME_MAX_SECONDS,
+  DEFAULT_JWT_LIFETIME,
+  DEFAULT_CORS_ORIGIN,
+  DEFAULT_RATE_LIMIT_WINDOW_MS,
+  DEFAULT_RATE_LIMIT_MAX_REQUESTS,
+  DEFAULT_LOG_LEVEL,
+  DEFAULT_REQUEST_SIZE_LIMIT,
+  PORT_MIN,
+  PORT_MAX,
+  JWT_LIFETIME_REGEX,
+  JWT_LIFETIME_REGEX_ERROR,
+  REQUEST_SIZE_LIMIT_REGEX,
+  REQUEST_SIZE_LIMIT_REGEX_ERROR,
+} = require('../constants');
 
 const calculateShannonEntropy = (str) => {
   const len = str.length;
