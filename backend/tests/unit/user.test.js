@@ -49,7 +49,7 @@ describe('User Controller', () => {
   });
 
   describe('getCurrentUser', () => {
-    it('should return current user successfully', async () => {
+    it('should return current user successfully', () => {
       userController.getCurrentUser(mockReq, mockRes);
       expect(mockRes.status).toHaveBeenCalledWith(StatusCodes.OK);
       expect(mockRes.json).toHaveBeenCalledWith({

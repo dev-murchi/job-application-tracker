@@ -1,4 +1,4 @@
-const { describe, beforeEach, afterEach, it, expect } = require('@jest/globals');
+const { describe, beforeEach, it, expect } = require('@jest/globals');
 const { BadRequestError, UnauthenticatedError } = require('../../errors');
 
 // Mock dependencies

@@ -1,0 +1,15 @@
+# Dependencies
+node_modules/
+
+# Test coverage
+coverage/
+
+# Logs
+logs/
+
+# Build outputs
+dist/
+build/
+
+# Package lock files
+package-lock.json
