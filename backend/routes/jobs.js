@@ -5,7 +5,7 @@ const {
   JobCreateSchema,
   JobUpdateSchema,
   MongooseObjectIdSchema,
-} = require('../utils');
+} = require('../schemas');
 const { validateQuery, validateBody, validateParams } = require('../middleware');
 const z = require('zod');
 

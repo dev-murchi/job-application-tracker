@@ -1,6 +1,6 @@
 const express = require('express');
 const { userController } = require('../controllers');
-const { UserUpdateSchema } = require('../utils');
+const { UserUpdateSchema } = require('../schemas');
 const { validateBody } = require('../middleware');
 
 const router = express.Router();

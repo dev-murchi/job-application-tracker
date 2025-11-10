@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
 const { UnauthenticatedError } = require('../errors');
 const config = require('../config');
-const { MongooseObjectIdSchema } = require('../utils');
+const { MongooseObjectIdSchema } = require('../schemas');
 const dbService = require('../db/db-service');
 const { logger } = require('../utils');
 
