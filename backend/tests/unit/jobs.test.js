@@ -1,38 +1,20 @@
 const { BadRequestError, NotFoundError } = require('../../errors');
-const checkPermissions = require('../../utils/check-permissions');
-const mongoose = require('mongoose');
-const dbService = require('../../db/db-service');
 
-jest.mock('../../db/db-service');
-jest.mock('../../utils/check-permissions');
+// Mock services BEFORE requiring anything else
+jest.mock('../../services', () => ({
+  jobService: {
+    createJob: jest.fn(),
+    getAllJobs: jest.fn(),
+    getJobById: jest.fn(),
+    updateJob: jest.fn(),
+    deleteJob: jest.fn(),
+    getJobStats: jest.fn(),
+  },
+}));
 
-// Mock Job model
-const Job = {
-  create: jest.fn(),
-  findOne: jest.fn(),
-  find: jest.fn(),
-  findOneAndUpdate: jest.fn(),
-  findOneAndDelete: jest.fn(),
-  countDocuments: jest.fn(),
-  aggregate: jest.fn(),
-};
+const { jobService } = require('../../services');
 
-// Setup dbService mock to return our mocked Job model
-dbService.getModel = jest.fn().mockImplementation((modelName) => {
-  if (modelName === 'Job') {
-    return Job;
-  }
-  return null;
-});
-
-const {
-  createJob,
-  deleteJob,
-  getAllJobs,
-  updateJob,
-  showStats,
-  getJob,
-} = require('../../controllers/jobs');
+const { jobsController } = require('../../controllers');
 describe('Jobs Controller', () => {
   let req, res;
 
@@ -47,14 +29,6 @@ describe('Jobs Controller', () => {
       status: jest.fn().mockReturnThis(),
       json: jest.fn().mockReturnThis(),
     };
-
-    checkPermissions.mockImplementation((reqUser, userId) => {
-      if (reqUser.userId === userId.toString()) {
-        return;
-      }
-
-      throw new Error('Not authorized to access this route');
-    });
 
     jest.clearAllMocks();
   });
@@ -71,19 +45,11 @@ describe('Jobs Controller', () => {
       };
 
       const mockJob = { _id: 'job123', ...req.body };
-      Job.create.mockResolvedValue(mockJob);
+      jobService.createJob.mockResolvedValue(mockJob);
 
-      await createJob(req, res);
+      await jobsController.createJob(req, res);
 
-      expect(Job.create).toHaveBeenCalledWith({
-        company: 'Tech Corp',
-        position: 'Software Engineer',
-        createdBy: 'user123',
-        companyWebsite: 'https://techcorp.com',
-        jobType: 'full-time',
-        jobLocation: 'Remote',
-        status: 'pending',
-      });
+      expect(jobService.createJob).toHaveBeenCalledWith(req.body, 'user123');
       expect(res.status).toHaveBeenCalledWith(201);
       expect(res.json).toHaveBeenCalledWith({ job: mockJob });
     });
@@ -100,15 +66,12 @@ describe('Jobs Controller', () => {
       };
 
       const mockJob = { _id: 'job456', ...req.body };
-      Job.create.mockResolvedValue(mockJob);
+      jobService.createJob.mockResolvedValue(mockJob);
 
-      await createJob(req, res);
+      await jobsController.createJob(req, res);
 
-      expect(Job.create).toHaveBeenCalledWith(
-        expect.objectContaining({
-          jobPostingUrl: 'https://startup.com/careers/123',
-        }),
-      );
+      expect(jobService.createJob).toHaveBeenCalledWith(req.body, 'user123');
+      expect(res.status).toHaveBeenCalledWith(201);
     });
 
     it('should create a job without optional jobPostingUrl', async () => {
@@ -122,15 +85,12 @@ describe('Jobs Controller', () => {
       };
 
       const mockJob = { _id: 'job789', ...req.body };
-      Job.create.mockResolvedValue(mockJob);
+      jobService.createJob.mockResolvedValue(mockJob);
 
-      await createJob(req, res);
+      await jobsController.createJob(req, res);
 
-      expect(Job.create).toHaveBeenCalledWith(
-        expect.not.objectContaining({
-          jobPostingUrl: expect.anything(),
-        }),
-      );
+      expect(jobService.createJob).toHaveBeenCalledWith(req.body, 'user123');
+      expect(res.status).toHaveBeenCalledWith(201);
     });
   });
 
@@ -141,248 +101,227 @@ describe('Jobs Controller', () => {
     ];
 
     beforeEach(() => {
-      req.query = { page: 1, limit: 10 };
+      req.query = { page: 1, limit: 10, sort: 'newest' };
     });
 
     it('should return all jobs with default pagination', async () => {
-      Job.countDocuments.mockResolvedValue(2);
-      Job.find.mockReturnValue({
-        sort: jest.fn().mockReturnThis(),
-        skip: jest.fn().mockReturnThis(),
-        limit: jest.fn().mockResolvedValue(mockJobs),
-      });
-
-      await getAllJobs(req, res);
-
-      expect(Job.countDocuments).toHaveBeenCalledWith({ createdBy: 'user123' });
-      expect(res.json).toHaveBeenCalledWith({
+      const mockResult = {
         jobs: mockJobs,
         page: 1,
         numOfPages: 1,
         totalJobs: 2,
-      });
+      };
+
+      jobService.getAllJobs.mockResolvedValue(mockResult);
+
+      await jobsController.getAllJobs(req, res);
+
+      expect(jobService.getAllJobs).toHaveBeenCalledWith('user123', req.query);
+      expect(res.json).toHaveBeenCalledWith(mockResult);
     });
 
     it('should filter jobs by status', async () => {
-      req.query = { status: 'interview', page: 1, limit: 10 };
+      req.query = { status: 'interview', page: 1, limit: 10, sort: 'newest' };
 
-      Job.countDocuments.mockResolvedValue(1);
-      Job.find.mockReturnValue({
-        sort: jest.fn().mockReturnThis(),
-        skip: jest.fn().mockReturnThis(),
-        limit: jest.fn().mockResolvedValue([mockJobs[0]]),
-      });
+      const mockResult = {
+        jobs: [mockJobs[0]],
+        page: 1,
+        numOfPages: 1,
+        totalJobs: 1,
+      };
 
-      await getAllJobs(req, res);
+      jobService.getAllJobs.mockResolvedValue(mockResult);
 
-      expect(Job.find).toHaveBeenCalledWith(
-        expect.objectContaining({
-          status: 'interview',
-        }),
-      );
+      await jobsController.getAllJobs(req, res);
+
+      expect(jobService.getAllJobs).toHaveBeenCalledWith('user123', req.query);
     });
 
     it('should filter jobs by jobType', async () => {
-      req.query = { jobType: 'full-time', page: 1, limit: 10 };
+      req.query = { jobType: 'full-time', page: 1, limit: 10, sort: 'newest' };
 
-      Job.countDocuments.mockResolvedValue(1);
-      Job.find.mockReturnValue({
-        sort: jest.fn().mockReturnThis(),
-        skip: jest.fn().mockReturnThis(),
-        limit: jest.fn().mockResolvedValue([mockJobs[0]]),
-      });
+      const mockResult = {
+        jobs: [mockJobs[0]],
+        page: 1,
+        numOfPages: 1,
+        totalJobs: 1,
+      };
 
-      await getAllJobs(req, res);
+      jobService.getAllJobs.mockResolvedValue(mockResult);
 
-      expect(Job.find).toHaveBeenCalledWith(
-        expect.objectContaining({
-          jobType: 'full-time',
-        }),
-      );
+      await jobsController.getAllJobs(req, res);
+
+      expect(jobService.getAllJobs).toHaveBeenCalledWith('user123', req.query);
     });
 
     it('should search jobs by position', async () => {
-      req.query = { search: 'engineer', page: 1, limit: 10 };
+      req.query = { search: 'engineer', page: 1, limit: 10, sort: 'newest' };
 
-      Job.countDocuments.mockResolvedValue(1);
-      Job.find.mockReturnValue({
-        sort: jest.fn().mockReturnThis(),
-        skip: jest.fn().mockReturnThis(),
-        limit: jest.fn().mockResolvedValue([mockJobs[0]]),
-      });
+      const mockResult = {
+        jobs: [mockJobs[0]],
+        page: 1,
+        numOfPages: 1,
+        totalJobs: 1,
+      };
 
-      await getAllJobs(req, res);
+      jobService.getAllJobs.mockResolvedValue(mockResult);
 
-      expect(Job.find).toHaveBeenCalledWith(
-        expect.objectContaining({
-          $or: [
-            { position: { $regex: 'engineer', $options: 'i' } },
-            { company: { $regex: 'engineer', $options: 'i' } },
-          ],
-        }),
-      );
+      await jobsController.getAllJobs(req, res);
+
+      expect(jobService.getAllJobs).toHaveBeenCalledWith('user123', req.query);
     });
 
     it('should sort jobs by newest (default)', async () => {
-      req.query = { page: 1, limit: 10 };
+      req.query = { page: 1, limit: 10, sort: 'newest' };
 
-      Job.countDocuments.mockResolvedValue(2);
-      const mockSort = jest.fn().mockReturnThis();
-      Job.find.mockReturnValue({
-        sort: mockSort,
-        skip: jest.fn().mockReturnThis(),
-        limit: jest.fn().mockResolvedValue(mockJobs),
-      });
+      const mockResult = {
+        jobs: mockJobs,
+        page: 1,
+        numOfPages: 1,
+        totalJobs: 2,
+      };
 
-      await getAllJobs(req, res);
+      jobService.getAllJobs.mockResolvedValue(mockResult);
 
-      expect(mockSort).toHaveBeenCalledWith('-createdAt');
+      await jobsController.getAllJobs(req, res);
+
+      expect(jobService.getAllJobs).toHaveBeenCalledWith('user123', req.query);
     });
 
     it('should sort jobs by oldest', async () => {
       req.query = { sort: 'oldest', page: 1, limit: 10 };
 
-      Job.countDocuments.mockResolvedValue(2);
-      const mockSort = jest.fn().mockReturnThis();
-      Job.find.mockReturnValue({
-        sort: mockSort,
-        skip: jest.fn().mockReturnThis(),
-        limit: jest.fn().mockResolvedValue(mockJobs),
-      });
+      const mockResult = {
+        jobs: mockJobs,
+        page: 1,
+        numOfPages: 1,
+        totalJobs: 2,
+      };
 
-      await getAllJobs(req, res);
+      jobService.getAllJobs.mockResolvedValue(mockResult);
 
-      expect(mockSort).toHaveBeenCalledWith('createdAt');
+      await jobsController.getAllJobs(req, res);
+
+      expect(jobService.getAllJobs).toHaveBeenCalledWith('user123', req.query);
     });
 
     it('should sort jobs alphabetically (a-z)', async () => {
       req.query = { sort: 'a-z', page: 1, limit: 10 };
 
-      Job.countDocuments.mockResolvedValue(2);
-      const mockSort = jest.fn().mockReturnThis();
-      Job.find.mockReturnValue({
-        sort: mockSort,
-        skip: jest.fn().mockReturnThis(),
-        limit: jest.fn().mockResolvedValue(mockJobs),
-      });
+      const mockResult = {
+        jobs: mockJobs,
+        page: 1,
+        numOfPages: 1,
+        totalJobs: 2,
+      };
 
-      await getAllJobs(req, res);
+      jobService.getAllJobs.mockResolvedValue(mockResult);
 
-      expect(mockSort).toHaveBeenCalledWith('position');
+      await jobsController.getAllJobs(req, res);
+
+      expect(jobService.getAllJobs).toHaveBeenCalledWith('user123', req.query);
     });
 
     it('should sort jobs reverse alphabetically (z-a)', async () => {
       req.query = { sort: 'z-a', page: 1, limit: 10 };
 
-      Job.countDocuments.mockResolvedValue(2);
-      const mockSort = jest.fn().mockReturnThis();
-      Job.find.mockReturnValue({
-        sort: mockSort,
-        skip: jest.fn().mockReturnThis(),
-        limit: jest.fn().mockResolvedValue(mockJobs),
-      });
+      const mockResult = {
+        jobs: mockJobs,
+        page: 1,
+        numOfPages: 1,
+        totalJobs: 2,
+      };
 
-      await getAllJobs(req, res);
+      jobService.getAllJobs.mockResolvedValue(mockResult);
 
-      expect(mockSort).toHaveBeenCalledWith('-position');
+      await jobsController.getAllJobs(req, res);
+
+      expect(jobService.getAllJobs).toHaveBeenCalledWith('user123', req.query);
     });
 
     it('should handle pagination correctly', async () => {
-      req.query = { page: 2, limit: 5 };
+      req.query = { page: 2, limit: 5, sort: 'newest' };
 
-      Job.countDocuments.mockResolvedValue(12);
-      const mockSkip = jest.fn().mockReturnThis();
-      const mockLimit = jest.fn().mockResolvedValue(mockJobs);
-      Job.find.mockReturnValue({
-        sort: jest.fn().mockReturnThis(),
-        skip: mockSkip,
-        limit: mockLimit,
-      });
-
-      await getAllJobs(req, res);
-
-      expect(mockSkip).toHaveBeenCalledWith(5);
-      expect(mockLimit).toHaveBeenCalledWith(5);
-      expect(res.json).toHaveBeenCalledWith({
+      const mockResult = {
         jobs: mockJobs,
         page: 2,
         numOfPages: 3,
         totalJobs: 12,
-      });
+      };
+
+      jobService.getAllJobs.mockResolvedValue(mockResult);
+
+      await jobsController.getAllJobs(req, res);
+
+      expect(jobService.getAllJobs).toHaveBeenCalledWith('user123', req.query);
+      expect(res.json).toHaveBeenCalledWith(mockResult);
     });
 
     it('should return empty array when no jobs exist', async () => {
-      req.query = { page: 1, limit: 10 };
+      req.query = { page: 1, limit: 10, sort: 'newest' };
 
-      Job.countDocuments.mockResolvedValue(0);
-
-      await getAllJobs(req, res);
-
-      expect(res.json).toHaveBeenCalledWith({
+      const mockResult = {
         jobs: [],
         page: 1,
         numOfPages: 0,
         totalJobs: 0,
-      });
-      expect(Job.find).not.toHaveBeenCalled();
+      };
+
+      jobService.getAllJobs.mockResolvedValue(mockResult);
+
+      await jobsController.getAllJobs(req, res);
+
+      expect(res.json).toHaveBeenCalledWith(mockResult);
     });
 
     it('should throw BadRequestError when page is out of range', async () => {
-      req.query = { page: 5, limit: 10 };
+      req.query = { page: 5, limit: 10, sort: 'newest' };
 
-      Job.countDocuments.mockResolvedValue(10);
+      jobService.getAllJobs.mockRejectedValue(new BadRequestError('Requested page does not exist'));
 
-      await expect(getAllJobs(req, res)).rejects.toThrow(BadRequestError);
-      await expect(getAllJobs(req, res)).rejects.toThrow('Requested page does not exist');
+      await expect(jobsController.getAllJobs(req, res)).rejects.toThrow(BadRequestError);
+      await expect(jobsController.getAllJobs(req, res)).rejects.toThrow(
+        'Requested page does not exist',
+      );
     });
 
     it('should ignore status filter when set to "all"', async () => {
-      req.query = { status: 'all', page: 1, limit: 10 };
+      req.query = { status: 'all', page: 1, limit: 10, sort: 'newest' };
 
-      Job.countDocuments.mockResolvedValue(2);
-      Job.find.mockReturnValue({
-        sort: jest.fn().mockReturnThis(),
-        skip: jest.fn().mockReturnThis(),
-        limit: jest.fn().mockResolvedValue(mockJobs),
-      });
+      const mockResult = {
+        jobs: mockJobs,
+        page: 1,
+        numOfPages: 1,
+        totalJobs: 2,
+      };
 
-      await getAllJobs(req, res);
+      jobService.getAllJobs.mockResolvedValue(mockResult);
 
-      expect(Job.find).toHaveBeenCalledWith(
-        expect.not.objectContaining({
-          status: expect.anything(),
-        }),
-      );
+      await jobsController.getAllJobs(req, res);
+
+      expect(jobService.getAllJobs).toHaveBeenCalledWith('user123', req.query);
     });
 
     it('should ignore jobType filter when set to "all"', async () => {
-      req.query = { jobType: 'all', page: 1, limit: 10 };
+      req.query = { jobType: 'all', page: 1, limit: 10, sort: 'newest' };
 
-      Job.countDocuments.mockResolvedValue(2);
-      Job.find.mockReturnValue({
-        sort: jest.fn().mockReturnThis(),
-        skip: jest.fn().mockReturnThis(),
-        limit: jest.fn().mockResolvedValue(mockJobs),
-      });
+      const mockResult = {
+        jobs: mockJobs,
+        page: 1,
+        numOfPages: 1,
+        totalJobs: 2,
+      };
 
-      await getAllJobs(req, res);
+      jobService.getAllJobs.mockResolvedValue(mockResult);
 
-      expect(Job.find).toHaveBeenCalledWith(
-        expect.not.objectContaining({
-          jobType: expect.anything(),
-        }),
-      );
+      await jobsController.getAllJobs(req, res);
+
+      expect(jobService.getAllJobs).toHaveBeenCalledWith('user123', req.query);
     });
   });
 
   describe('updateJob', () => {
     const jobId = 'job123';
-    const mockJob = {
-      _id: jobId,
-      company: 'Old Corp',
-      position: 'Old Position',
-      createdBy: 'user123',
-    };
 
     beforeEach(() => {
       req.params = { id: jobId };
@@ -398,38 +337,31 @@ describe('Jobs Controller', () => {
         companyWebsite: 'https://newcorp.com',
       };
 
-      Job.findOne.mockResolvedValue(mockJob);
-      const updatedJob = { ...mockJob, ...req.body };
-      Job.findOneAndUpdate.mockResolvedValue(updatedJob);
+      const updatedJob = { _id: jobId, ...req.body, createdBy: 'user123' };
+      jobService.updateJob.mockResolvedValue(updatedJob);
 
-      await updateJob(req, res);
+      await jobsController.updateJob(req, res);
 
-      expect(checkPermissions).toHaveBeenCalledWith(req.user, mockJob.createdBy);
-      expect(Job.findOneAndUpdate).toHaveBeenCalledWith(
-        { _id: jobId },
-        expect.objectContaining({
-          company: 'New Corp',
-          position: 'New Position',
-          status: 'interview',
-        }),
-        { new: true, runValidators: true },
-      );
+      expect(jobService.updateJob).toHaveBeenCalledWith(jobId, req.body, req.user);
       expect(res.json).toHaveBeenCalledWith({ job: updatedJob });
     });
 
     it('should throw BadRequestError when no changes provided', async () => {
       req.body = {};
 
-      await expect(updateJob(req, res)).rejects.toThrow(BadRequestError);
-      await expect(updateJob(req, res)).rejects.toThrow('No changes provided');
+      jobService.updateJob.mockRejectedValue(new BadRequestError('No changes provided'));
+
+      await expect(jobsController.updateJob(req, res)).rejects.toThrow(BadRequestError);
+      await expect(jobsController.updateJob(req, res)).rejects.toThrow('No changes provided');
     });
 
     it('should throw NotFoundError when job does not exist', async () => {
       req.body = { company: 'New Corp' };
-      Job.findOne.mockResolvedValue(null);
 
-      await expect(updateJob(req, res)).rejects.toThrow(NotFoundError);
-      await expect(updateJob(req, res)).rejects.toThrow(`No job with id :${jobId}`);
+      jobService.updateJob.mockRejectedValue(new NotFoundError(`No job with id :${jobId}`));
+
+      await expect(jobsController.updateJob(req, res)).rejects.toThrow(NotFoundError);
+      await expect(jobsController.updateJob(req, res)).rejects.toThrow(`No job with id :${jobId}`);
     });
 
     it('should update job with optional jobPostingUrl', async () => {
@@ -438,18 +370,13 @@ describe('Jobs Controller', () => {
         jobPostingUrl: 'https://newcorp.com/job/123',
       };
 
-      Job.findOne.mockResolvedValue(mockJob);
-      Job.findOneAndUpdate.mockResolvedValue({ ...mockJob, ...req.body });
+      const updatedJob = { _id: jobId, ...req.body };
+      jobService.updateJob.mockResolvedValue(updatedJob);
 
-      await updateJob(req, res);
+      await jobsController.updateJob(req, res);
 
-      expect(Job.findOneAndUpdate).toHaveBeenCalledWith(
-        { _id: jobId },
-        expect.objectContaining({
-          jobPostingUrl: 'https://newcorp.com/job/123',
-        }),
-        expect.any(Object),
-      );
+      expect(jobService.updateJob).toHaveBeenCalledWith(jobId, req.body, req.user);
+      expect(res.json).toHaveBeenCalledWith({ job: updatedJob });
     });
 
     it('should clear jobPostingUrl when empty string is provided', async () => {
@@ -458,18 +385,12 @@ describe('Jobs Controller', () => {
         jobPostingUrl: '',
       };
 
-      Job.findOne.mockResolvedValue(mockJob);
-      Job.findOneAndUpdate.mockResolvedValue({ ...mockJob, ...req.body });
+      const updatedJob = { _id: jobId, ...req.body };
+      jobService.updateJob.mockResolvedValue(updatedJob);
 
-      await updateJob(req, res);
+      await jobsController.updateJob(req, res);
 
-      expect(Job.findOneAndUpdate).toHaveBeenCalledWith(
-        { _id: jobId },
-        expect.objectContaining({
-          jobPostingUrl: '',
-        }),
-        expect.any(Object),
-      );
+      expect(jobService.updateJob).toHaveBeenCalledWith(jobId, req.body, req.user);
     });
 
     it('should check permissions before updating', async () => {
@@ -480,53 +401,43 @@ describe('Jobs Controller', () => {
         user: { userId: 'user999' },
       };
 
-      Job.findOne.mockResolvedValue(mockJob);
+      jobService.updateJob.mockRejectedValue(new Error('Not authorized to access this route'));
 
-      await expect(updateJob(secondUserReq, res)).rejects.toThrow(
+      await expect(jobsController.updateJob(secondUserReq, res)).rejects.toThrow(
         'Not authorized to access this route',
       );
-      expect(Job.findOneAndUpdate).not.toHaveBeenCalled();
     });
   });
 
   describe('deleteJob', () => {
     const jobId = 'job123';
-    const mockJob = {
-      _id: jobId,
-      createdBy: 'user123',
-    };
 
     beforeEach(() => {
       req.params = { id: jobId };
     });
 
     it('should delete a job successfully', async () => {
-      Job.findOne.mockResolvedValue(mockJob);
-      Job.findOneAndDelete.mockResolvedValue(mockJob);
+      jobService.deleteJob.mockResolvedValue();
 
-      await deleteJob(req, res);
+      await jobsController.deleteJob(req, res);
 
-      expect(checkPermissions).toHaveBeenCalledWith(req.user, mockJob.createdBy);
-      expect(Job.findOneAndDelete).toHaveBeenCalledWith({ _id: jobId });
+      expect(jobService.deleteJob).toHaveBeenCalledWith(jobId, req.user);
       expect(res.json).toHaveBeenCalledWith({ msg: 'Success! Job removed' });
     });
 
     it('should throw NotFoundError when job does not exist', async () => {
-      Job.findOne.mockResolvedValue(null);
+      jobService.deleteJob.mockRejectedValue(new NotFoundError(`No job with id :${jobId}`));
 
-      await expect(deleteJob(req, res)).rejects.toThrow(NotFoundError);
-      await expect(deleteJob(req, res)).rejects.toThrow(`No job with id :${jobId}`);
+      await expect(jobsController.deleteJob(req, res)).rejects.toThrow(NotFoundError);
+      await expect(jobsController.deleteJob(req, res)).rejects.toThrow(`No job with id :${jobId}`);
     });
 
     it('should check permissions before deleting', async () => {
-      const job = {
-        ...mockJob,
-        createdBy: 'user999',
-      };
+      jobService.deleteJob.mockRejectedValue(new Error('Not authorized to access this route'));
 
-      Job.findOne.mockResolvedValue(job);
-      await expect(deleteJob(req, res)).rejects.toThrow('Not authorized to access this route');
-      expect(Job.findOneAndDelete).not.toHaveBeenCalled();
+      await expect(jobsController.deleteJob(req, res)).rejects.toThrow(
+        'Not authorized to access this route',
+      );
     });
   });
 
@@ -535,32 +446,10 @@ describe('Jobs Controller', () => {
 
     beforeEach(() => {
       req.user = { userId };
-      jest.spyOn(mongoose.Types.ObjectId, 'createFromHexString').mockReturnValue(userId);
-      const now = new Date('2024-01-15');
-      jest.spyOn(Date, 'now').mockReturnValue(now.getTime());
-    });
-
-    afterEach(() => {
-      jest.restoreAllMocks();
     });
 
     it('should return job statistics and monthly applications', async () => {
-      const mockStats = [
-        { _id: 'pending', count: 5 },
-        { _id: 'interview', count: 3 },
-        { _id: 'declined', count: 2 },
-      ];
-
-      const mockMonthlyApplications = [
-        { _id: { year: 2024, month: 1 }, count: 8 },
-        { _id: { year: 2023, month: 12 }, count: 5 },
-      ];
-
-      Job.aggregate.mockResolvedValueOnce(mockStats).mockResolvedValueOnce(mockMonthlyApplications);
-
-      await showStats(req, res);
-
-      expect(res.json).toHaveBeenCalledWith({
+      const mockStats = {
         defaultStats: {
           pending: 5,
           interview: 3,
@@ -568,23 +457,24 @@ describe('Jobs Controller', () => {
           accepted: 0,
           declined: 2,
         },
-        monthlyApplications: expect.arrayContaining([
-          expect.objectContaining({
-            date: expect.any(String),
-            count: expect.any(Number),
-          }),
-        ]),
-      });
+        monthlyApplications: [
+          { date: '2024-08', count: 3 },
+          { date: '2024-09', count: 5 },
+          { date: '2024-10', count: 4 },
+          { date: '2024-11', count: 1 },
+        ],
+      };
 
-      // global.Date.mockRestore();
+      jobService.getJobStats.mockResolvedValue(mockStats);
+
+      await jobsController.showStats(req, res);
+
+      expect(jobService.getJobStats).toHaveBeenCalledWith(userId);
+      expect(res.json).toHaveBeenCalledWith(mockStats);
     });
 
     it('should return zero stats when no jobs exist', async () => {
-      Job.aggregate.mockResolvedValueOnce([]).mockResolvedValueOnce([]);
-
-      await showStats(req, res);
-
-      expect(res.json).toHaveBeenCalledWith({
+      const mockStats = {
         defaultStats: {
           pending: 0,
           interview: 0,
@@ -593,22 +483,42 @@ describe('Jobs Controller', () => {
           declined: 0,
         },
         monthlyApplications: expect.any(Array),
-      });
+      };
+
+      jobService.getJobStats.mockResolvedValue(mockStats);
+
+      await jobsController.showStats(req, res);
+
+      expect(jobService.getJobStats).toHaveBeenCalledWith(userId);
+      expect(res.json).toHaveBeenCalledWith(mockStats);
     });
 
     it('should fill missing months with zero count', async () => {
-      const mockStats = [{ _id: 'pending', count: 1 }];
-      const mockMonthlyApplications = [{ _id: { year: 2024, month: 3 }, count: 1 }];
+      const mockStats = {
+        defaultStats: {
+          pending: 1,
+          interview: 0,
+          offered: 0,
+          accepted: 0,
+          declined: 0,
+        },
+        monthlyApplications: [
+          { date: '2024-06', count: 0 },
+          { date: '2024-07', count: 0 },
+          { date: '2024-08', count: 0 },
+          { date: '2024-09', count: 0 },
+          { date: '2024-10', count: 1 },
+          { date: '2024-11', count: 0 },
+        ],
+      };
 
-      Job.aggregate.mockResolvedValueOnce(mockStats).mockResolvedValueOnce(mockMonthlyApplications);
+      jobService.getJobStats.mockResolvedValue(mockStats);
 
-      await showStats(req, res);
+      await jobsController.showStats(req, res);
 
       const result = res.json.mock.calls[0][0];
       expect(result.monthlyApplications).toHaveLength(6);
       expect(result.monthlyApplications.some((m) => m.count === 0)).toBe(true);
-
-      // global.Date.mockRestore();
     });
   });
 
@@ -625,19 +535,19 @@ describe('Jobs Controller', () => {
     });
 
     it('should return a job by id', async () => {
-      Job.findOne.mockResolvedValue(mockJob);
+      jobService.getJobById.mockResolvedValue(mockJob);
 
-      await getJob(req, res);
+      await jobsController.getJob(req, res);
 
-      expect(Job.findOne).toHaveBeenCalledWith({ _id: jobId });
+      expect(jobService.getJobById).toHaveBeenCalledWith(jobId);
       expect(res.json).toHaveBeenCalledWith({ job: mockJob });
     });
 
     it('should throw NotFoundError when job does not exist', async () => {
-      Job.findOne.mockResolvedValue(null);
+      jobService.getJobById.mockRejectedValue(new NotFoundError(`No job with id :${jobId}`));
 
-      await expect(getJob(req, res)).rejects.toThrow(NotFoundError);
-      await expect(getJob(req, res)).rejects.toThrow(`No job with id :${jobId}`);
+      await expect(jobsController.getJob(req, res)).rejects.toThrow(NotFoundError);
+      await expect(jobsController.getJob(req, res)).rejects.toThrow(`No job with id :${jobId}`);
     });
   });
 });

@@ -1,6 +1,6 @@
 const express = require('express');
-const authController = require('../controllers/auth');
-const { UserRegisterSchema, UserLoginSchema } = require('../utils/validation');
+const { authController } = require('../controllers');
+const { UserRegisterSchema, UserLoginSchema } = require('../utils');
 const config = require('../config');
 const { validateBody, authRouteRateLimit } = require('../middleware');
 

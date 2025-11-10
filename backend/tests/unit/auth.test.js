@@ -1,28 +1,22 @@
 const { describe, beforeEach, afterEach, it, expect } = require('@jest/globals');
 
+// Mock services BEFORE requiring anything else
+jest.mock('../../services', () => ({
+  authService: {
+    registerUser: jest.fn(),
+    authenticateUser: jest.fn(),
+    formatUserResponse: jest.fn(),
+  },
+}));
+
 // Mock dependencies before importing the controller
 jest.mock('../../utils/attach-cookie.js');
-jest.mock('../../db/db-service');
 
-const dbService = require('../../db/db-service');
-const attachCookie = require('../../utils/attach-cookie.js');
+const { attachCookie } = require('../../utils');
+const { authService } = require('../../services');
 const { StatusCodes } = require('http-status-codes');
 
-// Mock User model
-const User = {
-  create: jest.fn(),
-  findOne: jest.fn(),
-};
-
-// Setup dbService mock to return our mocked User model
-dbService.getModel = jest.fn().mockImplementation((modelName) => {
-  if (modelName === 'User') {
-    return User;
-  }
-  return null;
-});
-
-const { register, login, logout } = require('../../controllers/auth');
+const { authController } = require('../../controllers');
 
 describe('Auth Controller', () => {
   let mockReq, mockRes;
@@ -54,34 +48,20 @@ describe('Auth Controller', () => {
       };
       mockReq.body = userData;
 
-      const mockUser = {
-        _id: 'user123',
+      const formattedUser = {
         email: userData.email,
         name: userData.name,
         lastName: userData.lastName,
         location: userData.location,
       };
 
-      User.findOne.mockResolvedValue(null); // No existing user
-      User.create.mockResolvedValue(mockUser);
+      authService.registerUser.mockResolvedValue(formattedUser);
 
-      await register(mockReq, mockRes);
+      await authController.register(mockReq, mockRes);
 
-      expect(User.findOne).toHaveBeenCalledWith({ email: userData.email });
-      expect(User.create).toHaveBeenCalledWith({
-        name: userData.name,
-        lastName: userData.lastName,
-        email: userData.email,
-        password: userData.password,
-        location: userData.location,
-      });
+      expect(authService.registerUser).toHaveBeenCalledWith(userData);
       expect(mockRes.status).toHaveBeenCalledWith(StatusCodes.CREATED);
-      expect(mockRes.json).toHaveBeenCalledWith({
-        email: mockUser.email,
-        lastName: mockUser.lastName,
-        location: mockUser.location,
-        name: mockUser.name,
-      });
+      expect(mockRes.json).toHaveBeenCalledWith(formattedUser);
     });
 
     it('should throw error when email already exists', async () => {
@@ -94,16 +74,12 @@ describe('Auth Controller', () => {
       };
       mockReq.body = userData;
 
-      const existingUser = {
-        _id: 'existingUser123',
-        email: userData.email,
-      };
+      authService.registerUser.mockRejectedValue(new Error('Email already in use'));
 
-      User.findOne.mockResolvedValue(existingUser); // User already exists
-
-      await expect(register(mockReq, mockRes)).rejects.toThrow('Email already in use');
-      expect(User.findOne).toHaveBeenCalledWith({ email: userData.email });
-      expect(User.create).not.toHaveBeenCalled();
+      await expect(authController.register(mockReq, mockRes)).rejects.toThrow(
+        'Email already in use',
+      );
+      expect(authService.registerUser).toHaveBeenCalledWith(userData);
       expect(mockRes.status).not.toHaveBeenCalled();
       expect(mockRes.json).not.toHaveBeenCalled();
     });
@@ -118,13 +94,11 @@ describe('Auth Controller', () => {
       };
       mockReq.body = userData;
 
-      User.findOne.mockResolvedValue(null); // No existing user
       const error = new Error('Database error');
-      User.create.mockRejectedValue(error);
+      authService.registerUser.mockRejectedValue(error);
 
-      await expect(register(mockReq, mockRes)).rejects.toThrow('Database error');
-      expect(User.findOne).toHaveBeenCalledWith({ email: userData.email });
-      expect(User.create).toHaveBeenCalledWith(userData);
+      await expect(authController.register(mockReq, mockRes)).rejects.toThrow('Database error');
+      expect(authService.registerUser).toHaveBeenCalledWith(userData);
       expect(mockRes.status).not.toHaveBeenCalled();
       expect(mockRes.json).not.toHaveBeenCalled();
     });
@@ -138,53 +112,41 @@ describe('Auth Controller', () => {
       };
       mockReq.body = loginData;
 
-      const mockUser = {
-        _id: 'user123',
-        email: loginData.email,
-        name: 'John',
-        lastName: 'Doe',
-        location: 'New York',
-        comparePassword: jest.fn().mockResolvedValue(true),
-        createJWT: jest.fn().mockReturnValue('mock-jwt-token'),
+      const mockAuthResult = {
+        user: {
+          email: loginData.email,
+          name: 'John',
+          lastName: 'Doe',
+          location: 'New York',
+        },
+        token: 'mock-jwt-token',
       };
 
-      User.findOne.mockReturnValue({
-        select: jest.fn().mockResolvedValue(mockUser),
-      });
+      authService.authenticateUser.mockResolvedValue(mockAuthResult);
 
-      await login(mockReq, mockRes);
+      await authController.login(mockReq, mockRes);
 
-      expect(User.findOne).toHaveBeenCalledWith({ email: loginData.email });
-      expect(User.findOne().select).toHaveBeenCalledWith('+password');
-      expect(mockUser.comparePassword).toHaveBeenCalledWith(loginData.password);
-      expect(mockUser.createJWT).toHaveBeenCalled();
+      expect(authService.authenticateUser).toHaveBeenCalledWith(loginData);
       expect(attachCookie).toHaveBeenCalledWith({
         res: mockRes,
         token: 'mock-jwt-token',
       });
       expect(mockRes.status).toHaveBeenCalledWith(StatusCodes.OK);
-      expect(mockRes.json).toHaveBeenCalledWith({
-        email: mockUser.email,
-        lastName: mockUser.lastName,
-        location: mockUser.location,
-        name: mockUser.name,
-      });
+      expect(mockRes.json).toHaveBeenCalledWith(mockAuthResult.user);
     });
 
     it('should throw error when user not found', async () => {
       const loginData = {
         email: 'nonexistent@example.com',
-        password: 'TestPass123',
+        password: 'password123',
       };
       mockReq.body = loginData;
 
-      User.findOne.mockReturnValue({
-        select: jest.fn().mockResolvedValue(null),
-      });
+      authService.authenticateUser.mockRejectedValue(new Error('Invalid Credentials'));
 
-      await expect(login(mockReq, mockRes)).rejects.toThrow('Invalid Credentials');
-      expect(User.findOne).toHaveBeenCalledWith({ email: loginData.email });
-      expect(User.findOne().select).toHaveBeenCalledWith('+password');
+      await expect(authController.login(mockReq, mockRes)).rejects.toThrow('Invalid Credentials');
+      expect(authService.authenticateUser).toHaveBeenCalledWith(loginData);
+      expect(attachCookie).not.toHaveBeenCalled();
     });
 
     it('should throw error when password is incorrect', async () => {
@@ -194,46 +156,30 @@ describe('Auth Controller', () => {
       };
       mockReq.body = loginData;
 
-      const mockUser = {
-        _id: 'user123',
-        email: loginData.email,
-        comparePassword: jest.fn().mockResolvedValue(false),
-      };
+      authService.authenticateUser.mockRejectedValue(new Error('Invalid Credentials'));
 
-      User.findOne.mockReturnValue({
-        select: jest.fn().mockResolvedValue(mockUser),
-      });
-
-      await expect(login(mockReq, mockRes)).rejects.toThrow('Invalid Credentials');
-      expect(User.findOne).toHaveBeenCalledWith({ email: loginData.email });
-      expect(mockUser.comparePassword).toHaveBeenCalledWith(loginData.password);
+      await expect(authController.login(mockReq, mockRes)).rejects.toThrow('Invalid Credentials');
+      expect(authService.authenticateUser).toHaveBeenCalledWith(loginData);
+      expect(attachCookie).not.toHaveBeenCalled();
     });
 
-    it('should not call attachCookie or createJWT when authentication fails', async () => {
+    it('should not call attachCookie when authentication fails', async () => {
       const loginData = {
         email: 'test@example.com',
         password: 'wrongpassword',
       };
       mockReq.body = loginData;
 
-      const mockUser = {
-        comparePassword: jest.fn().mockResolvedValue(false),
-        createJWT: jest.fn(),
-      };
+      authService.authenticateUser.mockRejectedValue(new Error('Invalid Credentials'));
 
-      User.findOne.mockReturnValue({
-        select: jest.fn().mockResolvedValue(mockUser),
-      });
-
-      await expect(login(mockReq, mockRes)).rejects.toThrow('Invalid Credentials');
-      expect(mockUser.createJWT).not.toHaveBeenCalled();
+      await expect(authController.login(mockReq, mockRes)).rejects.toThrow('Invalid Credentials');
       expect(attachCookie).not.toHaveBeenCalled();
     });
   });
 
   describe('logout', () => {
     it('should logout user successfully', async () => {
-      await logout(mockReq, mockRes);
+      await authController.logout(mockReq, mockRes);
 
       expect(mockRes.cookie).toHaveBeenCalledWith('token', 'logout', {
         httpOnly: true,
@@ -246,7 +192,7 @@ describe('Auth Controller', () => {
     it('should set logout cookie with expiration in the past', async () => {
       const beforeLogout = Date.now();
 
-      await logout(mockReq, mockRes);
+      await authController.logout(mockReq, mockRes);
 
       const cookieCall = mockRes.cookie.mock.calls[0];
       const expirationDate = cookieCall[2].expires;

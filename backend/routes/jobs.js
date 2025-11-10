@@ -1,12 +1,5 @@
 const express = require('express');
-const {
-  createJob,
-  deleteJob,
-  getAllJobs,
-  updateJob,
-  showStats,
-  getJob,
-} = require('../controllers/jobs');
+const { jobsController } = require('../controllers');
 const {
   JobSearchQuerySchema,
   JobCreateSchema,
@@ -20,16 +13,16 @@ const router = express.Router();
 
 router
   .route('/')
-  .post(validateBody(JobCreateSchema), createJob)
-  .get(validateQuery(JobSearchQuerySchema), getAllJobs);
+  .post(validateBody(JobCreateSchema), jobsController.createJob)
+  .get(validateQuery(JobSearchQuerySchema), jobsController.getAllJobs);
 
-router.route('/stats').get(showStats);
+router.route('/stats').get(jobsController.showStats);
 
 router
   .route('/:id')
   .all(validateParams(z.object({ id: MongooseObjectIdSchema })))
-  .get(getJob)
-  .patch(validateBody(JobUpdateSchema), updateJob)
-  .delete(deleteJob);
+  .get(jobsController.getJob)
+  .patch(validateBody(JobUpdateSchema), jobsController.updateJob)
+  .delete(jobsController.deleteJob);
 
 module.exports = router;

@@ -1,55 +1,29 @@
 const { StatusCodes } = require('http-status-codes');
-const { BadRequestError, UnauthenticatedError } = require('../errors/index.js');
 const { attachCookie } = require('../utils');
+const { authService } = require('../services');
 
-const dbService = require('../db/db-service');
-const User = dbService.getModel('User');
-
-// Helper functions
-const formatUserResponse = (user) => ({
-  email: user.email,
-  lastName: user.lastName,
-  location: user.location,
-  name: user.name,
-});
-
-// Main controller functions
+/**
+ * Register a new user
+ */
 const register = async (req, res) => {
-  const { name, lastName, email, password, location } = req.body;
-
-  const userAlreadyExists = await User.findOne({ email });
-
-  if (userAlreadyExists) {
-    throw new BadRequestError('Email already in use');
-  }
-
-  const user = await User.create({ name, lastName, email, password, location });
-
-  res.status(StatusCodes.CREATED).json(formatUserResponse(user));
+  const user = await authService.registerUser(req.body);
+  res.status(StatusCodes.CREATED).json(user);
 };
 
+/**
+ * Login user and set authentication cookie
+ */
 const login = async (req, res) => {
-  const { email, password } = req.body;
-
-  const user = await User.findOne({ email }).select('+password');
-
-  if (!user) {
-    throw new UnauthenticatedError('Invalid Credentials');
-  }
-
-  const isPasswordCorrect = await user.comparePassword(password);
-
-  if (!isPasswordCorrect) {
-    throw new UnauthenticatedError('Invalid Credentials');
-  }
-
-  const token = user.createJWT();
+  const { user, token } = await authService.authenticateUser(req.body);
 
   attachCookie({ res, token });
 
-  res.status(StatusCodes.OK).json(formatUserResponse(user));
+  res.status(StatusCodes.OK).json(user);
 };
 
+/**
+ * Logout user by clearing authentication cookie
+ */
 const logout = (req, res) => {
   const oneSec = 1000;
   res.cookie('token', 'logout', {

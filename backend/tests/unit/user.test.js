@@ -21,7 +21,7 @@ dbService.getModel = jest.fn().mockImplementation((modelName) => {
   return null;
 });
 
-const { getCurrentUser, updateUser } = require('../../controllers/user');
+const { userController } = require('../../controllers');
 
 describe('User Controller', () => {
   let mockReq, mockRes;
@@ -50,7 +50,7 @@ describe('User Controller', () => {
 
   describe('getCurrentUser', () => {
     it('should return current user successfully', async () => {
-      await getCurrentUser(mockReq, mockRes);
+      userController.getCurrentUser(mockReq, mockRes);
       expect(mockRes.status).toHaveBeenCalledWith(StatusCodes.OK);
       expect(mockRes.json).toHaveBeenCalledWith({
         email: mockReq.user.email,
@@ -78,7 +78,7 @@ describe('User Controller', () => {
 
       User.findOneAndUpdate.mockResolvedValue(updatedUser);
 
-      await updateUser(mockReq, mockRes);
+      await userController.updateUser(mockReq, mockRes);
 
       expect(User.findOneAndUpdate).toHaveBeenCalledWith({ _id: mockReq.user.userId }, updateData, {
         new: true,
@@ -96,7 +96,9 @@ describe('User Controller', () => {
     it('should throw an error when no changes provided', async () => {
       mockReq.body = {};
 
-      await expect(updateUser(mockReq, mockRes)).rejects.toThrow('No changes provided');
+      await expect(userController.updateUser(mockReq, mockRes)).rejects.toThrow(
+        'No changes provided',
+      );
     });
 
     it('should handle update validation errors', async () => {
@@ -104,7 +106,9 @@ describe('User Controller', () => {
       const error = new Error('Validation failed');
       User.findOneAndUpdate.mockRejectedValue(error);
 
-      await expect(updateUser(mockReq, mockRes)).rejects.toThrow('Validation failed');
+      await expect(userController.updateUser(mockReq, mockRes)).rejects.toThrow(
+        'Validation failed',
+      );
     });
   });
 });

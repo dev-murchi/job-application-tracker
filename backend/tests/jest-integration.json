@@ -2,12 +2,15 @@
   "testEnvironment": "node",
   "collectCoverageFrom": [
     "controllers/**/*.js",
+    "services/**/*.js",
     "middleware/**/*.js",
+    "routes/**/*.js",
     "!middleware/rate-limiter.js",
     "utils/**/*.js",
     "!utils/logger.js",
     "!**/node_modules/**",
-    "!**/tests/**"
+    "!**/tests/**",
+    "!**/coverage/**"
   ],
   "coverageDirectory": "coverage/integration",
   "coverageReporters": ["text", "lcov", "html"],
