@@ -1,17 +1,8 @@
 const { BadRequestError, UnauthenticatedError } = require('../errors');
 const dbService = require('../db/db-service');
+const { formatUserResponse } = require('./formatters');
 
 const User = dbService.getModel('User');
-
-/**
- * Format user data for response (exclude sensitive fields)
- */
-const formatUserResponse = (user) => ({
-  email: user.email,
-  lastName: user.lastName,
-  location: user.location,
-  name: user.name,
-});
 
 /**
  * Register a new user

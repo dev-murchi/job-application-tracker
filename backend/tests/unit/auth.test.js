@@ -5,7 +5,6 @@ jest.mock('../../services', () => ({
   authService: {
     registerUser: jest.fn(),
     authenticateUser: jest.fn(),
-    formatUserResponse: jest.fn(),
   },
 }));
 
