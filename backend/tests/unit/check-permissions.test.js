@@ -1,6 +1,6 @@
 const { describe, it, expect } = require('@jest/globals');
 
-const checkPermissions = require('../../utils/check-permissions');
+const { checkPermissions } = require('../../utils');
 const { UnauthorizedError } = require('../../errors');
 
 describe('checkPermissions', () => {

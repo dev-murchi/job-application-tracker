@@ -13,10 +13,7 @@ const cors = require('cors');
 const mongoSanitize = require('express-mongo-sanitize');
 
 // Custom middleware imports
-const { appLevelRateLimit } = require('./middleware/rate-limiter');
-const authenticateUser = require('./middleware/auth');
-const notFoundMiddleware = require('./middleware/not-found');
-const errorHandlerMiddleware = require('./middleware/error-handler');
+const { appLevelRateLimit, authenticateUser, notFound, errorHandler } = require('./middleware');
 
 // Route imports
 const authRouter = require('./routes/auth');
@@ -24,8 +21,7 @@ const userRouter = require('./routes/user');
 const jobsRouter = require('./routes/jobs');
 
 // Utilities
-const logger = require('./utils/logger');
-const sanitizeData = require('./utils/sanitize');
+const { logger, sanitizeData } = require('./utils');
 const { StatusCodes } = require('http-status-codes');
 
 // Initialize express app
@@ -118,10 +114,10 @@ app.use('/api/v1/users', authenticateUser, userRouter);
 app.use('/api/v1/jobs', authenticateUser, jobsRouter);
 
 // 404 handler
-app.use(notFoundMiddleware);
+app.use(notFound);
 
 // Error handler (must be last)
-app.use(errorHandlerMiddleware);
+app.use(errorHandler);
 
 module.exports = {
   app,

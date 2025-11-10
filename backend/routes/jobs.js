@@ -12,8 +12,8 @@ const {
   JobCreateSchema,
   JobUpdateSchema,
   MongooseObjectIdSchema,
-} = require('../utils/validation');
-const { validateQuery, validateBody, validateParams } = require('../middleware/validator');
+} = require('../utils');
+const { validateQuery, validateBody, validateParams } = require('../middleware');
 const z = require('zod');
 
 const router = express.Router();

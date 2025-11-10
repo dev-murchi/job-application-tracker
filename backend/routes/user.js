@@ -1,7 +1,7 @@
 const express = require('express');
 const userController = require('../controllers/user');
-const { UserUpdateSchema } = require('../utils/validation');
-const { validateBody } = require('../middleware/validator');
+const { UserUpdateSchema } = require('../utils');
+const { validateBody } = require('../middleware');
 
 const router = express.Router();
 router.get('/profile', userController.getCurrentUser);

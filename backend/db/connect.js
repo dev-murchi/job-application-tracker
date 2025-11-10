@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const logger = require('../utils/logger');
+const { logger } = require('../utils');
 
 // Constants for configuration (avoid magic numbers)
 const POOL_MAX_PROD = 50;

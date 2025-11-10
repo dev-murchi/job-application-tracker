@@ -1,4 +1,4 @@
-const errorHandlerMiddleware = require('../../middleware/error-handler');
+const { errorHandler } = require('../../middleware');
 const logger = require('../../utils/logger');
 const config = require('../../config');
 const { StatusCodes } = require('http-status-codes');
@@ -26,7 +26,7 @@ describe('Error Handler Middleware', () => {
   it('should handle generic errors with default status code', () => {
     const error = new Error('Something went wrong');
 
-    errorHandlerMiddleware(error, req, res, next);
+    errorHandler(error, req, res, next);
 
     expect(logger.error).toHaveBeenCalledWith(
       'Error occurred:',
@@ -48,7 +48,7 @@ describe('Error Handler Middleware', () => {
     const error = new Error('Bad request');
     error.statusCode = StatusCodes.BAD_REQUEST;
 
-    errorHandlerMiddleware(error, req, res, next);
+    errorHandler(error, req, res, next);
 
     expect(res.status).toHaveBeenCalledWith(StatusCodes.BAD_REQUEST);
     expect(res.json).toHaveBeenCalledWith({
@@ -67,7 +67,7 @@ describe('Error Handler Middleware', () => {
       },
     };
 
-    errorHandlerMiddleware(error, req, res, next);
+    errorHandler(error, req, res, next);
 
     expect(res.status).toHaveBeenCalledWith(StatusCodes.BAD_REQUEST);
     expect(res.json).toHaveBeenCalledWith({
@@ -83,7 +83,7 @@ describe('Error Handler Middleware', () => {
       keyValue: { email: 'test@test.com' },
     };
 
-    errorHandlerMiddleware(error, req, res, next);
+    errorHandler(error, req, res, next);
 
     expect(res.status).toHaveBeenCalledWith(StatusCodes.BAD_REQUEST);
     expect(res.json).toHaveBeenCalledWith({
@@ -99,7 +99,7 @@ describe('Error Handler Middleware', () => {
       value: 'invalid-id-123',
     };
 
-    errorHandlerMiddleware(error, req, res, next);
+    errorHandler(error, req, res, next);
 
     expect(res.status).toHaveBeenCalledWith(StatusCodes.NOT_FOUND);
     expect(res.json).toHaveBeenCalledWith({
@@ -115,7 +115,7 @@ describe('Error Handler Middleware', () => {
       message: 'jwt malformed',
     };
 
-    errorHandlerMiddleware(error, req, res, next);
+    errorHandler(error, req, res, next);
 
     expect(res.status).toHaveBeenCalledWith(StatusCodes.UNAUTHORIZED);
     expect(res.json).toHaveBeenCalledWith({
@@ -131,7 +131,7 @@ describe('Error Handler Middleware', () => {
       message: 'jwt expired',
     };
 
-    errorHandlerMiddleware(error, req, res, next);
+    errorHandler(error, req, res, next);
 
     expect(res.status).toHaveBeenCalledWith(StatusCodes.UNAUTHORIZED);
     expect(res.json).toHaveBeenCalledWith({
@@ -150,7 +150,7 @@ describe('Error Handler Middleware', () => {
       ],
     };
 
-    errorHandlerMiddleware(error, req, res, next);
+    errorHandler(error, req, res, next);
 
     expect(res.status).toHaveBeenCalledWith(StatusCodes.BAD_REQUEST);
     expect(res.json).toHaveBeenCalledWith({
@@ -164,7 +164,7 @@ describe('Error Handler Middleware', () => {
     delete req.user;
     const error = new Error('Test error');
 
-    errorHandlerMiddleware(error, req, res, next);
+    errorHandler(error, req, res, next);
 
     expect(logger.error).toHaveBeenCalledWith(
       'Error occurred:',
@@ -179,7 +179,7 @@ describe('Error Handler Middleware', () => {
     const error = new Error('Database connection failed');
     error.statusCode = StatusCodes.INTERNAL_SERVER_ERROR;
 
-    errorHandlerMiddleware(error, req, res, next);
+    errorHandler(error, req, res, next);
 
     expect(res.json).toHaveBeenCalledWith({
       success: false,
@@ -193,7 +193,7 @@ describe('Error Handler Middleware', () => {
     const error = new Error('Invalid input');
     error.statusCode = StatusCodes.BAD_REQUEST;
 
-    errorHandlerMiddleware(error, req, res, next);
+    errorHandler(error, req, res, next);
 
     expect(res.json).toHaveBeenCalledWith({
       success: false,
@@ -206,7 +206,7 @@ describe('Error Handler Middleware', () => {
     const error = new Error('Test error');
     error.stack = 'Error: Test error\n    at Object.<anonymous>';
 
-    errorHandlerMiddleware(error, req, res, next);
+    errorHandler(error, req, res, next);
 
     expect(logger.error).toHaveBeenCalledWith(
       'Error occurred:',

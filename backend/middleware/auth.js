@@ -1,9 +1,9 @@
 const jwt = require('jsonwebtoken');
 const { UnauthenticatedError } = require('../errors');
 const config = require('../config');
-const { MongooseObjectIdSchema } = require('../utils/validation');
+const { MongooseObjectIdSchema } = require('../utils');
 const dbService = require('../db/db-service');
-const logger = require('../utils/logger');
+const { logger } = require('../utils');
 
 const authenticateUser = async (req, res, next) => {
   const token = req.cookies.token;

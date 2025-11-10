@@ -1,6 +1,6 @@
 const sanitizeData = require('../../utils/sanitize');
 const sanitizeHtml = require('sanitize-html');
-const logger = require('../../utils/logger');
+const { logger } = require('../../utils');
 
 jest.mock('sanitize-html');
 

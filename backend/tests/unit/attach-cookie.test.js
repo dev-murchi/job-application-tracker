@@ -1,7 +1,7 @@
 const { describe, beforeEach, afterEach, it, expect } = require('@jest/globals');
 
 const config = require('../../config');
-const attachCookie = require('../../utils/attach-cookie');
+const { attachCookie } = require('../../utils');
 
 describe('attachCookie', () => {
   let mockRes;

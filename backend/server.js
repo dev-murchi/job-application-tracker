@@ -1,5 +1,5 @@
 const config = require('./config');
-const logger = require('./utils/logger');
+const { logger } = require('./utils');
 const mongoose = require('mongoose');
 const createConnectionManager = require('./db/connect');
 const dbService = require('./db/db-service');

@@ -2,12 +2,11 @@ const express = require('express');
 const authController = require('../controllers/auth');
 const { UserRegisterSchema, UserLoginSchema } = require('../utils/validation');
 const config = require('../config');
-const { validateBody } = require('../middleware/validator');
+const { validateBody, authRouteRateLimit } = require('../middleware');
 
 const router = express.Router();
 
 if (config.isProduction) {
-  const { authRouteRateLimit } = require('../middleware/rate-limiter');
   router.use(authRouteRateLimit);
 }
 

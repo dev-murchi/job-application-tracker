@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const authenticateUser = require('../../middleware/auth');
+const { authenticateUser } = require('../../middleware');
 const { UnauthenticatedError } = require('../../errors');
 const config = require('../../config');
 const dbService = require('../../db/db-service');

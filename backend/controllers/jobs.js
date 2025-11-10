@@ -1,6 +1,6 @@
 const { StatusCodes } = require('http-status-codes');
 const { BadRequestError, NotFoundError } = require('../errors/index.js');
-const checkPermissions = require('../utils/check-permissions.js');
+const { checkPermissions } = require('../utils');
 const mongoose = require('mongoose');
 const { format } = require('date-fns');
 

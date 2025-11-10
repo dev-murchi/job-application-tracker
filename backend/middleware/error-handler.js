@@ -1,6 +1,6 @@
 const { StatusCodes } = require('http-status-codes');
 const config = require('../config');
-const logger = require('../utils/logger');
+const { logger } = require('../utils');
 
 const MONGO_DUPLICATE_KEY_ERROR_CODE = 11000;
 
