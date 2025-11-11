@@ -1,9 +1,11 @@
-const authService = require('./auth.service');
-const jobService = require('./job.service');
-const userService = require('./user.service');
+const { createAuthService } = require('./auth.service');
+const { createJobService } = require('./job.service');
+const { createUserService } = require('./user.service');
+const { createHealthService } = require('./health.service');
 
 module.exports = {
-  authService,
-  jobService,
-  userService,
+  createAuthService,
+  createJobService,
+  createUserService,
+  createHealthService,
 };

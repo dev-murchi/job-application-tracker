@@ -1,60 +1,70 @@
 const { BadRequestError, UnauthenticatedError } = require('../errors');
-const dbService = require('../db/db-service');
 const { formatUserResponse } = require('./formatters');
 
-const User = dbService.getModel('User');
-
 /**
- * Register a new user
- * @param {Object} userData - User registration data
- * @returns {Object} Formatted user data
- * @throws {BadRequestError} If email already exists
+ * Factory function to create auth service with injected dependencies
+ * @param {Object} dbService - Database service for accessing models
+ * @returns {Object} Auth service methods
  */
-const registerUser = async (userData) => {
-  const { name, lastName, email, password, location } = userData;
+const createAuthService = (dbService) => {
+  const User = dbService.getModel('User');
 
-  const userAlreadyExists = await User.findOne({ email });
+  /**
+   * Register a new user
+   * @param {Object} userData - User registration data
+   * @returns {Object} Formatted user data
+   * @throws {BadRequestError} If email already exists
+   */
+  const registerUser = async (userData) => {
+    const { name, lastName, email, password, location } = userData;
 
-  if (userAlreadyExists) {
-    throw new BadRequestError('Email already in use');
-  }
+    const userAlreadyExists = await User.findOne({ email });
 
-  const user = await User.create({ name, lastName, email, password, location });
+    if (userAlreadyExists) {
+      throw new BadRequestError('Email already in use');
+    }
 
-  return formatUserResponse(user);
-};
+    const user = await User.create({ name, lastName, email, password, location });
 
-/**
- * Authenticate user and generate JWT
- * @param {Object} credentials - Login credentials
- * @returns {Object} User data and JWT token
- * @throws {UnauthenticatedError} If credentials are invalid
- */
-const authenticateUser = async (credentials) => {
-  const { email, password } = credentials;
+    return formatUserResponse(user);
+  };
 
-  const user = await User.findOne({ email }).select('+password');
+  /**
+   * Authenticate user and generate JWT
+   * @param {Object} credentials - Login credentials
+   * @returns {Object} User data and JWT token
+   * @throws {UnauthenticatedError} If credentials are invalid
+   */
+  const authenticateUser = async (credentials) => {
+    const { email, password } = credentials;
 
-  if (!user) {
-    throw new UnauthenticatedError('Invalid Credentials');
-  }
+    const user = await User.findOne({ email }).select('+password');
 
-  const isPasswordCorrect = await user.comparePassword(password);
+    if (!user) {
+      throw new UnauthenticatedError('Invalid Credentials');
+    }
 
-  if (!isPasswordCorrect) {
-    throw new UnauthenticatedError('Invalid Credentials');
-  }
+    const isPasswordCorrect = await user.comparePassword(password);
 
-  const token = user.createJWT();
+    if (!isPasswordCorrect) {
+      throw new UnauthenticatedError('Invalid Credentials');
+    }
+
+    const token = user.createJWT();
+
+    return {
+      user: formatUserResponse(user),
+      token,
+    };
+  };
 
   return {
-    user: formatUserResponse(user),
-    token,
+    registerUser,
+    authenticateUser,
+    formatUserResponse,
   };
 };
 
 module.exports = {
-  registerUser,
-  authenticateUser,
-  formatUserResponse,
+  createAuthService,
 };
