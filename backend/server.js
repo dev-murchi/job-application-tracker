@@ -1,9 +1,6 @@
 const config = require('./config');
 const { logger } = require('./utils');
-const mongoose = require('mongoose');
-const createConnectionManager = require('./db/connect');
-const dbService = require('./db/db-service');
-const { UserSchema, JobSchema } = require('./models');
+const { createContainer } = require('./container');
 const http = require('http');
 const {
   KEEP_ALIVE_TIMEOUT_MS,
@@ -98,25 +95,19 @@ const setupProcessHandlers = (shutdownHandler) => {
 
 const startServer = async () => {
   try {
-    // create models
-    dbService.createModel(mongoose.connection, 'User', UserSchema);
-    dbService.createModel(mongoose.connection, 'Job', JobSchema);
-
-    // Database connection
-    const connectionManager = createConnectionManager(mongoose.connection, {
+    // Create and wire all dependencies via container
+    logger.info('Initializing application container...');
+    const container = await createContainer({
+      mongoUrl: config.mongoUrl,
       isProduction: config.isProduction,
     });
-    await connectionManager.connect(config.mongoUrl);
     logger.info('Database connection established successfully');
 
     // Server creation
-    const { app } = require('./app');
-    const server = createConfiguredServer(app, KEEP_ALIVE_TIMEOUT_MS, HEADERS_TIMEOUT_MS);
+    const server = createConfiguredServer(container.app, KEEP_ALIVE_TIMEOUT_MS, HEADERS_TIMEOUT_MS);
 
-    // Set up process handlers for graceful shutdown.
-    setupProcessHandlers(
-      createGracefulServerShutdownHandler(server, connectionManager.closeConnection),
-    );
+    // Set up process handlers for graceful shutdown using container's dispose method
+    setupProcessHandlers(createGracefulServerShutdownHandler(server, () => container.dispose()));
 
     // Start listening
     listenServer(server, config.port);

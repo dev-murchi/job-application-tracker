@@ -10,12 +10,12 @@ const populateJobs = async () => {
   const User = connection.model('User', UserSchema);
   const Job = connection.model('Job', JobSchema);
 
-  const connectionManager = createConnectionManager({
+  const dbConnectionManager = createConnectionManager({
     connection,
     config: { isProduction: false },
   });
 
-  await connectionManager.connect(config.mongoUrl);
+  await dbConnectionManager.connect(config.mongoUrl);
 
   const user = await User.findOne({ email: 'test@user.com' });
 
@@ -27,7 +27,7 @@ const populateJobs = async () => {
   await Job.deleteMany({ createdBy: user._id });
   await Job.create(jobs);
 
-  await connectionManager.closeConnection();
+  await dbConnectionManager.closeConnection();
 };
 
 populateJobs()
