@@ -1,9 +1,11 @@
-const authController = require('./auth');
-const jobsController = require('./jobs');
-const userController = require('./user');
+const { createAuthController } = require('./auth');
+const { createJobsController } = require('./jobs');
+const { createUserController } = require('./user');
+const { createHealthController } = require('./health');
 
 module.exports = {
-  authController,
-  jobsController,
-  userController,
+  createAuthController,
+  createJobsController,
+  createUserController,
+  createHealthController,
 };
