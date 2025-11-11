@@ -1,19 +1,27 @@
 const express = require('express');
-const { authController } = require('../controllers');
 const { UserRegisterSchema, UserLoginSchema } = require('../schemas');
 const config = require('../config');
 const { validateBody, authRouteRateLimit } = require('../middleware');
 
-const router = express.Router();
+/**
+ * Factory function to create auth router with injected dependencies
+ * @param {Object} authController - Auth controller instance
+ * @returns {express.Router} Configured Express router
+ */
+const createAuthRouter = (authController) => {
+  const router = express.Router();
 
-if (config.isProduction) {
-  router.use(authRouteRateLimit);
-}
+  if (config.isProduction) {
+    router.use(authRouteRateLimit);
+  }
 
-router.post('/register', validateBody(UserRegisterSchema), authController.register);
+  router.post('/register', validateBody(UserRegisterSchema), authController.register);
 
-router.post('/login', validateBody(UserLoginSchema), authController.login);
+  router.post('/login', validateBody(UserLoginSchema), authController.login);
 
-router.get('/logout', authController.logout);
+  router.get('/logout', authController.logout);
 
-module.exports = router;
+  return router;
+};
+
+module.exports = { createAuthRouter };

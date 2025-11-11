@@ -1,5 +1,4 @@
 const express = require('express');
-const { jobsController } = require('../controllers');
 const {
   JobSearchQuerySchema,
   JobCreateSchema,
@@ -9,20 +8,29 @@ const {
 const { validateQuery, validateBody, validateParams } = require('../middleware');
 const z = require('zod');
 
-const router = express.Router();
+/**
+ * Factory function to create jobs router with injected dependencies
+ * @param {Object} jobsController - Jobs controller instance
+ * @returns {express.Router} Configured Express router
+ */
+const createJobsRouter = (jobsController) => {
+  const router = express.Router();
 
-router
-  .route('/')
-  .post(validateBody(JobCreateSchema), jobsController.createJob)
-  .get(validateQuery(JobSearchQuerySchema), jobsController.getAllJobs);
+  router
+    .route('/')
+    .post(validateBody(JobCreateSchema), jobsController.createJob)
+    .get(validateQuery(JobSearchQuerySchema), jobsController.getAllJobs);
 
-router.route('/stats').get(jobsController.showStats);
+  router.route('/stats').get(jobsController.showStats);
 
-router
-  .route('/:id')
-  .all(validateParams(z.object({ id: MongooseObjectIdSchema })))
-  .get(jobsController.getJob)
-  .patch(validateBody(JobUpdateSchema), jobsController.updateJob)
-  .delete(jobsController.deleteJob);
+  router
+    .route('/:id')
+    .all(validateParams(z.object({ id: MongooseObjectIdSchema })))
+    .get(jobsController.getJob)
+    .patch(validateBody(JobUpdateSchema), jobsController.updateJob)
+    .delete(jobsController.deleteJob);
 
-module.exports = router;
+  return router;
+};
+
+module.exports = { createJobsRouter };
