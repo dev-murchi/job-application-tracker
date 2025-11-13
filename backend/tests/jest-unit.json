@@ -28,5 +28,5 @@
   "modulePaths": ["<rootDir>"],
   "setupFilesAfterEnv": ["<rootDir>/tests/jest-unit-setup.js"],
   "testTimeout": 30000,
-  "maxWorkers": 1
+  "maxWorkers": "50%"
 }

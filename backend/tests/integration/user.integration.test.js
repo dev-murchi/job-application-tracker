@@ -11,9 +11,9 @@ const {
 } = require('./setup.integration');
 
 describe('User Integration Tests', () => {
+  let container;
   let app;
-  let connectionManager;
-  let connection;
+
   let testUser;
   let authToken;
   let authCookie;
@@ -23,25 +23,23 @@ describe('User Integration Tests', () => {
 
   beforeAll(async () => {
     // Create isolated mongoose connection
-    const testConnection = await createTestConnection('userIntegration');
-    connection = testConnection.connection;
-    connectionManager = testConnection.connectionManager;
+    container = await createTestConnection('userIntegration');
 
     // Require app.js after connection is established
-    app = require('../../app').app;
+    app = container.app;
   });
 
   afterAll(async () => {
     // Close connection using connection manager
-    await closeTestConnection(connection, connectionManager);
+    await closeTestConnection(container);
   });
 
   beforeEach(async () => {
     // Clear database before each test
-    await clearDatabase(connection);
+    await clearDatabase(container);
 
     // Create test user and auth token for authenticated requests
-    testUser = await seedTestUser({
+    testUser = await seedTestUser(container, {
       name: 'Test',
       lastName: 'User',
       email: 'test@example.com',
@@ -49,7 +47,7 @@ describe('User Integration Tests', () => {
       location: 'Test City',
     });
 
-    const deletedUser = await seedTestUser({
+    const deletedUser = await seedTestUser(container, {
       name: 'Deleted',
       lastName: 'User',
       email: 'deleted@example.com',
@@ -58,7 +56,7 @@ describe('User Integration Tests', () => {
     });
 
     // delete user
-    await deleteTestUser(deletedUser._id);
+    await deleteTestUser(container, deletedUser._id);
 
     authToken = generateTestToken(testUser);
     authCookie = createTestCookie(authToken);
@@ -145,7 +143,7 @@ describe('User Integration Tests', () => {
       expect(response.body.email).toBe('test@example.com'); // Unchanged
 
       // Verify in database
-      const users = await getAllUsers();
+      const users = await getAllUsers(container);
       const updatedUser = users.find((u) => u._id.toString() === testUser._id.toString());
       expect(updatedUser.name).toBe('Updated');
     });
@@ -180,7 +178,7 @@ describe('User Integration Tests', () => {
       expect(response.body.name).toBe('Test'); // Unchanged
 
       // Verify in database
-      const users = await getAllUsers();
+      const users = await getAllUsers(container);
       const updatedUser = users.find((u) => u._id.toString() === testUser._id.toString());
       expect(updatedUser.email).toBe('newemail@example.com');
     });
@@ -221,7 +219,7 @@ describe('User Integration Tests', () => {
       });
 
       // Verify in database
-      const users = await getAllUsers();
+      const users = await getAllUsers(container);
       const updatedUser = users.find((u) => u._id.toString() === testUser._id.toString());
       expect(updatedUser.name).toBe('John');
       expect(updatedUser.lastName).toBe('Doe');
@@ -261,7 +259,7 @@ describe('User Integration Tests', () => {
       expect(response.body.message).toContain('Authentication Invalid');
 
       // Verify user was not updated
-      const users = await getAllUsers();
+      const users = await getAllUsers(container);
       const user = users.find((u) => u._id.toString() === testUser._id.toString());
       expect(user.name).toBe('Test');
     });
@@ -303,7 +301,7 @@ describe('User Integration Tests', () => {
       expect(response.body.message).toContain('email');
 
       // Verify user was not updated
-      const users = await getAllUsers();
+      const users = await getAllUsers(container);
       const user = users.find((u) => u._id.toString() === testUser._id.toString());
       expect(user.email).toBe('test@example.com');
     });
@@ -322,7 +320,7 @@ describe('User Integration Tests', () => {
       expect(response.body.success).toBe(false);
 
       // Verify user was not updated
-      const users = await getAllUsers();
+      const users = await getAllUsers(container);
       const user = users.find((u) => u._id.toString() === testUser._id.toString());
       expect(user.name).toBe('Test');
     });
@@ -343,7 +341,7 @@ describe('User Integration Tests', () => {
 
     it('should reject update with duplicate email', async () => {
       // Create another user
-      await seedTestUser({
+      await seedTestUser(container, {
         name: 'Other',
         lastName: 'User',
         email: 'other@example.com',
@@ -365,7 +363,7 @@ describe('User Integration Tests', () => {
       expect(response.body.success).toBe(false);
 
       // Verify user was not updated
-      const users = await getAllUsers();
+      const users = await getAllUsers(container);
       const user = users.find((u) => u._id.toString() === testUser._id.toString());
       expect(user.email).toBe('test@example.com');
     });

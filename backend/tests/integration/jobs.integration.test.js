@@ -14,9 +14,9 @@ const {
 } = require('./setup.integration');
 
 describe('Jobs Integration Tests', () => {
+  let container;
   let app;
-  let connectionManager;
-  let connection;
+
   let testUser;
   let authToken;
   let authCookie;
@@ -24,25 +24,23 @@ describe('Jobs Integration Tests', () => {
 
   beforeAll(async () => {
     // Create isolated mongoose connection
-    const testConnection = await createTestConnection('jobsIntegration');
-    connection = testConnection.connection;
-    connectionManager = testConnection.connectionManager;
+    container = await createTestConnection('jobsIntegration');
 
     // Require app.js after connection is established
-    app = require('../../app').app;
+    app = container.app;
   });
 
   afterAll(async () => {
     // Close connection using connection manager
-    await closeTestConnection(connection, connectionManager);
+    await closeTestConnection(container);
   });
 
   beforeEach(async () => {
     // Clear database before each test
-    await clearDatabase(connection);
+    await clearDatabase(container);
 
     // Create test user and auth token for authenticated requests
-    testUser = await seedTestUser({
+    testUser = await seedTestUser(container, {
       name: 'Test',
       lastName: 'User',
       email: 'test@example.com',
@@ -51,7 +49,7 @@ describe('Jobs Integration Tests', () => {
     });
 
     // create and delete a job to as non-exist job
-    nonExistJob = await createTestJob(testUser._id, {
+    nonExistJob = await createTestJob(container, testUser._id, {
       company: 'None Exist Corp',
       position: 'Software Engineer',
       status: 'pending',
@@ -60,7 +58,7 @@ describe('Jobs Integration Tests', () => {
       companyWebsite: 'https://nonexistcorp.com',
     });
 
-    await deleteTestJob(nonExistJob._id);
+    await deleteTestJob(container, nonExistJob._id);
 
     authToken = generateTestToken(testUser);
     authCookie = createTestCookie(authToken);
@@ -97,7 +95,7 @@ describe('Jobs Integration Tests', () => {
       expect(response.body.job.createdBy).toBe(testUser._id.toString());
 
       // Verify job is in database
-      const jobCount = await countDocuments('Job');
+      const jobCount = await countDocuments(container, 'Job');
       expect(jobCount).toBe(1);
     });
 
@@ -136,7 +134,7 @@ describe('Jobs Integration Tests', () => {
       expect(response.body.success).toBe(false);
       expect(response.body.message).toContain('Authentication Invalid');
 
-      const jobCount = await countDocuments('Job');
+      const jobCount = await countDocuments(container, 'Job');
       expect(jobCount).toBe(0);
     });
 
@@ -220,7 +218,7 @@ describe('Jobs Integration Tests', () => {
   describe('GET /api/v1/jobs', () => {
     beforeEach(async () => {
       // Seed test jobs
-      await seedTestJobs(testUser._id, 15);
+      await seedTestJobs(container, testUser._id, 15);
     });
 
     it('should get all jobs for authenticated user', async () => {
@@ -258,7 +256,7 @@ describe('Jobs Integration Tests', () => {
     });
 
     it('should search jobs by position', async () => {
-      await createTestJob(testUser._id, {
+      await createTestJob(container, testUser._id, {
         company: 'Search Corp',
         position: 'Senior Engineer',
         status: 'pending',
@@ -276,7 +274,7 @@ describe('Jobs Integration Tests', () => {
     });
 
     it('should search jobs by company', async () => {
-      await createTestJob(testUser._id, {
+      await createTestJob(container, testUser._id, {
         company: 'Google',
         position: 'Engineer',
         status: 'pending',
@@ -375,9 +373,9 @@ describe('Jobs Integration Tests', () => {
     });
 
     it('should return empty array when user has no jobs', async () => {
-      // await clearDatabase(connection);
+      // await clearDatabase(container);
 
-      const newUser = await seedTestUser({
+      const newUser = await seedTestUser(container, {
         name: 'Empty',
         lastName: 'User',
         email: 'empty@example.com',
@@ -412,7 +410,7 @@ describe('Jobs Integration Tests', () => {
     let testJob;
 
     beforeEach(async () => {
-      testJob = await createTestJob(testUser._id, {
+      testJob = await createTestJob(container, testUser._id, {
         company: 'Get Corp',
         position: 'Get Position',
         status: 'pending',
@@ -468,7 +466,7 @@ describe('Jobs Integration Tests', () => {
     let testJob;
 
     beforeEach(async () => {
-      testJob = await createTestJob(testUser._id, {
+      testJob = await createTestJob(container, testUser._id, {
         company: 'Old Corp',
         position: 'Old Position',
         status: 'pending',
@@ -604,7 +602,7 @@ describe('Jobs Integration Tests', () => {
 
     it('should reject update from unauthorized user', async () => {
       // Create another user
-      const otherUser = await seedTestUser({
+      const otherUser = await seedTestUser(container, {
         name: 'Other',
         lastName: 'User',
         email: 'other@example.com',
@@ -661,7 +659,7 @@ describe('Jobs Integration Tests', () => {
     let testJob;
 
     beforeEach(async () => {
-      testJob = await createTestJob(testUser._id, {
+      testJob = await createTestJob(container, testUser._id, {
         company: 'Delete Corp',
         position: 'Delete Position',
         status: 'pending',
@@ -680,7 +678,7 @@ describe('Jobs Integration Tests', () => {
       expect(response.body.msg).toBe('Success! Job removed');
 
       // Verify job is deleted from database
-      const jobs = await getAllJobs(testUser._id);
+      const jobs = await getAllJobs(container, testUser._id);
       expect(jobs.find((job) => job._id.toString() === testJob._id.toString())).toBeUndefined();
     });
 
@@ -690,7 +688,7 @@ describe('Jobs Integration Tests', () => {
       expect(response.body.success).toBe(false);
 
       // Verify job still exists
-      const jobs = await getAllJobs(testUser._id);
+      const jobs = await getAllJobs(container, testUser._id);
       expect(jobs.find((job) => job._id.toString() === testJob._id.toString())).toBeDefined();
     });
 
@@ -708,7 +706,7 @@ describe('Jobs Integration Tests', () => {
 
     it('should reject deletion from unauthorized user', async () => {
       // Create another user
-      const otherUser = await seedTestUser({
+      const otherUser = await seedTestUser(container, {
         name: 'Other',
         lastName: 'User',
         email: 'other@example.com',
@@ -727,7 +725,7 @@ describe('Jobs Integration Tests', () => {
       expect(response.body.success).toBe(false);
 
       // Verify job still exists
-      const jobs = await getAllJobs(testUser._id);
+      const jobs = await getAllJobs(container, testUser._id);
       expect(jobs.find((job) => job._id.toString() === testJob._id.toString())).toBeDefined();
     });
   });
@@ -735,7 +733,7 @@ describe('Jobs Integration Tests', () => {
   describe('GET /api/v1/jobs/stats', () => {
     beforeEach(async () => {
       // Create jobs with different statuses
-      await createTestJob(testUser._id, {
+      await createTestJob(container, testUser._id, {
         company: 'A',
         position: 'P1',
         status: 'pending',
@@ -743,7 +741,7 @@ describe('Jobs Integration Tests', () => {
         jobLocation: 'R',
         companyWebsite: 'https://a.com',
       });
-      await createTestJob(testUser._id, {
+      await createTestJob(container, testUser._id, {
         company: 'B',
         position: 'P2',
         status: 'pending',
@@ -751,7 +749,7 @@ describe('Jobs Integration Tests', () => {
         jobLocation: 'R',
         companyWebsite: 'https://b.com',
       });
-      await createTestJob(testUser._id, {
+      await createTestJob(container, testUser._id, {
         company: 'C',
         position: 'P3',
         status: 'interview',
@@ -759,7 +757,7 @@ describe('Jobs Integration Tests', () => {
         jobLocation: 'R',
         companyWebsite: 'https://c.com',
       });
-      await createTestJob(testUser._id, {
+      await createTestJob(container, testUser._id, {
         company: 'D',
         position: 'P4',
         status: 'declined',
@@ -767,7 +765,7 @@ describe('Jobs Integration Tests', () => {
         jobLocation: 'R',
         companyWebsite: 'https://d.com',
       });
-      await createTestJob(testUser._id, {
+      await createTestJob(container, testUser._id, {
         company: 'E',
         position: 'P5',
         status: 'offered',
@@ -807,9 +805,9 @@ describe('Jobs Integration Tests', () => {
     });
 
     it('should return zero stats when user has no jobs', async () => {
-      await clearDatabase(connection);
+      await clearDatabase(container);
 
-      const newUser = await seedTestUser({
+      const newUser = await seedTestUser(container, {
         name: 'Empty',
         lastName: 'User',
         email: 'empty@example.com',

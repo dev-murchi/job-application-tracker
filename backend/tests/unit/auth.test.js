@@ -1,24 +1,21 @@
 const { describe, beforeEach, afterEach, it, expect } = require('@jest/globals');
-
-// Mock services BEFORE requiring anything else
-jest.mock('../../services', () => ({
-  authService: {
-    registerUser: jest.fn(),
-    authenticateUser: jest.fn(),
-  },
-}));
-
-// Mock dependencies before importing the controller
-jest.mock('../../utils/attach-cookie.js');
-
-const { attachCookie } = require('../../utils');
-const { authService } = require('../../services');
+const { createAuthController } = require('../../controllers/auth');
 const { StatusCodes } = require('http-status-codes');
 
-const { authController } = require('../../controllers');
+// Mock dependencies before importing
+jest.mock('../../utils/attach-cookie.js');
+const { attachCookie } = require('../../utils');
+
+// Create mock auth service
+const createMockAuthService = () => ({
+  registerUser: jest.fn(),
+  authenticateUser: jest.fn(),
+});
 
 describe('Auth Controller', () => {
   let mockReq, mockRes;
+  let authController;
+  let mockAuthService;
 
   beforeEach(() => {
     mockReq = {
@@ -30,6 +27,8 @@ describe('Auth Controller', () => {
       json: jest.fn().mockReturnThis(),
       cookie: jest.fn().mockReturnThis(),
     };
+    mockAuthService = createMockAuthService();
+    authController = createAuthController(mockAuthService);
   });
 
   afterEach(() => {
@@ -54,11 +53,11 @@ describe('Auth Controller', () => {
         location: userData.location,
       };
 
-      authService.registerUser.mockResolvedValue(formattedUser);
+      mockAuthService.registerUser.mockResolvedValue(formattedUser);
 
       await authController.register(mockReq, mockRes);
 
-      expect(authService.registerUser).toHaveBeenCalledWith(userData);
+      expect(mockAuthService.registerUser).toHaveBeenCalledWith(userData);
       expect(mockRes.status).toHaveBeenCalledWith(StatusCodes.CREATED);
       expect(mockRes.json).toHaveBeenCalledWith(formattedUser);
     });
@@ -73,12 +72,12 @@ describe('Auth Controller', () => {
       };
       mockReq.body = userData;
 
-      authService.registerUser.mockRejectedValue(new Error('Email already in use'));
+      mockAuthService.registerUser.mockRejectedValue(new Error('Email already in use'));
 
       await expect(authController.register(mockReq, mockRes)).rejects.toThrow(
         'Email already in use',
       );
-      expect(authService.registerUser).toHaveBeenCalledWith(userData);
+      expect(mockAuthService.registerUser).toHaveBeenCalledWith(userData);
       expect(mockRes.status).not.toHaveBeenCalled();
       expect(mockRes.json).not.toHaveBeenCalled();
     });
@@ -94,10 +93,10 @@ describe('Auth Controller', () => {
       mockReq.body = userData;
 
       const error = new Error('Database error');
-      authService.registerUser.mockRejectedValue(error);
+      mockAuthService.registerUser.mockRejectedValue(error);
 
       await expect(authController.register(mockReq, mockRes)).rejects.toThrow('Database error');
-      expect(authService.registerUser).toHaveBeenCalledWith(userData);
+      expect(mockAuthService.registerUser).toHaveBeenCalledWith(userData);
       expect(mockRes.status).not.toHaveBeenCalled();
       expect(mockRes.json).not.toHaveBeenCalled();
     });
@@ -121,11 +120,11 @@ describe('Auth Controller', () => {
         token: 'mock-jwt-token',
       };
 
-      authService.authenticateUser.mockResolvedValue(mockAuthResult);
+      mockAuthService.authenticateUser.mockResolvedValue(mockAuthResult);
 
       await authController.login(mockReq, mockRes);
 
-      expect(authService.authenticateUser).toHaveBeenCalledWith(loginData);
+      expect(mockAuthService.authenticateUser).toHaveBeenCalledWith(loginData);
       expect(attachCookie).toHaveBeenCalledWith({
         res: mockRes,
         token: 'mock-jwt-token',
@@ -141,10 +140,10 @@ describe('Auth Controller', () => {
       };
       mockReq.body = loginData;
 
-      authService.authenticateUser.mockRejectedValue(new Error('Invalid Credentials'));
+      mockAuthService.authenticateUser.mockRejectedValue(new Error('Invalid Credentials'));
 
       await expect(authController.login(mockReq, mockRes)).rejects.toThrow('Invalid Credentials');
-      expect(authService.authenticateUser).toHaveBeenCalledWith(loginData);
+      expect(mockAuthService.authenticateUser).toHaveBeenCalledWith(loginData);
       expect(attachCookie).not.toHaveBeenCalled();
     });
 
@@ -155,10 +154,10 @@ describe('Auth Controller', () => {
       };
       mockReq.body = loginData;
 
-      authService.authenticateUser.mockRejectedValue(new Error('Invalid Credentials'));
+      mockAuthService.authenticateUser.mockRejectedValue(new Error('Invalid Credentials'));
 
       await expect(authController.login(mockReq, mockRes)).rejects.toThrow('Invalid Credentials');
-      expect(authService.authenticateUser).toHaveBeenCalledWith(loginData);
+      expect(mockAuthService.authenticateUser).toHaveBeenCalledWith(loginData);
       expect(attachCookie).not.toHaveBeenCalled();
     });
 
@@ -169,7 +168,7 @@ describe('Auth Controller', () => {
       };
       mockReq.body = loginData;
 
-      authService.authenticateUser.mockRejectedValue(new Error('Invalid Credentials'));
+      mockAuthService.authenticateUser.mockRejectedValue(new Error('Invalid Credentials'));
 
       await expect(authController.login(mockReq, mockRes)).rejects.toThrow('Invalid Credentials');
       expect(attachCookie).not.toHaveBeenCalled();

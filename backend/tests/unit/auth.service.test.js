@@ -1,10 +1,6 @@
 const { describe, beforeEach, it, expect } = require('@jest/globals');
 const { BadRequestError, UnauthenticatedError } = require('../../errors');
-
-// Mock dependencies
-jest.mock('../../db/db-service');
-
-const dbService = require('../../db/db-service');
+const { createAuthService } = require('../../services/auth.service');
 
 // Mock User model
 const mockUser = {
@@ -18,24 +14,31 @@ const mockUser = {
   createJWT: jest.fn(),
 };
 
-const User = {
+const createMockUser = () => ({
   create: jest.fn(),
   findOne: jest.fn(),
-};
-
-// Setup dbService mock
-dbService.getModel = jest.fn().mockImplementation((modelName) => {
-  if (modelName === 'User') {
-    return User;
-  }
-  return null;
 });
 
-const authService = require('../../services/auth.service');
+// Create mock dbService
+const createMockDbService = (User) => ({
+  getModel: jest.fn().mockImplementation((modelName) => {
+    if (modelName === 'User') {
+      return User;
+    }
+    return null;
+  }),
+});
 
 describe('Auth Service', () => {
+  let authService;
+  let mockDbService;
+  let User;
+
   beforeEach(() => {
     jest.clearAllMocks();
+    User = createMockUser();
+    mockDbService = createMockDbService(User);
+    authService = createAuthService(mockDbService);
   });
 
   describe('formatUserResponse', () => {

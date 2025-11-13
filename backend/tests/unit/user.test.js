@@ -1,22 +1,21 @@
 const { describe, beforeEach, afterEach, it, expect } = require('@jest/globals');
 
-// Mock services BEFORE requiring anything else
-jest.mock('../../services', () => ({
-  userService: {
-    updateUserProfile: jest.fn(),
-    formatUserResponse: jest.fn(),
-  },
-}));
-
-const { userService } = require('../../services');
 const { StatusCodes } = require('http-status-codes');
+const { createUserController } = require('../../controllers/user');
 
-const { userController } = require('../../controllers');
+// Mock user service factory
+const createMockUserService = () => ({
+  updateUserProfile: jest.fn(),
+  formatUserResponse: jest.fn(),
+});
 
 describe('User Controller', () => {
-  let mockReq, mockRes;
+  let mockReq, mockRes, mockUserService, userController;
 
   beforeEach(() => {
+    mockUserService = createMockUserService();
+    userController = createUserController(mockUserService);
+
     mockReq = {
       body: {},
       user: {
@@ -47,11 +46,11 @@ describe('User Controller', () => {
         location: mockReq.user.location,
       };
 
-      userService.formatUserResponse.mockReturnValue(formattedUser);
+      mockUserService.formatUserResponse.mockReturnValue(formattedUser);
 
       userController.getCurrentUser(mockReq, mockRes);
 
-      expect(userService.formatUserResponse).toHaveBeenCalledWith(mockReq.user);
+      expect(mockUserService.formatUserResponse).toHaveBeenCalledWith(mockReq.user);
       expect(mockRes.status).toHaveBeenCalledWith(StatusCodes.OK);
       expect(mockRes.json).toHaveBeenCalledWith(formattedUser);
     });
@@ -74,11 +73,14 @@ describe('User Controller', () => {
         location: updateData.location,
       };
 
-      userService.updateUserProfile.mockResolvedValue(updatedUser);
+      mockUserService.updateUserProfile.mockResolvedValue(updatedUser);
 
       await userController.updateUser(mockReq, mockRes);
 
-      expect(userService.updateUserProfile).toHaveBeenCalledWith(mockReq.user.userId, updateData);
+      expect(mockUserService.updateUserProfile).toHaveBeenCalledWith(
+        mockReq.user.userId,
+        updateData,
+      );
       expect(mockRes.status).toHaveBeenCalledWith(StatusCodes.OK);
       expect(mockRes.json).toHaveBeenCalledWith(updatedUser);
     });
@@ -86,7 +88,7 @@ describe('User Controller', () => {
     it('should throw an error when no changes provided', async () => {
       mockReq.body = {};
 
-      userService.updateUserProfile.mockRejectedValue(new Error('No changes provided'));
+      mockUserService.updateUserProfile.mockRejectedValue(new Error('No changes provided'));
 
       await expect(userController.updateUser(mockReq, mockRes)).rejects.toThrow(
         'No changes provided',
@@ -97,7 +99,7 @@ describe('User Controller', () => {
       mockReq.body = { email: 'invalid-email' };
       const error = new Error('Validation failed');
 
-      userService.updateUserProfile.mockRejectedValue(error);
+      mockUserService.updateUserProfile.mockRejectedValue(error);
 
       await expect(userController.updateUser(mockReq, mockRes)).rejects.toThrow(
         'Validation failed',

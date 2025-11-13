@@ -9,28 +9,23 @@ const {
 } = require('./setup.integration');
 
 describe('Auth Integration Tests', () => {
+  let container;
   let app;
-  let connectionManager;
-  let connection;
 
   beforeAll(async () => {
-    // Create isolated mongoose connection
-    const testConnection = await createTestConnection('authIntegration');
-    connection = testConnection.connection;
-    connectionManager = testConnection.connectionManager;
-
-    // Require app.js after connection is established
-    app = require('../../app').app;
+    // Create isolated test container with its own database
+    container = await createTestConnection('authIntegration');
+    app = container.app;
   });
 
   afterAll(async () => {
-    // Close connection using connection manager
-    await closeTestConnection(connection, connectionManager);
+    // Close connection and cleanup
+    await closeTestConnection(container);
   });
 
   beforeEach(async () => {
     // Clear database before each test
-    await clearDatabase(connection);
+    await clearDatabase(container);
   });
 
   describe('POST /api/v1/auth/register', () => {
@@ -53,10 +48,10 @@ describe('Auth Integration Tests', () => {
       });
 
       // Verify user is in database
-      const userCount = await countDocuments('User');
+      const userCount = await countDocuments(container, 'User');
       expect(userCount).toBe(1);
 
-      const users = await getAllUsers();
+      const users = await getAllUsers(container);
       expect(users[0].email).toBe('john.doe@example.com');
       expect(users[0].password).not.toBe('password123'); // Password should be hashed
     });
@@ -91,7 +86,7 @@ describe('Auth Integration Tests', () => {
       expect(response.body.message).toContain('Email already in use');
 
       // Verify only one user was created
-      const userCount = await countDocuments('User');
+      const userCount = await countDocuments(container, 'User');
       expect(userCount).toBe(1);
     });
 
@@ -173,7 +168,7 @@ describe('Auth Integration Tests', () => {
       expect(response.body.success).toBe(false);
       expect(response.body.message).toContain('Name is required');
 
-      const userCount = await countDocuments('User');
+      const userCount = await countDocuments(container, 'User');
       expect(userCount).toBe(0);
     });
 
@@ -191,7 +186,7 @@ describe('Auth Integration Tests', () => {
       expect(response.body.success).toBe(false);
       expect(response.body.message).toContain('email');
 
-      const userCount = await countDocuments('User');
+      const userCount = await countDocuments(container, 'User');
       expect(userCount).toBe(0);
     });
 
@@ -209,7 +204,7 @@ describe('Auth Integration Tests', () => {
       expect(response.body.success).toBe(false);
       expect(response.body.message).toContain('password');
 
-      const userCount = await countDocuments('User');
+      const userCount = await countDocuments(container, 'User');
       expect(userCount).toBe(0);
     });
 
@@ -226,7 +221,7 @@ describe('Auth Integration Tests', () => {
 
       expect(response.body.success).toBe(false);
 
-      const userCount = await countDocuments('User');
+      const userCount = await countDocuments(container, 'User');
       expect(userCount).toBe(0);
     });
 
@@ -269,7 +264,7 @@ describe('Auth Integration Tests', () => {
   describe('POST /api/v1/auth/login', () => {
     beforeEach(async () => {
       // Seed a test user before each login test
-      await seedTestUser({
+      await seedTestUser(container, {
         name: 'Test',
         lastName: 'User',
         email: 'test@example.com',

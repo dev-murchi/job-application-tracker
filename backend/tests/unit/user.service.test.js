@@ -1,30 +1,33 @@
 const { describe, beforeEach, it, expect } = require('@jest/globals');
 const { BadRequestError } = require('../../errors');
+const { createUserService } = require('../../services/user.service');
 
-// Mock dependencies
-jest.mock('../../db/db-service');
-
-const dbService = require('../../db/db-service');
-
-// Mock User model
-const User = {
+// Create mock User model
+const createMockUser = () => ({
   findById: jest.fn(),
   findOneAndUpdate: jest.fn(),
-};
-
-// Setup dbService mock
-dbService.getModel = jest.fn().mockImplementation((modelName) => {
-  if (modelName === 'User') {
-    return User;
-  }
-  return null;
 });
 
-const userService = require('../../services/user.service');
+// Create mock dbService
+const createMockDbService = (User) => ({
+  getModel: jest.fn().mockImplementation((modelName) => {
+    if (modelName === 'User') {
+      return User;
+    }
+    return null;
+  }),
+});
 
 describe('User Service', () => {
+  let userService;
+  let mockDbService;
+  let User;
+
   beforeEach(() => {
     jest.clearAllMocks();
+    User = createMockUser();
+    mockDbService = createMockDbService(User);
+    userService = createUserService(mockDbService);
   });
 
   describe('formatUserResponse', () => {

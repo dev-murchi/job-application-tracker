@@ -1,24 +1,8 @@
-const mongoose = require('mongoose');
-const createConnectionManager = require('../../db/connect');
-const dbService = require('../../db/db-service');
-const { UserSchema, JobSchema } = require('../../models');
+const { createContainer } = require('../../container');
 const config = require('../../config');
 const { randomUUID } = require('crypto');
 
 const createTestConnection = async (testSuite) => {
-  // Create isolated mongoose connection instance
-  const connection = mongoose.createConnection();
-
-  // Create models using db-service
-  dbService.createModel(connection, 'User', UserSchema);
-  dbService.createModel(connection, 'Job', JobSchema);
-
-  // Create connection manager
-  const connectionManager = createConnectionManager({
-    connection,
-    config: { isProduction: false },
-  });
-
   const workerId = process.env.JEST_WORKER_ID ?? '1';
   const testDbName = `test_db_${testSuite}_${workerId}_${randomUUID().replace(/-/g, '')}`;
   const dbUrl = process.env.MONGO_TEST_URL || config.mongoUrl;
@@ -28,24 +12,24 @@ const createTestConnection = async (testSuite) => {
 
   const testDbUrl = `${url}/${testDbName}?authSource=${authSource}`;
 
-  // Connect to test database
-  await connectionManager.connect(testDbUrl);
+  // Create container with isolated test database
+  const container = await createContainer({ mongoUrl: testDbUrl, isProduction: false });
 
-  return { connection, connectionManager };
+  return container;
 };
 
-const closeTestConnection = async (connection, connectionManager) => {
-  await connection.dropDatabase();
-  await connectionManager.closeConnection();
+const closeTestConnection = async (container) => {
+  await container.connection.dropDatabase();
+  await container.dispose();
 };
 
-const clearDatabase = async (connection) => {
-  const collections = Object.values(connection.collections);
+const clearDatabase = async (container) => {
+  const collections = Object.values(container.connection.collections);
   await Promise.all(collections.map((collection) => collection.deleteMany({})));
 };
 
-const seedTestUser = async (userData = {}) => {
-  const User = dbService.getModel('User');
+const seedTestUser = async (container, userData = {}) => {
+  const User = container.dbService.getModel('User');
 
   const defaultUserData = {
     name: 'Test',
@@ -60,8 +44,8 @@ const seedTestUser = async (userData = {}) => {
   return user;
 };
 
-const seedTestJobs = async (userId, count = 5) => {
-  const Job = dbService.getModel('Job');
+const seedTestJobs = async (container, userId, count = 5) => {
+  const Job = container.dbService.getModel('Job');
 
   const jobs = Array.from({ length: count }, (_, i) => ({
     company: `Test Company ${i + 1}`,
@@ -77,8 +61,8 @@ const seedTestJobs = async (userId, count = 5) => {
   return createdJobs;
 };
 
-const createTestJob = async (userId, jobData = {}) => {
-  const Job = dbService.getModel('Job');
+const createTestJob = async (container, userId, jobData = {}) => {
+  const Job = container.dbService.getModel('Job');
 
   const defaultJobData = {
     company: 'Test Company',
@@ -95,13 +79,13 @@ const createTestJob = async (userId, jobData = {}) => {
   return job;
 };
 
-const deleteTestJob = async (jobId) => {
-  const Job = dbService.getModel('Job');
+const deleteTestJob = async (container, jobId) => {
+  const Job = container.dbService.getModel('Job');
   await Job.findByIdAndDelete(jobId);
 };
 
-const deleteTestUser = async (userId) => {
-  const User = dbService.getModel('User');
+const deleteTestUser = async (container, userId) => {
+  const User = container.dbService.getModel('User');
   await User.findByIdAndDelete(userId);
 };
 
@@ -116,19 +100,19 @@ const createTestCookie = (token) => {
   return `token=${token}`;
 };
 
-const getAllUsers = async () => {
-  const User = dbService.getModel('User');
+const getAllUsers = async (container) => {
+  const User = container.dbService.getModel('User');
   return await User.find({}, '+password');
 };
 
-const getAllJobs = async (userId = null) => {
-  const Job = dbService.getModel('Job');
+const getAllJobs = async (container, userId = null) => {
+  const Job = container.dbService.getModel('Job');
   const query = userId ? { createdBy: userId } : {};
   return await Job.find(query);
 };
 
-const countDocuments = async (modelName) => {
-  const Model = dbService.getModel(modelName);
+const countDocuments = async (container, modelName) => {
+  const Model = container.dbService.getModel(modelName);
   return await Model.countDocuments({});
 };
 

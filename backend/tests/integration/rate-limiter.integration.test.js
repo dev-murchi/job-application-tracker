@@ -11,31 +11,28 @@ const {
 } = require('./setup.integration');
 
 describe('Rate Limiter Integration Tests', () => {
+  let container;
   let app;
-  let connectionManager;
-  let connection;
 
   beforeAll(async () => {
     // Create isolated mongoose connection
-    const testConnection = await createTestConnection('rateLimitIntegration');
-    connection = testConnection.connection;
-    connectionManager = testConnection.connectionManager;
+    container = await createTestConnection('rateLimitIntegration');
 
     // Require app.js after connection is established
-    app = require('../../app').app;
+    app = container.app;
   });
 
   afterAll(async () => {
     // Close connection using connection manager
-    await closeTestConnection(connection, connectionManager);
+    await closeTestConnection(container);
   });
 
   beforeEach(async () => {
     // Clear database before each test
-    await clearDatabase(connection);
+    await clearDatabase(container);
 
     // Create test user and auth token for authenticated requests
-    await seedTestUser({
+    await seedTestUser(container, {
       name: 'Test',
       lastName: 'User',
       email: 'test@example.com',

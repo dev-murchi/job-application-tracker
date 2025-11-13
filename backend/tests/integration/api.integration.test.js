@@ -9,28 +9,25 @@ const {
 } = require('./setup.integration');
 
 describe('API Integration Tests', () => {
+  let container;
   let app;
-  let connectionManager;
-  let connection;
 
   beforeAll(async () => {
     // Create isolated mongoose connection
-    const testConnection = await createTestConnection('apiIntegration');
-    connection = testConnection.connection;
-    connectionManager = testConnection.connectionManager;
+    container = await createTestConnection('apiIntegration');
 
     // Require app.js after connection is established
-    app = require('../../app').app;
+    app = container.app;
   });
 
   afterAll(async () => {
     // Close connection using connection manager
-    await closeTestConnection(connection, connectionManager);
+    await closeTestConnection(container);
   });
 
   beforeEach(async () => {
     // Clear database before each test
-    await clearDatabase(connection);
+    await clearDatabase(container);
   });
 
   describe('Root Endpoint', () => {
@@ -168,7 +165,7 @@ describe('API Integration Tests', () => {
     });
 
     it('should sanitize MongoDB operators from query parameters', async () => {
-      const testUser = await seedTestUser();
+      const testUser = await seedTestUser(container);
       const authToken = generateTestToken(testUser);
       const authCookie = createTestCookie(authToken);
 
@@ -199,7 +196,7 @@ describe('API Integration Tests', () => {
     });
 
     it('should sanitize XSS attacks from nested objects and complex HTML elements', async () => {
-      const testUser = await seedTestUser();
+      const testUser = await seedTestUser(container);
       const authToken = generateTestToken(testUser);
       const authCookie = createTestCookie(authToken);
 
@@ -244,7 +241,7 @@ describe('API Integration Tests', () => {
 
   describe('Middleware Stack Order', () => {
     it('should catch errors in async route handlers', async () => {
-      const testUser = await seedTestUser();
+      const testUser = await seedTestUser(container);
       const authToken = generateTestToken(testUser);
       const authCookie = createTestCookie(authToken);
 
@@ -267,6 +264,28 @@ describe('API Integration Tests', () => {
 
     it('should return 404 for non-existent API versions', async () => {
       await request(app).get('/api/v2/auth/logout').expect(404);
+    });
+  });
+
+  describe('Health Endpoint', () => {
+    it('should return health status with 200 when database is connected', async () => {
+      const response = await request(app).get('/health');
+
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty('status', 'ok');
+      expect(response.body).toHaveProperty('timestamp');
+      expect(response.body).toHaveProperty('uptime');
+      expect(response.body.database).toHaveProperty('connected', true);
+      expect(response.body.database.ping).toHaveProperty('success', true);
+    });
+
+    it('should include application info in non-production mode', async () => {
+      const response = await request(app).get('/health');
+
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty('application');
+      expect(response.body.application).toHaveProperty('name', 'job-tracker-api');
+      expect(response.body.application).toHaveProperty('environment');
     });
   });
 });

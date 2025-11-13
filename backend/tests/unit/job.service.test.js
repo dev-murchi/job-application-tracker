@@ -1,16 +1,14 @@
 const { describe, beforeEach, it, expect } = require('@jest/globals');
 const { BadRequestError, NotFoundError } = require('../../errors');
+const { createJobService } = require('../../services/job.service');
 
-// Mock dependencies
-jest.mock('../../db/db-service');
+// Mock check-permissions utility
 jest.mock('../../utils/check-permissions');
-jest.mock('mongoose');
-
-const dbService = require('../../db/db-service');
 const { checkPermissions } = require('../../utils');
-const mongoose = require('mongoose');
 
 // Mock mongoose ObjectId
+jest.mock('mongoose');
+const mongoose = require('mongoose');
 const mockObjectId = (id) => ({ toString: () => id, _id: id });
 mongoose.Types = {
   ObjectId: {
@@ -18,8 +16,8 @@ mongoose.Types = {
   },
 };
 
-// Mock Job model
-const Job = {
+// Create mock Job model
+const createMockJob = () => ({
   create: jest.fn(),
   findOne: jest.fn(),
   find: jest.fn(),
@@ -27,21 +25,28 @@ const Job = {
   findOneAndDelete: jest.fn(),
   countDocuments: jest.fn(),
   aggregate: jest.fn(),
-};
-
-// Setup dbService mock
-dbService.getModel = jest.fn().mockImplementation((modelName) => {
-  if (modelName === 'Job') {
-    return Job;
-  }
-  return null;
 });
 
-const jobService = require('../../services/job.service');
+// Create mock dbService
+const createMockDbService = (Job) => ({
+  getModel: jest.fn().mockImplementation((modelName) => {
+    if (modelName === 'Job') {
+      return Job;
+    }
+    return null;
+  }),
+});
 
 describe('Job Service', () => {
+  let jobService;
+  let mockDbService;
+  let Job;
+
   beforeEach(() => {
     jest.clearAllMocks();
+    Job = createMockJob();
+    mockDbService = createMockDbService(Job);
+    jobService = createJobService(mockDbService);
     checkPermissions.mockImplementation(() => {}); // Default: allow all
   });
 

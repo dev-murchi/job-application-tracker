@@ -1,29 +1,34 @@
 const jwt = require('jsonwebtoken');
-const { authenticateUser } = require('../../middleware');
+const { createAuthenticateUser } = require('../../middleware/auth');
 const { UnauthenticatedError } = require('../../errors');
 const config = require('../../config');
-const dbService = require('../../db/db-service');
 
 jest.mock('jsonwebtoken');
-jest.mock('../../db/db-service');
 
-// Mock User model
-const User = {
-  findOne: jest.fn(),
+// Mock dbService factory
+const createMockDbService = () => {
+  const mockUser = {
+    findOne: jest.fn(),
+  };
+
+  return {
+    getModel: jest.fn().mockImplementation((modelName) => {
+      if (modelName === 'User') {
+        return mockUser;
+      }
+      return null;
+    }),
+  };
 };
 
-// Setup dbService mock to return our mocked User model
-dbService.getModel = jest.fn().mockImplementation((modelName) => {
-  if (modelName === 'User') {
-    return User;
-  }
-  return null;
-});
-
 describe('Auth Middleware', () => {
-  let req, res, next;
+  let req, res, next, mockDbService, authenticateUser, mockUserModel;
 
   beforeEach(() => {
+    mockDbService = createMockDbService();
+    authenticateUser = createAuthenticateUser(mockDbService);
+    mockUserModel = mockDbService.getModel('User');
+
     req = {
       cookies: {},
     };
@@ -42,14 +47,14 @@ describe('Auth Middleware', () => {
 
     req.cookies.token = token;
     jwt.verify.mockReturnValue(payload);
-    User.findOne.mockReturnValue({
+    mockUserModel.findOne.mockReturnValue({
       lean: jest.fn().mockResolvedValue(mockUser),
     });
 
     await authenticateUser(req, res, next);
 
     expect(jwt.verify).toHaveBeenCalledWith(token, config.jwtSecret);
-    expect(User.findOne).toHaveBeenCalledWith({ _id: payload.userId });
+    expect(mockUserModel.findOne).toHaveBeenCalledWith({ _id: payload.userId });
     expect(req.user).toEqual({
       _id: '507f1f77bcf86cd799439011',
       email: 'test@example.com',

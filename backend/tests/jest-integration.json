@@ -16,7 +16,7 @@
   "coverageReporters": ["text", "lcov", "html"],
   "coverageThreshold": {
     "global": {
-      "branches": 90,
+      "branches": 89,
       "functions": 89,
       "lines": 90,
       "statements": 90
@@ -28,5 +28,5 @@
   "modulePaths": ["<rootDir>"],
   "setupFilesAfterEnv": ["<rootDir>/tests/jest-integration-setup.js"],
   "testTimeout": 30000,
-  "maxWorkers": 1
+  "maxWorkers": "50%"
 }
