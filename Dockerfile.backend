@@ -51,6 +51,10 @@ COPY --chown=appuser:appgroup backend/middleware ./middleware
 COPY --chown=appuser:appgroup backend/models ./models
 COPY --chown=appuser:appgroup backend/routes ./routes
 COPY --chown=appuser:appgroup backend/utils ./utils
+COPY --chown=appuser:appgroup backend/container.js ./
+COPY --chown=appuser:appgroup backend/services ./services
+COPY --chown=appuser:appgroup backend/schemas ./schemas
+COPY --chown=appuser:appgroup backend/constants ./constants
 RUN mkdir logs && chown -R appuser:appgroup ./logs
 
 

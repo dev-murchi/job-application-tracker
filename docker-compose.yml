@@ -87,7 +87,7 @@ services:
   mongodb-prod:
     image: mongo:8.0
     restart: always
-    profiles: ["prod"]
+    profiles: ["production"]
     environment:
       MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
