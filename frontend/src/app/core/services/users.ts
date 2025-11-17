@@ -33,7 +33,7 @@ export class UsersService {
   getProfile(): void {
     const currentState = this.state();
     if (currentState.profile) {
-      if(currentState.status !== 'cached') {
+      if (currentState.status !== 'cached') {
         this.state.update(old => ({ ...old, status: 'cached' }));
       }
       return;
