@@ -9,7 +9,7 @@ export interface LoadingState<T> {
 }
 
 export type JobDetailState = {
-  readonly operation: 'fetch' | 'create' | 'update' | 'delete' | null;
+  readonly operation: 'fetch' | 'create' | 'update' | 'delete' | 'cached' | null;
 } & LoadingState<JobDetail>;
 
 export interface CacheEntry<T> {

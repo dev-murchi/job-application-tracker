@@ -71,7 +71,7 @@ export class JobsService {
     if (cached && this.isCacheValid(cached.timestamp)) {
       this.#state.update(s => ({
         ...s,
-        detail: { data: cached.data, isLoading: false, error: null, operation: 'fetch' },
+        detail: { data: cached.data, isLoading: false, error: null, operation: 'cached' },
       }));
       return;
     }
