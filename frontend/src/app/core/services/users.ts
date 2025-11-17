@@ -4,7 +4,7 @@ import { UserProfile } from '../../shared/types/user-profile.data';
 
 export interface UserProfileState {
   profile: UserProfile | null;
-  status: 'loading' | 'fetched' | 'updated' | 'error';
+  status: 'loading' | 'fetched' | 'updated' | 'error' | 'cached';
   error: string | null;
 }
 
@@ -33,6 +33,9 @@ export class UsersService {
   getProfile(): void {
     const currentState = this.state();
     if (currentState.profile) {
+      if(currentState.status !== 'cached') {
+        this.state.update(old => ({ ...old, status: 'cached' }));
+      }
       return;
     }
 
