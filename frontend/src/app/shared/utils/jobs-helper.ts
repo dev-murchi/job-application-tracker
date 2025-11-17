@@ -1,4 +1,4 @@
-import { CacheEntry, CacheModel } from '../../jobs-state.data';
+import { CacheEntry, CacheModel } from '../types/jobs-state.data';
 import { JobDetail } from '../types/job-detail.data';
 import { JobQuery, JobQueryResult } from '../types/job-query.data';
 import { JobStats } from '../types/job-stats.data';

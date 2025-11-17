@@ -1,6 +1,6 @@
-import { JobDetail } from './shared/types/job-detail.data';
-import { JobQueryResult } from './shared/types/job-query.data';
-import { JobStats } from './shared/types/job-stats.data';
+import { JobDetail } from './job-detail.data';
+import { JobQueryResult } from './job-query.data';
+import { JobStats } from './job-stats.data';
 
 export interface LoadingState<T> {
   data: T | null;

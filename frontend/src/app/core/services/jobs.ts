@@ -2,7 +2,7 @@ import { computed, inject, Injectable, signal } from '@angular/core';
 import { Observable, of } from 'rxjs';
 import { catchError, filter, map, tap } from 'rxjs/operators';
 import { JobsApi } from '../../api/jobs-api';
-import { initialJobsState, JobsState } from '../../jobs-state.data';
+import { initialJobsState, JobsState } from '../../shared/types/jobs-state.data';
 import { JobDetail } from '../../shared/types/job-detail.data';
 import { JobQuery, JobQueryResult } from '../../shared/types/job-query.data';
 import { JobsHelper } from '../../shared/utils/jobs-helper';
