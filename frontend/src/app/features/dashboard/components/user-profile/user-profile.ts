@@ -143,8 +143,8 @@ export class UserProfileComponent implements OnInit {
   resetForm(event: Event): void {
     event.preventDefault();
     const user = this.currentUser();
-    if (user) {
-      this.patchFormWithUser(user);
+    if (user && user.profile) {
+      this.patchFormWithUser(user.profile);
       this.profileForm.markAsPristine();
       this.profileForm.markAsUntouched();
       this.disableFormEditing();
