@@ -1,5 +1,5 @@
 import { JobsHelper } from './jobs-helper';
-import { CacheModel } from '../../jobs-state.data';
+import { CacheModel } from '../../shared/types/jobs-state.data';
 import { JobDetail } from '../types/job-detail.data';
 import { JobStatus } from '../types/job-status';
 import { JobType } from '../types/job-type';
