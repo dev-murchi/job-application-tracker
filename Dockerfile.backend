@@ -41,7 +41,7 @@ RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 
 # Copy production dependencies and application with correct ownership
 COPY --from=dependencies --chown=appuser:appgroup /tmp/prod_node_modules ./node_modules
-COPY --chown=appuser:appgroup backend/package*.js ./
+COPY --chown=appuser:appgroup backend/package*.json ./
 COPY --chown=appuser:appgroup backend/app.js backend/server.js ./
 COPY --chown=appuser:appgroup backend/config ./config
 COPY --chown=appuser:appgroup backend/controllers ./controllers

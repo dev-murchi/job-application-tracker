@@ -65,6 +65,7 @@ const createApp = ({ routes = [] }) => {
 
   // Security middleware
   app.use(helmet());
+  app.use(cookieParser());
   // XSS protection handled by sanitize-html in validation layer
   app.use((req, res, next) => {
     try {
@@ -89,7 +90,6 @@ const createApp = ({ routes = [] }) => {
       maxAge: 86400, // Cache preflight for 24 hours
     }),
   );
-  app.use(cookieParser());
 
   // Route setup
 

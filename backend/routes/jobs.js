@@ -6,7 +6,7 @@ const {
   MongooseObjectIdSchema,
 } = require('../schemas');
 const { validateQuery, validateBody, validateParams } = require('../middleware');
-const z = require('zod');
+const { z } = require('zod');
 
 /**
  * Factory function to create jobs router with injected dependencies
