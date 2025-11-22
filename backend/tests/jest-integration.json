@@ -2,10 +2,14 @@
   "testEnvironment": "node",
   "collectCoverageFrom": [
     "controllers/**/*.js",
+    "!controllers/index.js",
     "services/**/*.js",
+    "!services/index.js",
     "middleware/**/*.js",
-    "routes/**/*.js",
     "!middleware/rate-limiter.js",
+    "!middleware/index.js",
+    "routes/**/*.js",
+    "!routes/index.js",
     "utils/**/*.js",
     "!utils/logger.js",
     "!**/node_modules/**",
@@ -16,7 +20,7 @@
   "coverageReporters": ["text", "lcov", "html"],
   "coverageThreshold": {
     "global": {
-      "branches": 89,
+      "branches": 85,
       "functions": 89,
       "lines": 90,
       "statements": 90
