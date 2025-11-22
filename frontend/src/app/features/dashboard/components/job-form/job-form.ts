@@ -16,6 +16,7 @@ import { SvgComponent } from '../../../../shared/components/svg/svg';
 import { JobStatus } from '../../../../shared/types/job-status';
 import { JobType } from '../../../../shared/types/job-type';
 import { SvgNameType } from '../../../../svg.config';
+import { JobDetail } from '../../../../shared/types/job-detail.data';
 
 @Component({
   selector: 'app-job-form',
@@ -152,9 +153,9 @@ export class JobForm {
         } else if (state.error) {
           this.alertService.show(state.error, 'error');
         }
-        // fetched
-        else if (state.operation === 'fetch' && state.data) {
-          this.patchFormOnJobLoad();
+        // fetched or cached
+        else if (state.operation && ['fetched', 'cached'].includes(state.operation) && state.data) {
+          this.patchFormOnJobLoad(state.data);
         }
         // updated
         else if (state.operation === 'update' && state.data) {
@@ -178,17 +179,16 @@ export class JobForm {
   }
 
   // Helper to patch form with loaded job data
-  private patchFormOnJobLoad(): void {
-    const state = this.jobsService.jobDetail();
-    if (state && state.data) {
+  private patchFormOnJobLoad(data: JobDetail): void {
+    if (data) {
       const patch: Record<string, any> = {
-        companyControl: state.data.company,
-        positionControl: state.data.position,
-        locationControl: state.data.jobLocation,
-        jobStatusControl: state.data.status,
-        jobTypeControl: state.data.jobType,
-        companyWebsiteControl: state.data.companyWebsite,
-        jobPostingUrlControl: state.data.jobPostingUrl,
+        companyControl: data.company,
+        positionControl: data.position,
+        locationControl: data.jobLocation,
+        jobStatusControl: data.status,
+        jobTypeControl: data.jobType,
+        companyWebsiteControl: data.companyWebsite,
+        jobPostingUrlControl: data.jobPostingUrl,
       };
       this.form.patchValue(patch);
     }
