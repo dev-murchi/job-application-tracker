@@ -93,7 +93,7 @@ describe('Rate Limiter Integration Tests', () => {
       );
       expect(rateLimitedResponse.header['ratelimit-limit']).toBe('5');
       expect(rateLimitedResponse.header['ratelimit-remaining']).toBe('0');
-      expect(rateLimitedResponse.header['ratelimit-reset']).toBeDefined()
+      expect(rateLimitedResponse.header['ratelimit-reset']).toBeDefined();
     });
 
     it('should apply rate limit to all auth routes', async () => {
