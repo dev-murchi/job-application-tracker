@@ -45,16 +45,17 @@ const { createHealthRouter } = require('./routes/health');
 const { createApp } = require('./app');
 
 /**
- * Creates and wires all application dependencies
- *
- * @param {Object} options - Configuration options
+ * Create and wire all application dependencies
+ * @param {Object} options - Container configuration options
+ * @param {Object} options.logger - Logger instance for application-wide logging
  * @param {string} options.mongoUrl - MongoDB connection URL
- * @param {boolean} options.isProduction - Production mode flag
- * @param {mongoose.Connection} [options.connection] - Optional existing connection (for testing)
+ * @param {boolean} [options.isProduction=false] - Whether running in production mode
+ * @param {Object} [options.connection=null] - Existing mongoose connection (for tests)
  * @returns {Promise<Object>} Container with all wired dependencies
  */
 const createContainer = async (options) => {
   const {
+    logger,
     mongoUrl,
     isProduction = false,
     connection = null, // Allow injecting existing connection for tests
@@ -71,6 +72,7 @@ const createContainer = async (options) => {
   const dbConnectionManager = createConnectionManager({
     connection: mongooseConnection,
     config: { isProduction },
+    logger: logger,
   });
 
   // Connect to database (skip if connection already connected - for tests)
@@ -114,7 +116,7 @@ const createContainer = async (options) => {
   // 5. MIDDLEWARE
   // ============================================
 
-  const authenticateUser = createAuthenticateUser(dbService);
+  const authenticateUser = createAuthenticateUser(dbService, logger);
 
   // ============================================
   // 6. APPLICATION
@@ -127,6 +129,7 @@ const createContainer = async (options) => {
       { path: '/api/v1/users', router: userRouter, middleware: [authenticateUser] },
       { path: '/api/v1/jobs', router: jobsRouter, middleware: [authenticateUser] },
     ],
+    logger: logger,
   });
 
   // ============================================

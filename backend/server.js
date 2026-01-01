@@ -1,5 +1,5 @@
 const config = require('./config');
-const { logger } = require('./utils');
+const { createLoggerService } = require('./utils');
 const { createContainer } = require('./container');
 const http = require('http');
 const {
@@ -15,7 +15,13 @@ const createConfiguredServer = (requestListener, keepAliveTimeout, headersTimeou
   return server;
 };
 
-const listenServer = (server, port) => {
+/**
+ * Start the HTTP server and listen on configured port
+ * @param {http.Server} server - HTTP server instance
+ * @param {number} port - Port number to listen on
+ * @param {Object} logger - Logger instance for server logging
+ */
+const listenServer = (server, port, logger) => {
   server.listen(port, () => {
     logger.info(`Server running on port ${port} in ${config.nodeEnv} mode`, {
       port,
@@ -26,7 +32,14 @@ const listenServer = (server, port) => {
   });
 };
 
-const createGracefulServerShutdownHandler = (server, cleanUpFn) => async (signal) => {
+/**
+ * Create a graceful shutdown handler for the server
+ * @param {http.Server} server - HTTP server instance
+ * @param {Object} logger - Logger instance for shutdown logging
+ * @param {Function} cleanUpFn - Async cleanup function (e.g., container.dispose)
+ * @returns {Function} Signal handler function for graceful shutdown
+ */
+const createGracefulServerShutdownHandler = (server, logger, cleanUpFn) => async (signal) => {
   logger.info(`${signal} received, initiating graceful shutdown`);
 
   // Force shutdown timeout
@@ -76,7 +89,12 @@ const createGracefulServerShutdownHandler = (server, cleanUpFn) => async (signal
   }
 };
 
-const setupProcessHandlers = (shutdownHandler) => {
+/**
+ * Set up process-level signal and error handlers
+ * @param {Object} logger - Logger instance for process-level logging
+ * @param {Function} shutdownHandler - Graceful shutdown handler function
+ */
+const setupProcessHandlers = (logger, shutdownHandler) => {
   const handleFatal = (signal) => (error, promise) => {
     const errorInfo = error instanceof Error ? error.message : promise || error;
     const stack = config.isDevelopment && error instanceof Error ? error.stack : undefined;
@@ -95,9 +113,16 @@ const setupProcessHandlers = (shutdownHandler) => {
 
 const startServer = async () => {
   try {
+    // create a logger
+    const logger = createLoggerService({
+      logLevel: config.logLevel,
+      isProduction: config.isProduction,
+    });
+
     // Create and wire all dependencies via container
     logger.info('Initializing application container...');
     const container = await createContainer({
+      logger: logger,
       mongoUrl: config.mongoUrl,
       isProduction: config.isProduction,
     });
@@ -107,15 +132,18 @@ const startServer = async () => {
     const server = createConfiguredServer(container.app, KEEP_ALIVE_TIMEOUT_MS, HEADERS_TIMEOUT_MS);
 
     // Set up process handlers for graceful shutdown using container's dispose method
-    setupProcessHandlers(createGracefulServerShutdownHandler(server, () => container.dispose()));
+    setupProcessHandlers(
+      logger,
+      createGracefulServerShutdownHandler(server, logger, () => container.dispose()),
+    );
 
     // Start listening
-    listenServer(server, config.port);
+    listenServer(server, config.port, logger);
 
     return server;
   } catch (error) {
     // Log and exit on startup failure
-    logger.error('Failed to start server', {
+    console.error('Failed to start server', {
       error: error.message,
       stack: config.isDevelopment ? error.stack : undefined,
     });

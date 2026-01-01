@@ -2,6 +2,20 @@ const { createContainer } = require('../../container');
 const config = require('../../config');
 const { randomUUID } = require('crypto');
 
+/**
+ * Create a silent logger for integration tests
+ * Suppresses all log output during test execution
+ * @returns {Object} Mock logger with no-op methods
+ */
+const createTestLogger = () => ({
+  error: () => {},
+  warn: () => {},
+  info: () => {},
+  http: () => {},
+  debug: () => {},
+  stream: { write: () => {} },
+});
+
 const createTestConnection = async (testSuite) => {
   const workerId = process.env.JEST_WORKER_ID ?? '1';
   const testDbName = `test_db_${testSuite}_${workerId}_${randomUUID().replace(/-/g, '')}`;
@@ -12,8 +26,11 @@ const createTestConnection = async (testSuite) => {
 
   const testDbUrl = `${url}/${testDbName}?authSource=${authSource}`;
 
+  // Create a test logger for the container
+  const logger = createTestLogger();
+
   // Create container with isolated test database
-  const container = await createContainer({ mongoUrl: testDbUrl, isProduction: false });
+  const container = await createContainer({ mongoUrl: testDbUrl, isProduction: false, logger });
 
   return container;
 };

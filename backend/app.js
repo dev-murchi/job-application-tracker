@@ -16,7 +16,7 @@ const mongoSanitize = require('express-mongo-sanitize');
 const { appLevelRateLimit, notFound, errorHandler } = require('./middleware');
 
 // Utilities
-const { logger, sanitizeData } = require('./utils');
+const { createSanitizer } = require('./utils');
 
 /**
  * Factory function to create Express app with injected dependencies
@@ -25,9 +25,13 @@ const { logger, sanitizeData } = require('./utils');
  * @param {string} options.routes[].path - Route path
  * @param {express.Router} options.routes[].router - Express router
  * @param {Array<Function>} [options.routes[].middleware] - Optional middleware array
+ * @param {Object} options.logger - Logger instance for application logging
  * @returns {express.Application} Configured Express application
  */
-const createApp = ({ routes = [] }) => {
+const createApp = ({ routes = [], logger }) => {
+  // Create sanitizer
+  const sanitizer = createSanitizer(logger);
+
   // Initialize express app
   const app = express();
 
@@ -69,11 +73,11 @@ const createApp = ({ routes = [] }) => {
   // XSS protection handled by sanitize-html in validation layer
   app.use((req, res, next) => {
     try {
-      req.headers = sanitizeData(req.headers);
-      req.body = sanitizeData(req.body);
-      req.params = sanitizeData(req.params);
-      req.query = sanitizeData(req.query);
-      req.cookies = sanitizeData(req.cookies);
+      req.headers = sanitizer.sanitizeData(req.headers);
+      req.body = sanitizer.sanitizeData(req.body);
+      req.params = sanitizer.sanitizeData(req.params);
+      req.query = sanitizer.sanitizeData(req.query);
+      req.cookies = sanitizer.sanitizeData(req.cookies);
       next();
     } catch (error) {
       next(error);
@@ -116,7 +120,21 @@ const createApp = ({ routes = [] }) => {
   app.use(notFound);
 
   // Error handler (must be last)
-  app.use(errorHandler);
+  app.use((err, req, res, _next) => {
+    logger.error('Error occurred:', {
+      message: err.message,
+      issues: err.issues || [],
+      stack: config.isProduction ? undefined : err.stack,
+      url: req.url,
+      path: req.path,
+      method: req.method,
+      ip: req.ip,
+      userAgent: req.get('User-Agent'),
+      userId: (req.user && req.user.userId) || 'anonymous',
+    });
+
+    errorHandler(err, req, res, _next);
+  });
 
   return app;
 };

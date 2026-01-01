@@ -1,13 +1,22 @@
-const sanitizeData = require('../../utils/sanitize');
+const { createSanitizer } = require('../../utils/sanitize');
 const sanitizeHtml = require('sanitize-html');
-const { logger } = require('../../utils');
 
 jest.mock('sanitize-html');
 
 describe('Sanitize Utility - Minimal Tests for 100% Coverage', () => {
+  let sanitizeData;
+  let mockLogger;
+
   beforeEach(() => {
     jest.clearAllMocks();
     sanitizeHtml.mockImplementation((value) => value);
+    mockLogger = {
+      error: jest.fn(),
+      warn: jest.fn(),
+      info: jest.fn(),
+    };
+    const sanitizer = createSanitizer(mockLogger);
+    sanitizeData = sanitizer.sanitizeData;
   });
 
   describe('sanitizeData - primitives', () => {
@@ -89,7 +98,7 @@ describe('Sanitize Utility - Minimal Tests for 100% Coverage', () => {
       });
 
       expect(() => sanitizeData('test')).toThrow('Sanitization error');
-      expect(logger.error).toHaveBeenCalledWith(
+      expect(mockLogger.error).toHaveBeenCalledWith(
         'Error sanitizing value:',
         expect.objectContaining({
           value: 'test',

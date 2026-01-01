@@ -1,6 +1,5 @@
 const { StatusCodes } = require('http-status-codes');
 const config = require('../config');
-const { logger } = require('../utils');
 const { MONGO_DUPLICATE_KEY_ERROR_CODE } = require('../constants');
 
 const errorHandlers = {
@@ -48,20 +47,6 @@ const handleMongoError = (err) => {
   return null;
 };
 
-const logError = (err, req) => {
-  logger.error('Error occurred:', {
-    message: err.message,
-    issues: err.issues || [],
-    stack: config.isProduction ? undefined : err.stack,
-    url: req.url,
-    path: req.path,
-    method: req.method,
-    ip: req.ip,
-    userAgent: req.get('User-Agent'),
-    userId: (req.user && req.user.userId) || 'anonymous',
-  });
-};
-
 const sanitizeErrorMessage = (message, statusCode) => {
   if (config.isProduction && statusCode >= StatusCodes.INTERNAL_SERVER_ERROR) {
     return 'Internal server error. Please try again later.';
@@ -69,9 +54,16 @@ const sanitizeErrorMessage = (message, statusCode) => {
   return message;
 };
 
-const errorHandlerMiddleware = (err, req, res, _next) => {
-  logError(err, req);
-
+/**
+ * Express error handling middleware
+ * Handles various error types and returns standardized JSON responses
+ * @param {Error} err - Error object
+ * @param {express.Request} _req - Express request object (unused)
+ * @param {express.Response} res - Express response object
+ * @param {Function} _next - Express next function (unused)
+ * @returns {express.Response} JSON error response
+ */
+const errorHandlerMiddleware = (err, _req, res, _next) => {
   // Try specific error handlers
   const handler = errorHandlers[err.name];
   const mongoError = handleMongoError(err);

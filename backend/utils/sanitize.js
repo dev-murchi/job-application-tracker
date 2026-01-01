@@ -1,44 +1,65 @@
 const sanitizeHtml = require('sanitize-html');
-const logger = require('./logger');
 
-const sanitize = (value) => {
-  try {
-    if (typeof value !== 'string') {
-      return value;
+/**
+ * Create a sanitizer service with HTML sanitization capabilities
+ * @param {Object} logger - Logger instance for error logging
+ * @returns {Object} Sanitizer object with sanitizeData method
+ */
+const createSanitizer = (logger) => {
+  /**
+   * Sanitize a single string value by removing HTML tags
+   * @param {*} value - Value to sanitize
+   * @returns {*} Sanitized value (unchanged if not a string)
+   * @throws {Error} If sanitization fails
+   */
+  const sanitize = (value) => {
+    try {
+      if (typeof value !== 'string') {
+        return value;
+      }
+      return sanitizeHtml(value, {
+        allowedSchemes: ['http', 'https'],
+        allowedTags: [],
+        allowedAttributes: {},
+        disallowedTagsMode: 'recursiveEscape',
+      });
+    } catch (error) {
+      logger.error('Error sanitizing value:', { value, error: error.message });
+      throw error;
     }
-    return sanitizeHtml(value, {
-      allowedSchemes: ['http', 'https'],
-      allowedTags: [],
-      allowedAttributes: {},
-      disallowedTagsMode: 'recursiveEscape',
-    });
-  } catch (error) {
-    logger.error('Error sanitizing value:', { value, error: error.message });
-    throw error;
-  }
+  };
+
+  /**
+   * Recursively sanitize data structure (objects, arrays, primitives)
+   * @param {*} data - Data to sanitize (can be object, array, or primitive)
+   * @returns {*} Sanitized data with same structure
+   */
+  const sanitizeData = (data) => {
+    if (data === null || data === undefined) {
+      return data;
+    }
+
+    // Handle primitives
+    if (typeof data !== 'object') {
+      return sanitize(data);
+    }
+
+    // Handle arrays
+    if (Array.isArray(data)) {
+      return data.map((item) => sanitizeData(item));
+    }
+
+    // Handle objects
+    const sanitized = {};
+    for (const [key, value] of Object.entries(data)) {
+      sanitized[key] = sanitizeData(value);
+    }
+    return sanitized;
+  };
+
+  return {
+    sanitizeData,
+  };
 };
 
-const sanitizeData = (data) => {
-  if (data === null || data === undefined) {
-    return data;
-  }
-
-  // Handle primitives
-  if (typeof data !== 'object') {
-    return sanitize(data);
-  }
-
-  // Handle arrays
-  if (Array.isArray(data)) {
-    return data.map((item) => sanitizeData(item));
-  }
-
-  // Handle objects
-  const sanitized = {};
-  for (const [key, value] of Object.entries(data)) {
-    sanitized[key] = sanitizeData(value);
-  }
-  return sanitized;
-};
-
-module.exports = sanitizeData;
+module.exports = { createSanitizer };

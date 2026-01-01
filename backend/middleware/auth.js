@@ -2,14 +2,14 @@ const jwt = require('jsonwebtoken');
 const { UnauthenticatedError } = require('../errors');
 const config = require('../config');
 const { MongooseObjectIdSchema } = require('../schemas');
-const { logger } = require('../utils');
 
 /**
  * Factory function to create authentication middleware with injected dependencies
  * @param {Object} dbService - Database service for accessing User model
- * @returns {Function} Express middleware function
+ * @param {Object} logger - Logger instance for authentication logging
+ * @returns {Function} Express middleware function for JWT authentication
  */
-const createAuthenticateUser = (dbService) => {
+const createAuthenticateUser = (dbService, logger) => {
   return async (req, res, next) => {
     const token = req.cookies.token;
     if (!token) {

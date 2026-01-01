@@ -1,5 +1,4 @@
 const { errorHandler } = require('../../middleware');
-const logger = require('../../utils/logger');
 const config = require('../../config');
 const { StatusCodes } = require('http-status-codes');
 
@@ -28,14 +27,6 @@ describe('Error Handler Middleware', () => {
 
     errorHandler(error, req, res, next);
 
-    expect(logger.error).toHaveBeenCalledWith(
-      'Error occurred:',
-      expect.objectContaining({
-        message: 'Something went wrong',
-        url: '/test',
-        userId: 'user123',
-      }),
-    );
     expect(res.status).toHaveBeenCalledWith(StatusCodes.INTERNAL_SERVER_ERROR);
     expect(res.json).toHaveBeenCalledWith({
       success: false,
@@ -160,18 +151,18 @@ describe('Error Handler Middleware', () => {
     });
   });
 
-  it('should log anonymous user when user is not authenticated', () => {
+  it('should handle errors when user is not authenticated', () => {
     delete req.user;
     const error = new Error('Test error');
 
     errorHandler(error, req, res, next);
 
-    expect(logger.error).toHaveBeenCalledWith(
-      'Error occurred:',
-      expect.objectContaining({
-        userId: 'anonymous',
-      }),
-    );
+    expect(res.status).toHaveBeenCalledWith(StatusCodes.INTERNAL_SERVER_ERROR);
+    expect(res.json).toHaveBeenCalledWith({
+      success: false,
+      message: 'Test error',
+      statusCode: StatusCodes.INTERNAL_SERVER_ERROR,
+    });
   });
 
   it('should provide generic message for 5xx errors in production', () => {
@@ -202,17 +193,17 @@ describe('Error Handler Middleware', () => {
     });
   });
 
-  it('should log error stack trace', () => {
+  it('should handle errors with stack traces', () => {
     const error = new Error('Test error');
     error.stack = 'Error: Test error\n    at Object.<anonymous>';
 
     errorHandler(error, req, res, next);
 
-    expect(logger.error).toHaveBeenCalledWith(
-      'Error occurred:',
-      expect.objectContaining({
-        stack: expect.stringContaining('Error: Test error'),
-      }),
-    );
+    expect(res.status).toHaveBeenCalledWith(StatusCodes.INTERNAL_SERVER_ERROR);
+    expect(res.json).toHaveBeenCalledWith({
+      success: false,
+      message: 'Test error',
+      statusCode: StatusCodes.INTERNAL_SERVER_ERROR,
+    });
   });
 });

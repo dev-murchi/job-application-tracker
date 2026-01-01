@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-const { logger } = require('../utils');
 const {
   POOL_MAX_PROD,
   POOL_MAX_DEV,
@@ -63,7 +62,14 @@ const createConnectionOptions = (isProduction) => ({
   appName: 'job-tracker-api',
 });
 
-const createEventHandlers = (connection, isProduction) => ({
+/**
+ * Create event handlers for MongoDB connection lifecycle events
+ * @param {mongoose.Connection} connection - Mongoose connection instance
+ * @param {Object} logger - Logger instance
+ * @param {boolean} isProduction - Whether running in production mode
+ * @returns {Object} Object containing all event handler functions
+ */
+const createEventHandlers = (connection, logger, isProduction) => ({
   onConnected: () => {
     logger.info('MongoDB connected successfully', {
       host: connection.host,
@@ -126,11 +132,20 @@ const validateConnectionUrl = (url) => {
   return url;
 };
 
-const createConnectionManager = ({ connection, config }) => {
+/**
+ * Create a connection manager for MongoDB with lifecycle management
+ * @param {Object} options - Connection manager options
+ * @param {mongoose.Connection} [options.connection] - Existing mongoose connection
+ * @param {Object} options.config - Configuration object
+ * @param {boolean} options.config.isProduction - Whether running in production mode
+ * @param {Object} options.logger - Logger instance for connection logging
+ * @returns {Object} Connection manager with connect and closeConnection methods
+ */
+const createConnectionManager = ({ connection, config, logger }) => {
   const conn = connection || mongoose.connection;
 
   const options = createConnectionOptions(config.isProduction);
-  const eventHandlers = createEventHandlers(conn, config.isProduction);
+  const eventHandlers = createEventHandlers(conn, logger, config.isProduction);
 
   const connect = (url) => {
     validateConnectionUrl(url);

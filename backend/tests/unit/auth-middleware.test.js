@@ -22,11 +22,17 @@ const createMockDbService = () => {
 };
 
 describe('Auth Middleware', () => {
-  let req, res, next, mockDbService, authenticateUser, mockUserModel;
+  let req, res, next, mockDbService, authenticateUser, mockUserModel, mockLogger;
 
   beforeEach(() => {
     mockDbService = createMockDbService();
-    authenticateUser = createAuthenticateUser(mockDbService);
+    mockLogger = {
+      error: jest.fn(),
+      warn: jest.fn(),
+      info: jest.fn(),
+      debug: jest.fn(),
+    };
+    authenticateUser = createAuthenticateUser(mockDbService, mockLogger);
     mockUserModel = mockDbService.getModel('User');
 
     req = {
