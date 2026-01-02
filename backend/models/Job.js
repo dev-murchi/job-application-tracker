@@ -57,7 +57,10 @@ const createJobSchema = ({ autoIndex }) => {
     { background: true, name: 'user_created_desc_idx' },
   );
 
-  JobSchema.index({ createdBy: 1, createdAt: 1 }, { background: true, name: 'user_created_asc_idx' });
+  JobSchema.index(
+    { createdBy: 1, createdAt: 1 },
+    { background: true, name: 'user_created_asc_idx' },
+  );
 
   JobSchema.index(
     { createdBy: 1, status: 1, createdAt: -1 },

@@ -44,7 +44,6 @@ const { createHealthRouter } = require('./routes/health');
 
 // App
 const { createApp } = require('./app');
-const config = require('./config');
 
 /**
  * Create and wire all application dependencies
