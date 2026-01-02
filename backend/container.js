@@ -14,7 +14,7 @@
 const mongoose = require('mongoose');
 const createConnectionManager = require('./db/connect');
 const { createDbService } = require('./db/db-service');
-const { UserSchema, JobSchema } = require('./models');
+const { createUserSchema, createJobSchema } = require('./models');
 
 // Services
 const {
@@ -22,6 +22,7 @@ const {
   createJobService,
   createUserService,
   createHealthService,
+  createJwtService,
 } = require('./services');
 
 // Controllers
@@ -43,12 +44,13 @@ const { createHealthRouter } = require('./routes/health');
 
 // App
 const { createApp } = require('./app');
+const config = require('./config');
 
 /**
  * Create and wire all application dependencies
  * @param {Object} options - Container configuration options
- * @param {Object} options.logger - Logger instance for application-wide logging
- * @param {string} options.mongoUrl - MongoDB connection URL
+ * @param {Object} options.logger - Applicatin configurations
+ * @param {string} options.config - MongoDB connection URL
  * @param {boolean} [options.isProduction=false] - Whether running in production mode
  * @param {Object} [options.connection=null] - Existing mongoose connection (for tests)
  * @returns {Promise<Object>} Container with all wired dependencies
@@ -56,10 +58,11 @@ const { createApp } = require('./app');
 const createContainer = async (options) => {
   const {
     logger,
-    mongoUrl,
-    isProduction = false,
+    config,
     connection = null, // Allow injecting existing connection for tests
   } = options;
+
+  const { mongoUrl, isProduction, jwtSecret, jwtLifetime } = config;
 
   // ============================================
   // 1. DATABASE LAYER
@@ -80,16 +83,23 @@ const createContainer = async (options) => {
     await dbConnectionManager.connect(mongoUrl);
   }
 
-  // Create database service with models
+  // Create databases ervice with models
   const dbService = createDbService(mongooseConnection);
-  dbService.createModel('User', UserSchema);
-  dbService.createModel('Job', JobSchema);
+  const userSchema = createUserSchema({ autoIndex: !isProduction });
+  const jobSchema = createJobSchema({ autoIndex: !isProduction });
+  dbService.createModel('User', userSchema);
+  dbService.createModel('Job', jobSchema);
 
   // ============================================
   // 2. BUSINESS LOGIC LAYER (Services)
   // ============================================
 
-  const authService = createAuthService(dbService);
+  const jwtService = createJwtService({
+    secret: jwtSecret,
+    expiresIn: jwtLifetime,
+  });
+
+  const authService = createAuthService(dbService, jwtService);
   const jobService = createJobService(dbService);
   const userService = createUserService(dbService);
   const healthService = createHealthService(dbConnectionManager);
@@ -116,7 +126,7 @@ const createContainer = async (options) => {
   // 5. MIDDLEWARE
   // ============================================
 
-  const authenticateUser = createAuthenticateUser(dbService, logger);
+  const authenticateUser = createAuthenticateUser(dbService, jwtService, logger);
 
   // ============================================
   // 6. APPLICATION
@@ -147,6 +157,7 @@ const createContainer = async (options) => {
     jobService,
     userService,
     healthService,
+    jwtService,
 
     // Controllers
     authController,

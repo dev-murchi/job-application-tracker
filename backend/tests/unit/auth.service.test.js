@@ -11,7 +11,6 @@ const mockUser = {
   location: 'New York',
   password: 'hashedPassword',
   comparePassword: jest.fn(),
-  createJWT: jest.fn(),
 };
 
 const createMockUser = () => ({
@@ -29,16 +28,24 @@ const createMockDbService = (User) => ({
   }),
 });
 
+// Create mock jwtService
+const createMockJwtService = () => ({
+  sign: jest.fn(),
+  verify: jest.fn(),
+});
+
 describe('Auth Service', () => {
   let authService;
   let mockDbService;
+  let mockJwtService;
   let User;
 
   beforeEach(() => {
     jest.clearAllMocks();
     User = createMockUser();
     mockDbService = createMockDbService(User);
-    authService = createAuthService(mockDbService);
+    mockJwtService = createMockJwtService();
+    authService = createAuthService(mockDbService, mockJwtService);
   });
 
   describe('formatUserResponse', () => {
@@ -162,18 +169,18 @@ describe('Auth Service', () => {
       const foundUser = {
         ...mockUser,
         comparePassword: jest.fn().mockResolvedValue(true),
-        createJWT: jest.fn().mockReturnValue('jwt-token-123'),
       };
 
       User.findOne.mockReturnValue({
         select: jest.fn().mockResolvedValue(foundUser),
       });
+      mockJwtService.sign.mockReturnValue('jwt-token-123');
 
       const result = await authService.authenticateUser(credentials);
 
       expect(User.findOne).toHaveBeenCalledWith({ email: credentials.email });
       expect(foundUser.comparePassword).toHaveBeenCalledWith(credentials.password);
-      expect(foundUser.createJWT).toHaveBeenCalled();
+      expect(mockJwtService.sign).toHaveBeenCalledWith({ userId: foundUser._id });
       expect(result).toEqual({
         user: {
           email: foundUser.email,
@@ -222,7 +229,7 @@ describe('Auth Service', () => {
       );
 
       expect(foundUser.comparePassword).toHaveBeenCalledWith(credentials.password);
-      expect(foundUser.createJWT).not.toHaveBeenCalled();
+      expect(mockJwtService.sign).not.toHaveBeenCalled();
     });
 
     it('should handle database errors during authentication', async () => {

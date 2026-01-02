@@ -4,9 +4,10 @@ const { formatUserResponse } = require('./formatters');
 /**
  * Factory function to create auth service with injected dependencies
  * @param {Object} dbService - Database service for accessing models
+ * @param {Object} jwtService - JWT service for token operations
  * @returns {Object} Auth service methods
  */
-const createAuthService = (dbService) => {
+const createAuthService = (dbService, jwtService) => {
   const User = dbService.getModel('User');
 
   /**
@@ -50,7 +51,7 @@ const createAuthService = (dbService) => {
       throw new UnauthenticatedError('Invalid Credentials');
     }
 
-    const token = user.createJWT();
+    const token = jwtService.sign({ userId: user._id });
 
     return {
       user: formatUserResponse(user),

@@ -58,10 +58,10 @@ describe('User Integration Tests', () => {
     // delete user
     await deleteTestUser(container, deletedUser._id);
 
-    authToken = generateTestToken(testUser);
+    authToken = generateTestToken(container, testUser);
     authCookie = createTestCookie(authToken);
 
-    authTokenForDeletedUser = generateTestToken(deletedUser);
+    authTokenForDeletedUser = generateTestToken(container, deletedUser);
     authCookieForDeletedUser = createTestCookie(authTokenForDeletedUser);
   });
 

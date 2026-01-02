@@ -166,7 +166,7 @@ describe('API Integration Tests', () => {
 
     it('should sanitize MongoDB operators from query parameters', async () => {
       const testUser = await seedTestUser(container);
-      const authToken = generateTestToken(testUser);
+      const authToken = generateTestToken(container, testUser);
       const authCookie = createTestCookie(authToken);
 
       const response = await request(app)
@@ -197,7 +197,7 @@ describe('API Integration Tests', () => {
 
     it('should sanitize XSS attacks from nested objects and complex HTML elements', async () => {
       const testUser = await seedTestUser(container);
-      const authToken = generateTestToken(testUser);
+      const authToken = generateTestToken(container, testUser);
       const authCookie = createTestCookie(authToken);
 
       const xssData = {
@@ -242,7 +242,7 @@ describe('API Integration Tests', () => {
   describe('Middleware Stack Order', () => {
     it('should catch errors in async route handlers', async () => {
       const testUser = await seedTestUser(container);
-      const authToken = generateTestToken(testUser);
+      const authToken = generateTestToken(container, testUser);
       const authCookie = createTestCookie(authToken);
 
       // Trigger an error by providing invalid ObjectId

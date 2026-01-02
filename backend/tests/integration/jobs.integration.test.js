@@ -60,7 +60,7 @@ describe('Jobs Integration Tests', () => {
 
     await deleteTestJob(container, nonExistJob._id);
 
-    authToken = generateTestToken(testUser);
+    authToken = generateTestToken(container, testUser);
     authCookie = createTestCookie(authToken);
   });
 
@@ -383,7 +383,7 @@ describe('Jobs Integration Tests', () => {
         location: 'City',
       });
 
-      const newToken = generateTestToken(newUser);
+      const newToken = generateTestToken(container, newUser);
       const newCookie = createTestCookie(newToken);
 
       const response = await request(app).get('/api/v1/jobs').set('Cookie', newCookie).expect(200);
@@ -610,7 +610,7 @@ describe('Jobs Integration Tests', () => {
         location: 'City',
       });
 
-      const otherToken = generateTestToken(otherUser);
+      const otherToken = generateTestToken(container, otherUser);
       const otherCookie = createTestCookie(otherToken);
 
       const updateData = { company: 'Hacked Corp' };
@@ -714,7 +714,7 @@ describe('Jobs Integration Tests', () => {
         location: 'City',
       });
 
-      const otherToken = generateTestToken(otherUser);
+      const otherToken = generateTestToken(container, otherUser);
       const otherCookie = createTestCookie(otherToken);
 
       const response = await request(app)
@@ -815,7 +815,7 @@ describe('Jobs Integration Tests', () => {
         location: 'City',
       });
 
-      const newToken = generateTestToken(newUser);
+      const newToken = generateTestToken(container, newUser);
       const newCookie = createTestCookie(newToken);
 
       const response = await request(app)

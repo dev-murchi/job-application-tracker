@@ -1,4 +1,4 @@
 module.exports = {
-  UserSchema: require('./User'),
-  JobSchema: require('./Job'),
+  createUserSchema: require('./User').createUserSchema,
+  createJobSchema: require('./Job').createJobSchema,
 };

@@ -1,15 +1,14 @@
-const jwt = require('jsonwebtoken');
 const { UnauthenticatedError } = require('../errors');
-const config = require('../config');
 const { MongooseObjectIdSchema } = require('../schemas');
 
 /**
  * Factory function to create authentication middleware with injected dependencies
  * @param {Object} dbService - Database service for accessing User model
+ * @param {Object} jwtService - JWT service for token verification
  * @param {Object} logger - Logger instance for authentication logging
  * @returns {Function} Express middleware function for JWT authentication
  */
-const createAuthenticateUser = (dbService, logger) => {
+const createAuthenticateUser = (dbService, jwtService, logger) => {
   return async (req, res, next) => {
     const token = req.cookies.token;
     if (!token) {
@@ -17,7 +16,7 @@ const createAuthenticateUser = (dbService, logger) => {
       throw new UnauthenticatedError('Authentication Invalid');
     }
 
-    const payload = jwt.verify(token, config.jwtSecret);
+    const payload = jwtService.verify(token);
 
     // Validate userId is a valid MongoDB ObjectId
     const userId = MongooseObjectIdSchema.parse(payload.userId);

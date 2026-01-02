@@ -1,9 +1,5 @@
-const jwt = require('jsonwebtoken');
 const { createAuthenticateUser } = require('../../middleware/auth');
 const { UnauthenticatedError } = require('../../errors');
-const config = require('../../config');
-
-jest.mock('jsonwebtoken');
 
 // Mock dbService factory
 const createMockDbService = () => {
@@ -21,18 +17,25 @@ const createMockDbService = () => {
   };
 };
 
+// Mock jwtService factory
+const createMockJwtService = () => ({
+  sign: jest.fn(),
+  verify: jest.fn(),
+});
+
 describe('Auth Middleware', () => {
-  let req, res, next, mockDbService, authenticateUser, mockUserModel, mockLogger;
+  let req, res, next, mockDbService, mockJwtService, authenticateUser, mockUserModel, mockLogger;
 
   beforeEach(() => {
     mockDbService = createMockDbService();
+    mockJwtService = createMockJwtService();
     mockLogger = {
       error: jest.fn(),
       warn: jest.fn(),
       info: jest.fn(),
       debug: jest.fn(),
     };
-    authenticateUser = createAuthenticateUser(mockDbService, mockLogger);
+    authenticateUser = createAuthenticateUser(mockDbService, mockJwtService, mockLogger);
     mockUserModel = mockDbService.getModel('User');
 
     req = {
@@ -52,14 +55,14 @@ describe('Auth Middleware', () => {
     };
 
     req.cookies.token = token;
-    jwt.verify.mockReturnValue(payload);
+    mockJwtService.verify.mockReturnValue(payload);
     mockUserModel.findOne.mockReturnValue({
       lean: jest.fn().mockResolvedValue(mockUser),
     });
 
     await authenticateUser(req, res, next);
 
-    expect(jwt.verify).toHaveBeenCalledWith(token, config.jwtSecret);
+    expect(mockJwtService.verify).toHaveBeenCalledWith(token);
     expect(mockUserModel.findOne).toHaveBeenCalledWith({ _id: payload.userId });
     expect(req.user).toEqual({
       _id: '507f1f77bcf86cd799439011',
@@ -86,7 +89,7 @@ describe('Auth Middleware', () => {
 
   it('should throw UnauthenticatedError when token verification fails', async () => {
     req.cookies.token = 'invalid-token';
-    jwt.verify.mockImplementation(() => {
+    mockJwtService.verify.mockImplementation(() => {
       throw new Error('jwt malformed');
     });
 
@@ -97,7 +100,7 @@ describe('Auth Middleware', () => {
 
   it('should throw UnauthenticatedError when token is expired', async () => {
     req.cookies.token = 'expired-token';
-    jwt.verify.mockImplementation(() => {
+    mockJwtService.verify.mockImplementation(() => {
       const error = new Error('jwt expired');
       error.name = 'TokenExpiredError';
       throw error;
@@ -112,7 +115,7 @@ describe('Auth Middleware', () => {
 
   it('should throw UnauthenticatedError for invalid signature', async () => {
     req.cookies.token = 'tampered-token';
-    jwt.verify.mockImplementation(() => {
+    mockJwtService.verify.mockImplementation(() => {
       const error = new Error('invalid signature');
       error.name = 'JsonWebTokenError';
       throw error;

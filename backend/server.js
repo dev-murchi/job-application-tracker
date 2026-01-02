@@ -123,8 +123,7 @@ const startServer = async () => {
     logger.info('Initializing application container...');
     const container = await createContainer({
       logger: logger,
-      mongoUrl: config.mongoUrl,
-      isProduction: config.isProduction,
+      config: config,
     });
     logger.info('Database connection established successfully');
 

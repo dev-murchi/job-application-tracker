@@ -30,7 +30,7 @@ const createTestConnection = async (testSuite) => {
   const logger = createTestLogger();
 
   // Create container with isolated test database
-  const container = await createContainer({ mongoUrl: testDbUrl, isProduction: false, logger });
+  const container = await createContainer({ logger, config: { ...config, mongoUrl: testDbUrl } });
 
   return container;
 };
@@ -106,11 +106,8 @@ const deleteTestUser = async (container, userId) => {
   await User.findByIdAndDelete(userId);
 };
 
-const generateTestToken = (user) => {
-  const jwt = require('jsonwebtoken');
-  return jwt.sign({ userId: user._id }, config.jwtSecret, {
-    expiresIn: config.jwtLifetime,
-  });
+const generateTestToken = (container, user) => {
+  return container.jwtService.sign({ userId: user._id });
 };
 
 const createTestCookie = (token) => {
