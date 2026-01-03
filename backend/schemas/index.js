@@ -15,6 +15,9 @@ const { UserUpdateSchema } = require('./user.schemas');
 // Job schemas
 const { JobSearchQuerySchema, JobCreateSchema, JobUpdateSchema } = require('./job.schemas');
 
+// Config schemas
+const { ConfigSchema } = require('./config.schemas');
+
 module.exports = {
   // Common
   MongooseObjectIdSchema,
@@ -31,4 +34,7 @@ module.exports = {
   JobSearchQuerySchema,
   JobCreateSchema,
   JobUpdateSchema,
+
+  // Config
+  ConfigSchema,
 };

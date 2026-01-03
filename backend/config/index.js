@@ -1,7 +1,9 @@
 require('dotenv').config({
   quiet: true,
 });
-const { ConfigSchema, loadAndValidate } = require('./validation');
+
+const { ConfigSchema } = require('../schemas');
+const { loadAndValidate } = require('../utils/config-validation');
 
 const rawConfig = {
   nodeEnv: process.env.NODE_ENV,
