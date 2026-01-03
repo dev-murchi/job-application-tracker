@@ -1,9 +1,18 @@
-const { errorHandler } = require('../../middleware');
-const config = require('../../config');
+const { createErrorHandler } = require('../../middleware');
 const { StatusCodes } = require('http-status-codes');
 
+// Mock configService factory
+const createMockConfigService = (isProduction = false) => ({
+  get: jest.fn().mockImplementation((key) => {
+    if (key === 'isProduction') {
+      return isProduction;
+    }
+    return null;
+  }),
+});
+
 describe('Error Handler Middleware', () => {
-  let req, res, next;
+  let req, res, next, errorHandler, mockConfigService;
 
   beforeEach(() => {
     req = {
@@ -19,7 +28,8 @@ describe('Error Handler Middleware', () => {
     };
     next = jest.fn();
     jest.clearAllMocks();
-    config.isProduction = false;
+    mockConfigService = createMockConfigService(false);
+    errorHandler = createErrorHandler({ configService: mockConfigService });
   });
 
   it('should handle generic errors with default status code', () => {
@@ -166,11 +176,12 @@ describe('Error Handler Middleware', () => {
   });
 
   it('should provide generic message for 5xx errors in production', () => {
-    config.isProduction = true;
+    const prodConfigService = createMockConfigService(true);
+    const prodErrorHandler = createErrorHandler({ configService: prodConfigService });
     const error = new Error('Database connection failed');
     error.statusCode = StatusCodes.INTERNAL_SERVER_ERROR;
 
-    errorHandler(error, req, res, next);
+    prodErrorHandler(error, req, res, next);
 
     expect(res.json).toHaveBeenCalledWith({
       success: false,
@@ -180,11 +191,12 @@ describe('Error Handler Middleware', () => {
   });
 
   it('should not mask client errors (4xx) in production', () => {
-    config.isProduction = true;
+    const prodConfigService = createMockConfigService(true);
+    const prodErrorHandler = createErrorHandler({ configService: prodConfigService });
     const error = new Error('Invalid input');
     error.statusCode = StatusCodes.BAD_REQUEST;
 
-    errorHandler(error, req, res, next);
+    prodErrorHandler(error, req, res, next);
 
     expect(res.json).toHaveBeenCalledWith({
       success: false,

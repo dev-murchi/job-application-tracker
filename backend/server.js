@@ -2,11 +2,13 @@ const config = require('./config');
 const { createLoggerService } = require('./utils');
 const { createContainer } = require('./container');
 const http = require('http');
+const { createConfigService } = require('./services');
 const {
   KEEP_ALIVE_TIMEOUT_MS,
   HEADERS_TIMEOUT_MS,
   GRACEFUL_SHUTDOWN_TIMEOUT_MS,
 } = require('./constants');
+const { ConfigSchema } = require('./schemas');
 
 const createConfiguredServer = (requestListener, keepAliveTimeout, headersTimeout) => {
   const server = http.createServer(requestListener);
@@ -21,11 +23,12 @@ const createConfiguredServer = (requestListener, keepAliveTimeout, headersTimeou
  * @param {number} port - Port number to listen on
  * @param {Object} logger - Logger instance for server logging
  */
-const listenServer = (server, port, logger) => {
+const listenServer = (server, port, logger, options = {}) => {
+  const { environment } = options;
   server.listen(port, () => {
-    logger.info(`Server running on port ${port} in ${config.nodeEnv} mode`, {
+    logger.info(`Server running on port ${port} in ${environment} mode`, {
       port,
-      environment: config.nodeEnv,
+      environment,
       processId: process.pid,
       nodeVersion: process.version,
     });
@@ -97,10 +100,9 @@ const createGracefulServerShutdownHandler = (server, logger, cleanUpFn) => async
 const setupProcessHandlers = (logger, shutdownHandler) => {
   const handleFatal = (signal) => (error, promise) => {
     const errorInfo = error instanceof Error ? error.message : promise || error;
-    const stack = config.isDevelopment && error instanceof Error ? error.stack : undefined;
 
     const type = signal === 'UNCAUGHT_EXCEPTION' ? 'Uncaught Exception' : 'Unhandled Rejection';
-    logger.error(type, { reason: errorInfo, stack });
+    logger.error(type, { reason: errorInfo });
 
     shutdownHandler(signal);
   };
@@ -113,17 +115,27 @@ const setupProcessHandlers = (logger, shutdownHandler) => {
 
 const startServer = async () => {
   try {
+    // create a configutation service
+    const configService = createConfigService();
+    // load raw configs
+    configService.loadConfig(ConfigSchema, config);
+
+    const environment = configService.get('nodeEnv');
+    const logLevel = configService.get('logLevel');
+    const isProduction = configService.get('isProduction');
+    const port = configService.get('port');
+
     // create a logger
     const logger = createLoggerService({
-      logLevel: config.logLevel,
-      isProduction: config.isProduction,
+      logLevel,
+      isProduction,
     });
 
     // Create and wire all dependencies via container
     logger.info('Initializing application container...');
     const container = await createContainer({
-      logger: logger,
-      config: config,
+      loggerService: logger,
+      configService: configService,
     });
     logger.info('Database connection established successfully');
 
@@ -137,14 +149,13 @@ const startServer = async () => {
     );
 
     // Start listening
-    listenServer(server, config.port, logger);
+    listenServer(server, port, logger, { environment });
 
     return server;
   } catch (error) {
     // Log and exit on startup failure
     console.error('Failed to start server', {
       error: error.message,
-      stack: config.isDevelopment ? error.stack : undefined,
     });
     process.exit(1);
   }

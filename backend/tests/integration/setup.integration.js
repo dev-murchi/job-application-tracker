@@ -3,11 +3,11 @@ const config = require('../../config');
 const { randomUUID } = require('crypto');
 
 /**
- * Create a silent logger for integration tests
+ * Create a silent logger service for integration tests
  * Suppresses all log output during test execution
- * @returns {Object} Mock logger with no-op methods
+ * @returns {Object} Mock logger service with no-op methods
  */
-const createTestLogger = () => ({
+const createTestLoggerService = () => ({
   error: () => {},
   warn: () => {},
   info: () => {},
@@ -15,6 +15,18 @@ const createTestLogger = () => ({
   debug: () => {},
   stream: { write: () => {} },
 });
+
+/**
+ * Create a config service from config object with a get() method
+ * @param {Object} configOverrides - Config values to override
+ * @returns {Object} Config service with get method
+ */
+const createTestConfigService = (configOverrides = {}) => {
+  const mergedConfig = { ...config, ...configOverrides };
+  return {
+    get: (key) => mergedConfig[key],
+  };
+};
 
 const createTestConnection = async (testSuite) => {
   const workerId = process.env.JEST_WORKER_ID ?? '1';
@@ -26,11 +38,17 @@ const createTestConnection = async (testSuite) => {
 
   const testDbUrl = `${url}/${testDbName}?authSource=${authSource}`;
 
-  // Create a test logger for the container
-  const logger = createTestLogger();
+  // Create a test logger service for the container
+  const loggerService = createTestLoggerService();
+
+  // Create a config service with the test database URL
+  const configService = createTestConfigService({ mongoUrl: testDbUrl });
 
   // Create container with isolated test database
-  const container = await createContainer({ logger, config: { ...config, mongoUrl: testDbUrl } });
+  const container = await createContainer({
+    configService,
+    loggerService,
+  });
 
   return container;
 };

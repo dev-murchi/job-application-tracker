@@ -106,12 +106,10 @@ describe('User Integration Tests', () => {
 
     it('should reject profile request with expired token', async () => {
       const jwt = require('jsonwebtoken');
-      const config = require('../../config');
-
       // Create expired token
       const expiredToken = jwt.sign(
         { userId: testUser._id },
-        config.jwtSecret,
+        container.configService.get('jwtSecret'),
         { expiresIn: '-1h' }, // Expired 1 hour ago
       );
 

@@ -12,10 +12,21 @@ const createMockAuthService = () => ({
   authenticateUser: jest.fn(),
 });
 
+// Create mock config service
+const createMockConfigService = () => ({
+  get: jest.fn().mockImplementation((key) => {
+    if (key === 'isProduction') {
+      return false;
+    }
+    return null;
+  }),
+});
+
 describe('Auth Controller', () => {
   let mockReq, mockRes;
   let authController;
   let mockAuthService;
+  let mockConfigService;
 
   beforeEach(() => {
     mockReq = {
@@ -28,7 +39,11 @@ describe('Auth Controller', () => {
       cookie: jest.fn().mockReturnThis(),
     };
     mockAuthService = createMockAuthService();
-    authController = createAuthController(mockAuthService);
+    mockConfigService = createMockConfigService();
+    authController = createAuthController({
+      authService: mockAuthService,
+      configService: mockConfigService,
+    });
   });
 
   afterEach(() => {
@@ -128,6 +143,7 @@ describe('Auth Controller', () => {
       expect(attachCookie).toHaveBeenCalledWith({
         res: mockRes,
         token: 'mock-jwt-token',
+        secure: false,
       });
       expect(mockRes.status).toHaveBeenCalledWith(StatusCodes.OK);
       expect(mockRes.json).toHaveBeenCalledWith(mockAuthResult.user);

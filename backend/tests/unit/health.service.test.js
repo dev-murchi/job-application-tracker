@@ -1,12 +1,6 @@
 const { describe, beforeEach, it, expect } = require('@jest/globals');
 const { createHealthService } = require('../../services/health.service');
 
-// Mock config
-jest.mock('../../config', () => ({
-  isProduction: false,
-  nodeEnv: 'test',
-}));
-
 // Mock dbConnectionManager factory
 const createMockDbConnectionManager = () => ({
   getConnectionStatus: jest.fn(),
@@ -14,13 +8,30 @@ const createMockDbConnectionManager = () => ({
   healthPing: jest.fn(),
 });
 
+// Mock configService factory
+const createMockConfigService = (isProduction = false, nodeEnv = 'test') => ({
+  get: jest.fn().mockImplementation((key) => {
+    if (key === 'isProduction') {
+      return isProduction;
+    }
+    if (key === 'nodeEnv') {
+      return nodeEnv;
+    }
+    return null;
+  }),
+});
+
 describe('Health Service', () => {
-  let mockDbConnectionManager, healthService;
+  let mockDbConnectionManager, mockConfigService, healthService;
 
   beforeEach(() => {
     jest.clearAllMocks();
     mockDbConnectionManager = createMockDbConnectionManager();
-    healthService = createHealthService(mockDbConnectionManager);
+    mockConfigService = createMockConfigService(false, 'test');
+    healthService = createHealthService({
+      dbConnectionManager: mockDbConnectionManager,
+      configService: mockConfigService,
+    });
   });
 
   describe('getHealthStatus', () => {
@@ -157,9 +168,12 @@ describe('Health Service', () => {
     });
 
     it('should hide sensitive details in production mode', async () => {
-      // Temporarily set production mode
-      const config = require('../../config');
-      config.isProduction = true;
+      // Create health service with production config
+      const prodConfigService = createMockConfigService(true, 'production');
+      const prodHealthService = createHealthService({
+        dbConnectionManager: mockDbConnectionManager,
+        configService: prodConfigService,
+      });
 
       const mockDbStatus = {
         state: 'connected',
@@ -173,16 +187,13 @@ describe('Health Service', () => {
       mockDbConnectionManager.isConnected.mockReturnValue(true);
       mockDbConnectionManager.healthPing.mockResolvedValue({ success: true, responseTime: 5 });
 
-      const result = await healthService.getHealthStatus();
+      const result = await prodHealthService.getHealthStatus();
 
       expect(result.application).toBeUndefined();
       expect(result.database.host).toBeUndefined();
       expect(result.database.port).toBeUndefined();
       expect(result.database.name).toBeUndefined();
       expect(result.database.readyState).toBeUndefined();
-
-      // Reset
-      config.isProduction = false;
     });
   });
 });

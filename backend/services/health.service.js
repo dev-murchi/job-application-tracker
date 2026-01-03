@@ -1,11 +1,13 @@
-const config = require('../config');
-
 /**
  * Factory function to create health service with injected dependencies
- * @param {Object} dbConnectionManager - Database connection manager for health checks
+ * @param {Object} dependencies - Dependency object
+ * @param {Object} dependencies.dbConnectionManager - Database connection manager for health checks
+ * @param {Object} dependencies.configService - Configuration service
  * @returns {Object} Health service methods
  */
-const createHealthService = (dbConnectionManager) => {
+const createHealthService = ({ dbConnectionManager, configService }) => {
+  const isProduction = configService.get('isProduction');
+  const nodeEnv = configService.get('nodeEnv');
   /**
    * Get application health status
    * @returns {Promise<Object>} Health status including database connection
@@ -39,7 +41,7 @@ const createHealthService = (dbConnectionManager) => {
     };
 
     // Only include connection details in non-production environments
-    if (!config.isProduction) {
+    if (!isProduction) {
       databaseInfo.host = dbStatus.host;
       databaseInfo.port = dbStatus.port;
       databaseInfo.name = dbStatus.name;
@@ -54,12 +56,12 @@ const createHealthService = (dbConnectionManager) => {
     };
 
     // Only include detailed application info in non-production
-    if (!config.isProduction) {
+    if (!isProduction) {
       response.application = {
         name: 'job-tracker-api',
         version: process.env.npm_package_version || '1.0.0',
         nodeVersion: process.version,
-        environment: config.nodeEnv,
+        environment: nodeEnv,
         pid: process.pid,
       };
     }

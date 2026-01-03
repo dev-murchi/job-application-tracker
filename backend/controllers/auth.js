@@ -4,10 +4,12 @@ const { ONE_SECOND_MS } = require('../constants');
 
 /**
  * Factory function to create auth controller with injected dependencies
- * @param {Object} authService - Auth service instance
+ * @param {Object} dependencies - Dependency object
+ * @param {Object} dependencies.authService - Auth service instance
+ * @param {Object} dependencies.configService - Configuration service
  * @returns {Object} Auth controller methods
  */
-const createAuthController = (authService) => {
+const createAuthController = ({ authService, configService }) => {
   /**
    * Register a new user
    */
@@ -22,7 +24,7 @@ const createAuthController = (authService) => {
   const login = async (req, res) => {
     const { user, token } = await authService.authenticateUser(req.body);
 
-    attachCookie({ res, token });
+    attachCookie({ res, token, secure: configService.get('isProduction') });
 
     res.status(StatusCodes.OK).json(user);
   };

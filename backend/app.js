@@ -1,5 +1,3 @@
-const config = require('./config');
-
 require('express-async-errors');
 
 // Core dependencies
@@ -13,7 +11,7 @@ const cors = require('cors');
 const mongoSanitize = require('express-mongo-sanitize');
 
 // Custom middleware imports
-const { appLevelRateLimit, notFound, errorHandler } = require('./middleware');
+const { createRateLimiters, notFound, createErrorHandler } = require('./middleware');
 
 // Utilities
 const { createSanitizer } = require('./utils');
@@ -25,12 +23,20 @@ const { createSanitizer } = require('./utils');
  * @param {string} options.routes[].path - Route path
  * @param {express.Router} options.routes[].router - Express router
  * @param {Array<Function>} [options.routes[].middleware] - Optional middleware array
- * @param {Object} options.logger - Logger instance for application logging
+ * @param {Object} options.loggerService - Logger service instance for application logging
+ * @param {Object} options.configService - Configuration service for app settings
  * @returns {express.Application} Configured Express application
  */
-const createApp = ({ routes = [], logger }) => {
-  // Create sanitizer
+const createApp = ({ routes = [], loggerService, configService }) => {
+  const isProduction = configService.get('isProduction');
+  const requestSizeLimit = configService.get('requestSizeLimit');
+  const corsOrigin = configService.get('corsOrigin');
+  const nodeEnv = configService.get('nodeEnv');
+
+  // Create middleware with injected dependencies
   const sanitizer = createSanitizer();
+  const errorHandler = createErrorHandler({ configService });
+  const { appLevelRateLimit } = createRateLimiters({ configService });
 
   // Initialize express app
   const app = express();
@@ -39,14 +45,14 @@ const createApp = ({ routes = [], logger }) => {
 
   app.set('trust proxy', 1);
   // Apply rate limiting in production
-  if (config.isProduction) {
+  if (isProduction) {
     app.use(appLevelRateLimit);
   }
 
   // Body parsing with size limits
   app.use(
     express.json({
-      limit: config.requestSizeLimit,
+      limit: requestSizeLimit,
       parameterLimit: 100,
       type: ['application/json', 'application/json-patch+json'],
     }),
@@ -55,15 +61,15 @@ const createApp = ({ routes = [], logger }) => {
   app.use(
     express.urlencoded({
       extended: true,
-      limit: config.requestSizeLimit,
+      limit: requestSizeLimit,
       parameterLimit: 100,
     }),
   );
 
   // Morgan logger configuration for production
   app.use(
-    morgan(config.isProduction ? 'combined' : 'dev', {
-      stream: { write: (message) => logger.info(message.trim()) },
+    morgan(isProduction ? 'combined' : 'dev', {
+      stream: { write: (message) => loggerService.info(message.trim()) },
     }),
   );
 
@@ -86,7 +92,7 @@ const createApp = ({ routes = [], logger }) => {
   app.use(mongoSanitize());
   app.use(
     cors({
-      origin: config.corsOrigin,
+      origin: corsOrigin,
       credentials: true,
       methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
       allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
@@ -102,7 +108,7 @@ const createApp = ({ routes = [], logger }) => {
     res.json({
       message: 'Job Tracker API',
       version: process.env.npm_package_version || '1.0.0',
-      environment: config.nodeEnv,
+      environment: nodeEnv,
       timestamp: new Date().toISOString(),
     });
   });
@@ -121,10 +127,10 @@ const createApp = ({ routes = [], logger }) => {
 
   // Error handler (must be last)
   app.use((err, req, res, _next) => {
-    logger.error('Error occurred:', {
+    loggerService.error('Error occurred:', {
       message: err.message,
       issues: err.issues || [],
-      stack: config.isProduction ? undefined : err.stack,
+      stack: isProduction ? undefined : err.stack,
       url: req.url,
       path: req.path,
       method: req.method,

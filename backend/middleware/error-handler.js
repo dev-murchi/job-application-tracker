@@ -1,5 +1,4 @@
 const { StatusCodes } = require('http-status-codes');
-const config = require('../config');
 const { MONGO_DUPLICATE_KEY_ERROR_CODE } = require('../constants');
 
 const errorHandlers = {
@@ -47,41 +46,51 @@ const handleMongoError = (err) => {
   return null;
 };
 
-const sanitizeErrorMessage = (message, statusCode) => {
-  if (config.isProduction && statusCode >= StatusCodes.INTERNAL_SERVER_ERROR) {
+const sanitizeErrorMessage = (message, statusCode, isProduction) => {
+  if (isProduction && statusCode >= StatusCodes.INTERNAL_SERVER_ERROR) {
     return 'Internal server error. Please try again later.';
   }
   return message;
 };
 
 /**
- * Express error handling middleware
- * Handles various error types and returns standardized JSON responses
- * @param {Error} err - Error object
- * @param {express.Request} _req - Express request object (unused)
- * @param {express.Response} res - Express response object
- * @param {Function} _next - Express next function (unused)
- * @returns {express.Response} JSON error response
+ * Create error handler middleware factory
+ * @param {Object} dependencies - Dependency object
+ * @param {Object} dependencies.configService - Configuration service
+ * @returns {Function} Express error handling middleware
  */
-const errorHandlerMiddleware = (err, _req, res, _next) => {
-  // Try specific error handlers
-  const handler = errorHandlers[err.name];
-  const mongoError = handleMongoError(err);
+const createErrorHandler = ({ configService }) => {
+  const isProduction = configService.get('isProduction');
 
-  const customError = handler
-    ? handler(err)
-    : mongoError || {
-        statusCode: err.statusCode || StatusCodes.INTERNAL_SERVER_ERROR,
-        msg: err.message || 'Something went wrong, please try again later',
-      };
+  /**
+   * Express error handling middleware
+   * Handles various error types and returns standardized JSON responses
+   * @param {Error} err - Error object
+   * @param {express.Request} _req - Express request object (unused)
+   * @param {express.Response} res - Express response object
+   * @param {Function} _next - Express next function (unused)
+   * @returns {express.Response} JSON error response
+   */
+  return (err, _req, res, _next) => {
+    // Try specific error handlers
+    const handler = errorHandlers[err.name];
+    const mongoError = handleMongoError(err);
 
-  const response = {
-    success: false,
-    message: sanitizeErrorMessage(customError.msg, customError.statusCode),
-    statusCode: customError.statusCode,
+    const customError = handler
+      ? handler(err)
+      : mongoError || {
+          statusCode: err.statusCode || StatusCodes.INTERNAL_SERVER_ERROR,
+          msg: err.message || 'Something went wrong, please try again later',
+        };
+
+    const response = {
+      success: false,
+      message: sanitizeErrorMessage(customError.msg, customError.statusCode, isProduction),
+      statusCode: customError.statusCode,
+    };
+
+    return res.status(customError.statusCode).json(response);
   };
-
-  return res.status(customError.statusCode).json(response);
 };
 
-module.exports = errorHandlerMiddleware;
+module.exports = { createErrorHandler };

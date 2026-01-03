@@ -1,6 +1,5 @@
 const { describe, beforeEach, afterEach, it, expect } = require('@jest/globals');
 
-const config = require('../../config');
 const { attachCookie } = require('../../utils');
 
 describe('attachCookie', () => {
@@ -16,11 +15,10 @@ describe('attachCookie', () => {
     jest.clearAllMocks();
   });
 
-  it('should set secure flag to false in test environment', () => {
+  it('should set secure flag to false when secure param is false', () => {
     const token = 'test-jwt-token';
-    config.isProduction = false;
 
-    attachCookie({ res: mockRes, token });
+    attachCookie({ res: mockRes, token, secure: false });
 
     expect(mockRes.cookie).toHaveBeenCalledWith('token', token, {
       httpOnly: true,
@@ -31,8 +29,21 @@ describe('attachCookie', () => {
     });
   });
 
-  it('should set secure flag to true in prod environment', () => {
-    config.isProduction = true;
+  it('should set secure flag to true when secure param is true', () => {
+    const token = 'test-jwt-token';
+
+    attachCookie({ res: mockRes, token, secure: true });
+
+    expect(mockRes.cookie).toHaveBeenCalledWith('token', token, {
+      httpOnly: true,
+      expires: expect.any(Date),
+      path: '/',
+      sameSite: 'strict',
+      secure: true,
+    });
+  });
+
+  it('should default secure to true when not provided', () => {
     const token = 'test-jwt-token';
 
     attachCookie({ res: mockRes, token });

@@ -1,17 +1,19 @@
 const express = require('express');
 const { UserRegisterSchema, UserLoginSchema } = require('../schemas');
-const config = require('../config');
-const { validateBody, authRouteRateLimit } = require('../middleware');
+const { validateBody, createRateLimiters } = require('../middleware');
 
 /**
  * Factory function to create auth router with injected dependencies
- * @param {Object} authController - Auth controller instance
+ * @param {Object} dependencies - Dependency object
+ * @param {Object} dependencies.authController - Auth controller instance
+ * @param {Object} dependencies.configService - Configuration service
  * @returns {express.Router} Configured Express router
  */
-const createAuthRouter = (authController) => {
+const createAuthRouter = ({ authController, configService }) => {
   const router = express.Router();
+  const { authRouteRateLimit } = createRateLimiters({ configService });
 
-  if (config.isProduction) {
+  if (configService.get('isProduction')) {
     router.use(authRouteRateLimit);
   }
 

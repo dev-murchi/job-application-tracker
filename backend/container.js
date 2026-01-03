@@ -46,22 +46,18 @@ const { createHealthRouter } = require('./routes/health');
 const { createApp } = require('./app');
 
 /**
- * Create and wire all application dependencies
- * @param {Object} options - Container configuration options
- * @param {Object} options.logger - Applicatin configurations
- * @param {string} options.config - MongoDB connection URL
- * @param {boolean} [options.isProduction=false] - Whether running in production mode
- * @param {Object} [options.connection=null] - Existing mongoose connection (for tests)
- * @returns {Promise<Object>} Container with all wired dependencies
+ * Container factory - builds and wires all dependencies
+ * @param {Object} dependencies - Container dependency object
+ * @param {Object} dependencies.configService - Configuration service
+ * @param {Object} dependencies.loggerService - Logger service
+ * @param {Object} [dependencies.connection] - Existing mongoose connection (for testing)
+ * @returns {Promise<Object>} Container instance
  */
-const createContainer = async (options) => {
-  const {
-    logger,
-    config,
-    connection = null, // Allow injecting existing connection for tests
-  } = options;
-
-  const { mongoUrl, isProduction, jwtSecret, jwtLifetime } = config;
+const createContainer = async ({ configService, loggerService, connection = null }) => {
+  const mongoUrl = configService.get('mongoUrl');
+  const isProduction = configService.get('isProduction');
+  const jwtSecret = configService.get('jwtSecret');
+  const jwtLifetime = configService.get('jwtLifetime');
 
   // ============================================
   // 1. DATABASE LAYER
@@ -74,7 +70,7 @@ const createContainer = async (options) => {
   const dbConnectionManager = createConnectionManager({
     connection: mongooseConnection,
     config: { isProduction },
-    loggerService: logger,
+    loggerService,
   });
 
   // Connect to database (skip if connection already connected - for tests)
@@ -101,13 +97,16 @@ const createContainer = async (options) => {
   const authService = createAuthService({ dbService, jwtService });
   const jobService = createJobService(dbService);
   const userService = createUserService(dbService);
-  const healthService = createHealthService(dbConnectionManager);
+  const healthService = createHealthService({
+    dbConnectionManager,
+    configService,
+  });
 
   // ============================================
   // 3. PRESENTATION LAYER (Controllers)
   // ============================================
 
-  const authController = createAuthController(authService);
+  const authController = createAuthController({ authService, configService });
   const jobsController = createJobsController(jobService);
   const userController = createUserController(userService);
   const healthController = createHealthController(healthService);
@@ -116,7 +115,7 @@ const createContainer = async (options) => {
   // 4. ROUTING LAYER
   // ============================================
 
-  const authRouter = createAuthRouter(authController);
+  const authRouter = createAuthRouter({ authController, configService });
   const jobsRouter = createJobsRouter(jobsController);
   const userRouter = createUserRouter(userController);
   const healthRouter = createHealthRouter(healthController);
@@ -128,7 +127,7 @@ const createContainer = async (options) => {
   const authenticationMiddleware = createAuthenticationMiddleware({
     dbService,
     jwtService,
-    loggerService: logger,
+    loggerService,
   });
 
   // ============================================
@@ -150,7 +149,8 @@ const createContainer = async (options) => {
         middleware: [authenticationMiddleware.authenticateUser],
       },
     ],
-    logger: logger,
+    loggerService,
+    configService,
   });
 
   // ============================================
@@ -169,6 +169,8 @@ const createContainer = async (options) => {
     userService,
     healthService,
     jwtService,
+    configService,
+    loggerService,
 
     // Controllers
     authController,

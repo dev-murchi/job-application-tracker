@@ -5,6 +5,7 @@
     "!controllers/index.js",
     "services/**/*.js",
     "!services/index.js",
+    "!services/config.service.js",
     "middleware/**/*.js",
     "!middleware/rate-limiter.js",
     "!middleware/index.js",
