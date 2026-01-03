@@ -5,17 +5,11 @@ jest.mock('sanitize-html');
 
 describe('Sanitize Utility - Minimal Tests for 100% Coverage', () => {
   let sanitizeData;
-  let mockLogger;
 
   beforeEach(() => {
     jest.clearAllMocks();
     sanitizeHtml.mockImplementation((value) => value);
-    mockLogger = {
-      error: jest.fn(),
-      warn: jest.fn(),
-      info: jest.fn(),
-    };
-    const sanitizer = createSanitizer(mockLogger);
+    const sanitizer = createSanitizer();
     sanitizeData = sanitizer.sanitizeData;
   });
 
@@ -98,13 +92,6 @@ describe('Sanitize Utility - Minimal Tests for 100% Coverage', () => {
       });
 
       expect(() => sanitizeData('test')).toThrow('Sanitization error');
-      expect(mockLogger.error).toHaveBeenCalledWith(
-        'Error sanitizing value:',
-        expect.objectContaining({
-          value: 'test',
-          error: 'Sanitization error',
-        }),
-      );
     });
   });
 });

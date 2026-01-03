@@ -65,13 +65,13 @@ const createConnectionOptions = (isProduction) => ({
 /**
  * Create event handlers for MongoDB connection lifecycle events
  * @param {mongoose.Connection} connection - Mongoose connection instance
- * @param {Object} logger - Logger instance
+ * @param {Object} loggerService - Logger service instance
  * @param {boolean} isProduction - Whether running in production mode
  * @returns {Object} Object containing all event handler functions
  */
-const createEventHandlers = (connection, logger, isProduction) => ({
+const createEventHandlers = (connection, loggerService, isProduction) => ({
   onConnected: () => {
-    logger.info('MongoDB connected successfully', {
+    loggerService.info('MongoDB connected successfully', {
       host: connection.host,
       port: connection.port,
       database: connection.name,
@@ -80,7 +80,7 @@ const createEventHandlers = (connection, logger, isProduction) => ({
   },
 
   onError: (err) => {
-    logger.error('MongoDB connection error', {
+    loggerService.error('MongoDB connection error', {
       error: err.message,
       code: err.code,
       stack: isProduction ? undefined : err.stack,
@@ -88,28 +88,28 @@ const createEventHandlers = (connection, logger, isProduction) => ({
   },
 
   onDisconnected: () => {
-    logger.warn('MongoDB disconnected', {
+    loggerService.warn('MongoDB disconnected', {
       readyState: connection.readyState,
     });
   },
 
   onReconnected: () => {
-    logger.info('MongoDB reconnected', {
+    loggerService.info('MongoDB reconnected', {
       host: connection.host,
       readyState: connection.readyState,
     });
   },
 
   onClose: () => {
-    logger.info('MongoDB connection closed');
+    loggerService.info('MongoDB connection closed');
   },
 
   onFullSetup: () => {
-    logger.info('MongoDB replica set fully set up');
+    loggerService.info('MongoDB replica set fully set up');
   },
 
   onAll: () => {
-    logger.info('MongoDB connected to all servers in replica set');
+    loggerService.info('MongoDB connected to all servers in replica set');
   },
 });
 
@@ -138,14 +138,14 @@ const validateConnectionUrl = (url) => {
  * @param {mongoose.Connection} [options.connection] - Existing mongoose connection
  * @param {Object} options.config - Configuration object
  * @param {boolean} options.config.isProduction - Whether running in production mode
- * @param {Object} options.logger - Logger instance for connection logging
+ * @param {Object} options.loggerService - Logger service instance for connection logging
  * @returns {Object} Connection manager with connect and closeConnection methods
  */
-const createConnectionManager = ({ connection, config, logger }) => {
+const createConnectionManager = ({ connection, config, loggerService }) => {
   const conn = connection || mongoose.connection;
 
   const options = createConnectionOptions(config.isProduction);
-  const eventHandlers = createEventHandlers(conn, logger, config.isProduction);
+  const eventHandlers = createEventHandlers(conn, loggerService, config.isProduction);
 
   const connect = (url) => {
     validateConnectionUrl(url);
@@ -160,11 +160,11 @@ const createConnectionManager = ({ connection, config, logger }) => {
 
   const closeConnection = async (force = false) => {
     try {
-      logger.info('Closing MongoDB connection...', { force });
+      loggerService.info('Closing MongoDB connection...', { force });
       await conn.close(force);
-      logger.info('MongoDB connection closed successfully');
+      loggerService.info('MongoDB connection closed successfully');
     } catch (error) {
-      logger.error('Error closing MongoDB connection', {
+      loggerService.error('Error closing MongoDB connection', {
         error: error.message,
         stack: config.isProduction ? undefined : error.stack,
       });
@@ -205,7 +205,7 @@ const createConnectionManager = ({ connection, config, logger }) => {
         currentConnections: 'N/A',
       };
     } catch (error) {
-      logger.error('Error getting pool stats', { error: error.message });
+      loggerService.error('Error getting pool stats', { error: error.message });
       return null;
     }
   };

@@ -74,7 +74,7 @@ const createContainer = async (options) => {
   const dbConnectionManager = createConnectionManager({
     connection: mongooseConnection,
     config: { isProduction },
-    logger: logger,
+    loggerService: logger,
   });
 
   // Connect to database (skip if connection already connected - for tests)

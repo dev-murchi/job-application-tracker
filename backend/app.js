@@ -30,7 +30,7 @@ const { createSanitizer } = require('./utils');
  */
 const createApp = ({ routes = [], logger }) => {
   // Create sanitizer
-  const sanitizer = createSanitizer(logger);
+  const sanitizer = createSanitizer();
 
   // Initialize express app
   const app = express();

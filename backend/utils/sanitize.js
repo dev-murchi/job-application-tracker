@@ -2,10 +2,9 @@ const sanitizeHtml = require('sanitize-html');
 
 /**
  * Create a sanitizer service with HTML sanitization capabilities
- * @param {Object} logger - Logger instance for error logging
  * @returns {Object} Sanitizer object with sanitizeData method
  */
-const createSanitizer = (logger) => {
+const createSanitizer = () => {
   /**
    * Sanitize a single string value by removing HTML tags
    * @param {*} value - Value to sanitize
@@ -13,20 +12,15 @@ const createSanitizer = (logger) => {
    * @throws {Error} If sanitization fails
    */
   const sanitize = (value) => {
-    try {
-      if (typeof value !== 'string') {
-        return value;
-      }
-      return sanitizeHtml(value, {
-        allowedSchemes: ['http', 'https'],
-        allowedTags: [],
-        allowedAttributes: {},
-        disallowedTagsMode: 'recursiveEscape',
-      });
-    } catch (error) {
-      logger.error('Error sanitizing value:', { value, error: error.message });
-      throw error;
+    if (typeof value !== 'string') {
+      return value;
     }
+    return sanitizeHtml(value, {
+      allowedSchemes: ['http', 'https'],
+      allowedTags: [],
+      allowedAttributes: {},
+      disallowedTagsMode: 'recursiveEscape',
+    });
   };
 
   /**
