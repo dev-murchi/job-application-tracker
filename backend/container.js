@@ -98,7 +98,7 @@ const createContainer = async (options) => {
     expiresIn: jwtLifetime,
   });
 
-  const authService = createAuthService(dbService, jwtService);
+  const authService = createAuthService({ dbService, jwtService });
   const jobService = createJobService(dbService);
   const userService = createUserService(dbService);
   const healthService = createHealthService(dbConnectionManager);

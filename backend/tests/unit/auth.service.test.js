@@ -45,7 +45,7 @@ describe('Auth Service', () => {
     User = createMockUser();
     mockDbService = createMockDbService(User);
     mockJwtService = createMockJwtService();
-    authService = createAuthService(mockDbService, mockJwtService);
+    authService = createAuthService({ dbService: mockDbService, jwtService: mockJwtService });
   });
 
   describe('formatUserResponse', () => {
