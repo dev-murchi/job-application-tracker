@@ -2,17 +2,17 @@ const { UnauthenticatedError } = require('../errors');
 const { MongooseObjectIdSchema } = require('../schemas');
 
 /**
- * Factory function to create authentication middleware with injected dependencies
- * @param {Object} dbService - Database service for accessing User model
- * @param {Object} jwtService - JWT service for token verification
- * @param {Object} logger - Logger instance for authentication logging
+ * @param {Object} dependencies - Dependency object
+ * @param {Object} dependencies.dbService - Database service for accessing User model
+ * @param {Object} dependencies.loggerService - Logger service instance for authentication logging
+ * @param {Object} dependencies.jwtService - JWT service for token verification
  * @returns {Function} Express middleware function for JWT authentication
  */
-const createAuthenticateUser = (dbService, jwtService, logger) => {
-  return async (req, res, next) => {
+const createAuthenticationMiddleware = ({ dbService, loggerService, jwtService }) => {
+  const authenticateUser = async (req, res, next) => {
     const token = req.cookies.token;
     if (!token) {
-      logger.warn('Authentication failed: No token provided');
+      loggerService.warn('Authentication failed: No token provided');
       throw new UnauthenticatedError('Authentication Invalid');
     }
 
@@ -26,7 +26,7 @@ const createAuthenticateUser = (dbService, jwtService, logger) => {
     const user = await User.findOne({ _id: userId }).lean();
 
     if (!user) {
-      logger.warn('Authentication failed: User not found');
+      loggerService.warn('Authentication failed: User not found');
       throw new UnauthenticatedError('Authentication Invalid');
     }
 
@@ -35,6 +35,10 @@ const createAuthenticateUser = (dbService, jwtService, logger) => {
 
     next();
   };
+
+  return {
+    authenticateUser,
+  };
 };
 
-module.exports = { createAuthenticateUser };
+module.exports = { createAuthenticationMiddleware };

@@ -34,7 +34,7 @@ const {
 } = require('./controllers');
 
 // Middleware
-const { createAuthenticateUser } = require('./middleware/auth');
+const { createAuthenticationMiddleware } = require('./middleware/auth');
 
 // Routes
 const { createAuthRouter } = require('./routes/auth');
@@ -125,7 +125,11 @@ const createContainer = async (options) => {
   // 5. MIDDLEWARE
   // ============================================
 
-  const authenticateUser = createAuthenticateUser(dbService, jwtService, logger);
+  const authenticationMiddleware = createAuthenticationMiddleware({
+    dbService,
+    jwtService,
+    loggerService: logger,
+  });
 
   // ============================================
   // 6. APPLICATION
@@ -135,8 +139,16 @@ const createContainer = async (options) => {
     routes: [
       { path: '/health', router: healthRouter },
       { path: '/api/v1/auth', router: authRouter },
-      { path: '/api/v1/users', router: userRouter, middleware: [authenticateUser] },
-      { path: '/api/v1/jobs', router: jobsRouter, middleware: [authenticateUser] },
+      {
+        path: '/api/v1/users',
+        router: userRouter,
+        middleware: [authenticationMiddleware.authenticateUser],
+      },
+      {
+        path: '/api/v1/jobs',
+        router: jobsRouter,
+        middleware: [authenticationMiddleware.authenticateUser],
+      },
     ],
     logger: logger,
   });

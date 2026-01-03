@@ -1,4 +1,4 @@
-const { createAuthenticateUser } = require('../../middleware/auth');
+const { createAuthenticationMiddleware } = require('../../middleware/auth');
 const { UnauthenticatedError } = require('../../errors');
 
 // Mock dbService factory
@@ -35,7 +35,12 @@ describe('Auth Middleware', () => {
       info: jest.fn(),
       debug: jest.fn(),
     };
-    authenticateUser = createAuthenticateUser(mockDbService, mockJwtService, mockLogger);
+    const authMiddleware = createAuthenticationMiddleware({
+      dbService: mockDbService,
+      jwtService: mockJwtService,
+      loggerService: mockLogger,
+    });
+    authenticateUser = authMiddleware.authenticateUser;
     mockUserModel = mockDbService.getModel('User');
 
     req = {
