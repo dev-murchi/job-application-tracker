@@ -15,7 +15,7 @@ describe('Jobs Controller', () => {
 
   beforeEach(() => {
     mockJobService = createMockJobService();
-    jobsController = createJobsController(mockJobService);
+    jobsController = createJobsController({ jobService: mockJobService });
 
     req = {
       body: {},

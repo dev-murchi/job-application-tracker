@@ -6,7 +6,7 @@ const { formatUserResponse } = require('./formatters');
  * @param {Object} dbService - Database service for accessing models
  * @returns {Object} User service methods
  */
-const createUserService = (dbService) => {
+const createUserService = ({ dbService }) => {
   const User = dbService.getModel('User');
 
   /**

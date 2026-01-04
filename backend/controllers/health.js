@@ -5,7 +5,7 @@ const { StatusCodes } = require('http-status-codes');
  * @param {Object} healthService - Health service for health checks
  * @returns {Object} Health controller methods
  */
-const createHealthController = (healthService) => {
+const createHealthController = ({ healthService }) => {
   /**
    * Get application health status
    * @param {Object} req - Express request object

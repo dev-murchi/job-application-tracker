@@ -14,7 +14,7 @@ describe('User Controller', () => {
 
   beforeEach(() => {
     mockUserService = createMockUserService();
-    userController = createUserController(mockUserService);
+    userController = createUserController({ userService: mockUserService });
 
     mockReq = {
       body: {},

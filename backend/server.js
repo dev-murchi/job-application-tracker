@@ -139,8 +139,11 @@ const startServer = async () => {
     });
     logger.info('Database connection established successfully');
 
+    // resolve http request handler app
+    const app = container.resolve('app');
+
     // Server creation
-    const server = createConfiguredServer(container.app, KEEP_ALIVE_TIMEOUT_MS, HEADERS_TIMEOUT_MS);
+    const server = createConfiguredServer(app, KEEP_ALIVE_TIMEOUT_MS, HEADERS_TIMEOUT_MS);
 
     // Set up process handlers for graceful shutdown using container's dispose method
     setupProcessHandlers(

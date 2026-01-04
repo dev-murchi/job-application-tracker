@@ -10,10 +10,11 @@ const { z } = require('zod');
 
 /**
  * Factory function to create jobs router with injected dependencies
- * @param {Object} jobsController - Jobs controller instance
+ * @param {Object} dependencies - Jobs Router dependencies
+ * @param {Object} dependencies.jobsController - Jobs controller
  * @returns {express.Router} Configured Express router
  */
-const createJobsRouter = (jobsController) => {
+const createJobsRouter = ({ jobsController }) => {
   const router = express.Router();
 
   router

@@ -9,7 +9,7 @@ const { MONTHLY_STATS_LOOKBACK_MONTHS } = require('../constants');
  * @param {Object} dbService - Database service for accessing models
  * @returns {Object} Job service methods
  */
-const createJobService = (dbService) => {
+const createJobService = ({ dbService }) => {
   const Job = dbService.getModel('Job');
 
   /**

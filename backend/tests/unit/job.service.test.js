@@ -46,7 +46,7 @@ describe('Job Service', () => {
     jest.clearAllMocks();
     Job = createMockJob();
     mockDbService = createMockDbService(Job);
-    jobService = createJobService(mockDbService);
+    jobService = createJobService({ dbService: mockDbService });
     checkPermissions.mockImplementation(() => {}); // Default: allow all
   });
 

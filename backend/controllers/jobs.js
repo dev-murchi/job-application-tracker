@@ -5,7 +5,7 @@ const { StatusCodes } = require('http-status-codes');
  * @param {Object} jobService - Job service instance
  * @returns {Object} Jobs controller methods
  */
-const createJobsController = (jobService) => {
+const createJobsController = ({ jobService }) => {
   /**
    * Create a new job posting
    */

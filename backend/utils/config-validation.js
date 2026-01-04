@@ -53,9 +53,12 @@ const loadAndValidate = (schema, rawConfig) => {
         })
         .join('\n');
 
-      console.error(`\nConfiguration validation failed:\n${errorMessages}\n`);
+      const configError = new Error(`Configuration validation failed:\n${errorMessages}`);
+      configError.cause = error; // Preserve original ZodError
+      throw configError;
     }
-    process.exit(1);
+
+    throw error;
   }
 };
 

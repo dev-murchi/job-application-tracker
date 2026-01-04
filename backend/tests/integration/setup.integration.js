@@ -45,12 +45,25 @@ const createTestConnection = async (testSuite) => {
   const configService = createTestConfigService({ mongoUrl: testDbUrl });
 
   // Create container with isolated test database
-  const container = await createContainer({
-    configService,
-    loggerService,
-  });
+  const container = await createContainer({ configService, loggerService });
 
-  return container;
+  // Return a wrapper object with direct access to commonly used dependencies
+  return {
+    // Container methods
+    resolve: (name) => container.resolve(name),
+    dispose: () => container.dispose(),
+
+    // Direct access to commonly used dependencies for convenience
+    connection: container.resolve('connection'),
+    dbService: container.resolve('dbService'),
+    dbConnectionManager: container.resolve('dbConnectionManager'),
+    app: container.resolve('app'),
+    jwtService: container.resolve('jwtService'),
+    authService: container.resolve('authService'),
+    jobService: container.resolve('jobService'),
+    userService: container.resolve('userService'),
+    configService: container.resolve('configService'),
+  };
 };
 
 const closeTestConnection = async (container) => {

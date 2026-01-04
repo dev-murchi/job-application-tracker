@@ -27,7 +27,7 @@ describe('User Service', () => {
     jest.clearAllMocks();
     User = createMockUser();
     mockDbService = createMockDbService(User);
-    userService = createUserService(mockDbService);
+    userService = createUserService({ dbService: mockDbService });
   });
 
   describe('formatUserResponse', () => {

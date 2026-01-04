@@ -12,7 +12,7 @@ describe('Health Controller', () => {
 
   beforeEach(() => {
     mockHealthService = createMockHealthService();
-    healthController = createHealthController(mockHealthService);
+    healthController = createHealthController({ healthService: mockHealthService });
 
     mockReq = {};
     mockRes = {

@@ -5,7 +5,7 @@ const { StatusCodes } = require('http-status-codes');
  * @param {Object} userService - User service instance
  * @returns {Object} User controller methods
  */
-const createUserController = (userService) => {
+const createUserController = ({ userService }) => {
   /**
    * Update user profile
    */
