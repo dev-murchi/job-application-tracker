@@ -90,10 +90,19 @@ const createApp = ({ routes = [], loggerService, configService }) => {
     }
   });
   app.use(mongoSanitize());
+
+  const allowCredentials = corsOrigin !== '*';
+
+  if (isProduction && !allowCredentials) {
+    loggerService.warn(
+      'CORS is configured with "*" in production; disabling credentials to prevent cookie leakage',
+    );
+  }
+
   app.use(
     cors({
       origin: corsOrigin,
-      credentials: true,
+      credentials: allowCredentials,
       methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
       allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
       optionsSuccessStatus: 204,

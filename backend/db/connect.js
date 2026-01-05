@@ -71,12 +71,16 @@ const createConnectionOptions = (isProduction) => ({
  */
 const createEventHandlers = (connection, loggerService, isProduction) => ({
   onConnected: () => {
-    loggerService.info('MongoDB connected successfully', {
-      host: connection.host,
-      port: connection.port,
-      database: connection.name,
-      readyState: connection.readyState,
-    });
+    const meta = isProduction
+      ? { readyState: connection.readyState }
+      : {
+          host: connection.host,
+          port: connection.port,
+          database: connection.name,
+          readyState: connection.readyState,
+        };
+
+    loggerService.info('MongoDB connected successfully', meta);
   },
 
   onError: (err) => {
@@ -94,10 +98,11 @@ const createEventHandlers = (connection, loggerService, isProduction) => ({
   },
 
   onReconnected: () => {
-    loggerService.info('MongoDB reconnected', {
-      host: connection.host,
-      readyState: connection.readyState,
-    });
+    const meta = isProduction
+      ? { readyState: connection.readyState }
+      : { host: connection.host, readyState: connection.readyState };
+
+    loggerService.info('MongoDB reconnected', meta);
   },
 
   onClose: () => {
