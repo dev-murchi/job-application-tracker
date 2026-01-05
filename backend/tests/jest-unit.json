@@ -1,6 +1,7 @@
 {
   "testEnvironment": "node",
   "collectCoverageFrom": [
+    "server.js",
     "controllers/**/*.js",
     "!controllers/index.js",
     "services/**/*.js",
