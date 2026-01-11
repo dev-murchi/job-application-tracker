@@ -10,7 +10,7 @@
 #   Testing (Frontend):           docker compose --profile frontend-test --env-file .env.test up -d
 #   Testing (unit):               docker exec -it <frontend-container-name> npm run test
 #
-#   Production:                   docker compose --profile production --env-file .env.prod up
+#   Production Demo:                   docker compose --profile production --env-file .env.prod up
 
 services:
   # ===== MongoDB Database (Development) =====
@@ -37,11 +37,11 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '4'
-          memory: 4G
+          cpus: '1.5'
+          memory: 2G
         reservations:
-          cpus: '1'
-          memory: 1G
+          cpus: '0.25'
+          memory: 512M
     logging:
       driver: "json-file"
       options:
@@ -107,11 +107,11 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '4'
-          memory: 4G
+          cpus: '1.5'
+          memory: 2G
         reservations:
-          cpus: '1'
-          memory: 1G
+          cpus: '0.25'
+          memory: 512M
       restart_policy:
         condition: on-failure
         delay: 5s
@@ -143,6 +143,7 @@ services:
       RATE_LIMIT_WINDOW_MS: ${RATE_LIMIT_WINDOW_MS}
       RATE_LIMIT_MAX_REQUESTS: ${RATE_LIMIT_MAX_REQUESTS}
       LOG_LEVEL: ${LOG_LEVEL}
+      REQUEST_SIZE_LIMIT: ${REQUEST_SIZE_LIMIT}
     ports:
       - "${HOST_PORT}:${SERVER_PORT}"
     networks:
@@ -166,6 +167,14 @@ services:
       options:
         max-size: "10m"
         max-file: "3"
+    deploy:
+      resources:
+        limits:
+          cpus: '0.75'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 768M
 
   # ===== Backend API (Test) =====
   backend-test:
@@ -200,8 +209,11 @@ services:
     deploy:
       resources:
         limits:
+          cpus: '0.75'
+          memory: 1G
+        reservations:
           cpus: '0.5'
-          memory: 512M
+          memory: 768M
     logging:
       driver: "json-file"
       options:
@@ -243,11 +255,11 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '2'
+          cpus: '0.75'
           memory: 1G
         reservations:
           cpus: '0.5'
-          memory: 256M
+          memory: 768M
       restart_policy:
         condition: on-failure
         delay: 5s
@@ -291,6 +303,14 @@ services:
       options:
         max-size: "10m"
         max-file: "3"
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
 
   # ===== Frontend (Test) =====
   frontend-test:
@@ -311,11 +331,11 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '1'
-          memory: 1G
+          cpus: '0.5'
+          memory: 512M
         reservations:
           cpus: '0.25'
-          memory: 512M
+          memory: 128M
     logging:
       driver: "json-file"
       options:
@@ -353,7 +373,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '1'
+          cpus: '0.5'
           memory: 512M
         reservations:
           cpus: '0.25'

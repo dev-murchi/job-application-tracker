@@ -42,23 +42,22 @@ RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 # Copy production dependencies and application with correct ownership
 COPY --from=dependencies --chown=appuser:appgroup /tmp/prod_node_modules ./node_modules
 COPY --chown=appuser:appgroup backend/package*.json ./
-COPY --chown=appuser:appgroup backend/app.js backend/server.js ./
+COPY --chown=appuser:appgroup backend/app.js backend/container.js backend/main.js backend/server.js ./
 COPY --chown=appuser:appgroup backend/config ./config
+COPY --chown=appuser:appgroup backend/constants ./constants
 COPY --chown=appuser:appgroup backend/controllers ./controllers
 COPY --chown=appuser:appgroup backend/db ./db
 COPY --chown=appuser:appgroup backend/errors ./errors
 COPY --chown=appuser:appgroup backend/middleware ./middleware
 COPY --chown=appuser:appgroup backend/models ./models
 COPY --chown=appuser:appgroup backend/routes ./routes
-COPY --chown=appuser:appgroup backend/utils ./utils
-COPY --chown=appuser:appgroup backend/container.js ./
-COPY --chown=appuser:appgroup backend/services ./services
 COPY --chown=appuser:appgroup backend/schemas ./schemas
-COPY --chown=appuser:appgroup backend/constants ./constants
+COPY --chown=appuser:appgroup backend/services ./services
+COPY --chown=appuser:appgroup backend/utils ./utils
 RUN mkdir logs && chown -R appuser:appgroup ./logs
 
 
 # Switch to the non-root user for runtime security
 USER appuser
 
-CMD ["node", "server.js"]
+CMD ["npm", "run", "start"]
