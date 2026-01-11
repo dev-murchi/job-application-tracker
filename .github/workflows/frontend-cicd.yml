@@ -28,7 +28,7 @@ env:
   CACHE_PATH: frontend/package-lock.json
   PACKAGE_NAME: ${{ github.repository }}-frontend
   REGISTRY: ghcr.io
-  REGISTRY_USER: ${{ github.actor }}
+  REGISTRY_USER: ${{ github.repository_owner }}
 
 jobs:
   lint:
@@ -136,7 +136,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{env.REGISTRY}}/${{env.REGISTRY_USER}}/${{env.PACKAGE_NAME}}
+          images: ${{env.REGISTRY}}/${{env.PACKAGE_NAME}}
           tags: |
             type=raw,value=latest
             type=sha,prefix=sha-
