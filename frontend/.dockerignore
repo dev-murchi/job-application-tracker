@@ -1,0 +1,29 @@
+# Dependencies
+node_modules
+
+# Environment
+.env
+.env.*
+
+# Tests
+*.spec.ts
+coverage/
+karma.conf.js
+
+# Build output (rebuilt in container)
+dist/
+.angular/
+
+# Logs
+*.log
+
+# Dev/CI files
+Dockerfile
+.dockerignore
+eslint.config.js
+
+# Misc
+.DS_Store
+*.swp
+*.swo
+*~

@@ -1,0 +1,32 @@
+# Dependencies
+node_modules
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Tests (excluded from production, included in test stage via COPY . .)
+*.test.js
+*.spec.js
+coverage/
+tests/
+
+# Logs
+logs/
+*.log
+
+# Dev/CI files
+Dockerfile
+.dockerignore
+eslint.config.js
+
+# Data files
+mockData*.json
+populate.js
+
+# Misc
+.DS_Store
+*.swp
+*.swo
+*~

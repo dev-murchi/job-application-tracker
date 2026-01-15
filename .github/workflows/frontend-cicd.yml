@@ -147,8 +147,8 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v6
         with:
-          context: .
-          file: ./Dockerfile.frontend
+          context: ./frontend
+          file: Dockerfile
           target: production
           push: true
           tags: ${{ steps.meta.outputs.tags }}

@@ -6,7 +6,6 @@ on:
       - main
     paths:
       - 'backend/**'
-      - 'Dockerfile.backend'
       - 'docker-compose.yml'
       - '.github/workflows/backend-cicd.yml'
       - '.github/actions/**'
@@ -15,7 +14,6 @@ on:
       - main
     paths:
       - 'backend/**'
-      - 'Dockerfile.backend'
       - 'docker-compose.yml'
       - '.github/workflows/backend-cicd.yml'
       - '.github/actions/**'
@@ -172,8 +170,8 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
-          context: .
-          file: ./Dockerfile.backend
+          context: ./backend
+          file: Dockerfile
           target: production
           push: true
           tags: ${{ steps.meta.outputs.tags }}

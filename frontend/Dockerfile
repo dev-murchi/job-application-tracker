@@ -4,7 +4,7 @@ WORKDIR /usr/src/app
 
 # ===== Dependencies Stage =====
 FROM base AS dependencies
-COPY frontend/package*.json ./
+COPY package*.json ./
 RUN npm ci --prefer-offline --no-audit
 
 # ===== Test Dependencies Stage =====
@@ -22,13 +22,13 @@ ENV CHROME_BIN=/usr/bin/chromium-browser \
     CHROME_PATH=/usr/bin/chromium-browser \
     CHROMIUM_FLAGS="--disable-software-rasterizer --disable-dev-shm-usage --no-sandbox --disable-gpu"
 
-COPY frontend/package*.json ./
+COPY package*.json ./
 RUN npm ci --prefer-offline --no-audit
 
 # ===== Development Stage =====
 FROM dependencies AS dev
 RUN npm i -g @angular/cli@20.2.2
-COPY frontend/ ./
+COPY . .
 EXPOSE 4200
 CMD ["npm", "run", "dev"]
 
@@ -38,12 +38,12 @@ FROM test-dependencies AS test
 # Create mount point directories before copying files
 RUN mkdir -p coverage
 
-COPY frontend/ ./
+COPY . .
 CMD ["npm", "run", "test"]
 
 # ===== Build Stage (production build) =====
 FROM dependencies AS build
-COPY frontend/ ./
+COPY . .
 RUN npm run build -- --configuration production
 
 # ===== Production Stage (Nginx) =====
@@ -53,9 +53,9 @@ FROM nginx:alpine AS production
 RUN rm -f /etc/nginx/conf.d/default.conf
 
 # Create necessary directories and set permissions
-RUN mkdir -p /var/cache/nginx /var/log/nginx /etc/nginx/ssl && \
-    chown -R nginx:nginx /var/cache/nginx /var/log/nginx /etc/nginx/ssl /usr/share/nginx/html && \
-    chmod -R 755 /var/cache/nginx /var/log/nginx
+RUN mkdir -p /var/cache/nginx /var/log/nginx /var/run/nginx /etc/nginx/ssl && \
+    chown -R nginx:nginx /var/cache/nginx /var/log/nginx  /var/run/nginx /etc/nginx/ssl /usr/share/nginx/html && \
+    chmod -R 755 /var/cache/nginx /var/log/nginx /var/run/nginx
 
 WORKDIR /usr/share/nginx/html
 
