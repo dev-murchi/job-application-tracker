@@ -38,13 +38,10 @@ jobs:
       - name: Calculate is-modified output
         id: calculate
         run: |
-          result= ${{
-            (
-              steps.changes.outputs.backend == 'true' || 
-              steps.changes.outputs.frontend == 'true'
-            )
-          }}
-          echo "is-modified=${result}" >> "$GITHUB_OUTPUT"
+          echo "is-modified=${{
+            steps.changes.outputs.backend == 'true' ||
+            steps.changes.outputs.frontend == 'true'
+          }}" >> "$GITHUB_OUTPUT"
   
   call-backend-delivery-workflow:
     needs: changes
