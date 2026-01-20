@@ -36,6 +36,7 @@ jobs:
             frontend:
               - 'frontend/**'
       - name: Calculate is-modified output
+        id: calculate
         run: |
           result= ${{
             (

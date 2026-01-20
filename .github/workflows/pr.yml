@@ -73,7 +73,7 @@ jobs:
         with:
           ref: ${{ github.head_ref }}
           fetch-depth: 0
-          token: ${{ secrets.MY_GH_BOT_PAT }}
+          token: ${{ secrets.GH_BOT_PAT }}
 
 
       - name: Update Backend Service Version
