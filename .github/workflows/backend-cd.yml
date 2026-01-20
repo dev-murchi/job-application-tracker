@@ -1,0 +1,58 @@
+name: Backend- Continuous Delivery Workflow
+on: 
+  workflow_call:
+    inputs:
+      caller_event:
+        description: 'Event that triggered the workflow, either pull_request or deploy'
+        required: false
+        default: 'pull_request'
+        type: string
+    outputs:
+      published_image:
+        description: 'Published Docker image'
+        value: ${{ jobs.deliver-backend-image.outputs.published_image }}
+jobs:
+  deliver-backend-image:
+    if: ${{ inputs.caller_event == 'deploy' && github.ref == 'refs/heads/main' }}
+    name: Build and Publish Docker Image
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    outputs:
+      published_image: "${{ env.REGISTRY }}/${{ github.repository }}-backend:${{ steps.get_version.outputs.version }}"
+    env:
+      NODE_VERSION: '22'
+      WORKING_DIR: ./backend
+      REGISTRY: ghcr.io
+      REGISTRY_USER: ${{ github.repository_owner }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
+          fetch-depth: 0
+
+      - name: Get Application Version
+        working-directory: ${{ env.WORKING_DIR }}
+        id: get_version
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+            
+      - name: Build and push Docker image
+        id: build_and_push
+        uses: ./.github/actions/build-docker-image
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ env.REGISTRY_USER }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+          image_name: ${{ github.repository }}-backend
+          image_version: ${{ steps.get_version.outputs.version }}
+          image_title: Jobs API Backend
+          context: ${{ env.WORKING_DIR }}
+          dockerfile: ${{ env.WORKING_DIR }}/Dockerfile
+          target: production
+          platforms: linux/amd64
+          push: true
+          publish_latest: true

@@ -1,0 +1,31 @@
+name: Check Bot Commit Workflow
+on:
+  workflow_call:
+    outputs:
+      is-bot:
+        description: 'Indicates if the latest commit was made by the version update bot'
+        value: ${{ jobs.check-bot-commit.outputs.is-bot }}
+
+jobs:
+  check-bot-commit:
+    name: Check Bot Commit
+    runs-on: ubuntu-latest
+    outputs:
+      is-bot: ${{ steps.check_message.outputs.is-bot-commit }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          fetch-depth: 1
+      - name: Check Commit Message
+        id: check_message
+        run: |
+          # Check if the latest commit is starts with format: "version-update:"
+          LATEST_COMMIT_MESSAGE=$(git log -1 --pretty=format:%s)
+          if [[ $LATEST_COMMIT_MESSAGE == version-update:* ]]; then
+            echo "is-bot-commit=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "is-bot-commit=false" >> "$GITHUB_OUTPUT"
+          fi

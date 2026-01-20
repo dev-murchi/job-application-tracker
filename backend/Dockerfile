@@ -6,7 +6,7 @@ WORKDIR /usr/src/app
 FROM base AS dependencies
 
 # Copy only dependency manifests for better caching
-COPY backend/package*.json ./
+COPY package*.json ./
 
 # Install dependencies with npm ci for reproducible builds
 RUN npm ci --omit=dev && \
@@ -18,7 +18,7 @@ FROM base AS dev
 ENV NODE_ENV=development
 COPY --from=dependencies /usr/src/app/node_modules ./node_modules
 # Copy application source
-COPY backend/ ./
+COPY . .
 CMD [ "npm", "run", "dev" ]
 
 # ===== Test Stage (for CI) =====
@@ -29,7 +29,7 @@ ENV NODE_ENV=test
 RUN mkdir -p coverage logs
 
 COPY --from=dependencies /usr/src/app/node_modules ./node_modules
-COPY backend/ ./
+COPY . .
 CMD ["npm", "run", "test"]
 
 # ===== Production Stage =====
@@ -41,19 +41,19 @@ RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 
 # Copy production dependencies and application with correct ownership
 COPY --from=dependencies --chown=appuser:appgroup /tmp/prod_node_modules ./node_modules
-COPY --chown=appuser:appgroup backend/package*.json ./
-COPY --chown=appuser:appgroup backend/app.js backend/container.js backend/main.js backend/server.js ./
-COPY --chown=appuser:appgroup backend/config ./config
-COPY --chown=appuser:appgroup backend/constants ./constants
-COPY --chown=appuser:appgroup backend/controllers ./controllers
-COPY --chown=appuser:appgroup backend/db ./db
-COPY --chown=appuser:appgroup backend/errors ./errors
-COPY --chown=appuser:appgroup backend/middleware ./middleware
-COPY --chown=appuser:appgroup backend/models ./models
-COPY --chown=appuser:appgroup backend/routes ./routes
-COPY --chown=appuser:appgroup backend/schemas ./schemas
-COPY --chown=appuser:appgroup backend/services ./services
-COPY --chown=appuser:appgroup backend/utils ./utils
+COPY --chown=appuser:appgroup package*.json ./
+COPY --chown=appuser:appgroup app.js container.js main.js server.js ./
+COPY --chown=appuser:appgroup config/ ./config
+COPY --chown=appuser:appgroup constants/ ./constants
+COPY --chown=appuser:appgroup controllers/ ./controllers
+COPY --chown=appuser:appgroup db/ ./db
+COPY --chown=appuser:appgroup errors/ ./errors
+COPY --chown=appuser:appgroup middleware/ ./middleware
+COPY --chown=appuser:appgroup models/ ./models
+COPY --chown=appuser:appgroup routes/ ./routes
+COPY --chown=appuser:appgroup schemas/ ./schemas
+COPY --chown=appuser:appgroup services/ ./services
+COPY --chown=appuser:appgroup utils/ ./utils
 RUN mkdir logs && chown -R appuser:appgroup ./logs
 
 

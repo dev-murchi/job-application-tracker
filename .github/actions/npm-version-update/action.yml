@@ -1,0 +1,46 @@
+name: Update NPM Version Files
+description: 'An action to update npm version files based on branch name conventions.'
+inputs:
+  node-version:
+    description: 'The Node.js version to use.'
+    required: false
+    default: '22'
+  working_dir:
+    description: 'The working directory where the package.json is located.'
+    required: true
+    default: './'
+  mode:
+    description: 'The version update mode: patch, minor, or major.'
+    required: true
+    default: 'patch'
+outputs:
+  version:
+    value: ${{ steps.update_version.outputs.version }}
+    description: 'The updated version number.'
+runs:
+  using: composite
+  steps:
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ inputs.node-version }}
+    - name: Update NPM Version
+      shell: bash
+      working-directory: ${{ inputs.working_dir }}
+      id: update_version
+      run: |
+        echo "Updating version in ${{ inputs.working_dir }} using mode: ${{ inputs.mode }}"
+        if [[ "${{ inputs.mode }}" == "patch" ]]; then
+          npm version patch --no-git-tag-version
+        elif [[ "${{ inputs.mode }}" == "minor" ]]; then
+          npm version minor --no-git-tag-version
+        elif [[ "${{ inputs.mode }}" == "major" ]]; then
+          npm version major --no-git-tag-version
+        else
+          echo "Invalid mode specified: ${{ inputs.mode }}. Use patch, minor, or major."
+          exit 1
+        fi
+        UPDATED_VERSION=$(node -p "require('./package.json').version")
+        echo "Updated version to $UPDATED_VERSION"
+        echo "version=$UPDATED_VERSION" >> "$GITHUB_OUTPUT"
+      

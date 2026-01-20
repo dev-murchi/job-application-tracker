@@ -1,0 +1,92 @@
+name: Continuous Delivery and Deployment Workflow
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'backend/**'
+      - 'frontend/**'
+      - 'docker-compose.yml'
+      - '.github/workflows/**'
+      - '.github/actions/**'
+
+permissions:
+  packages: write
+  contents: read
+
+jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      backend: ${{ steps.changes.outputs.backend }}
+      frontend: ${{ steps.changes.outputs.frontend }}
+      is-modified: ${{ steps.calculate.outputs.is-modified }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Detect changes in the services
+        id: changes
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            backend:
+              - 'backend/**'
+            frontend:
+              - 'frontend/**'
+      - name: Calculate is-modified output
+        id: calculate
+        run: |
+          result= ${{
+            (
+              steps.changes.outputs.backend == 'true' || 
+              steps.changes.outputs.frontend == 'true'
+            )
+          }}
+          echo "is-modified=${result}" >> "$GITHUB_OUTPUT"
+  
+  call-backend-delivery-workflow:
+    needs: changes
+    if: needs.changes.outputs.backend == 'true'
+    uses: ./.github/workflows/backend-cd.yml
+    secrets: inherit
+    with:
+      caller_event: 'deploy'
+  
+  call-frontend-delivery-workflow:
+    needs: changes
+    if: needs.changes.outputs.frontend == 'true'
+    uses: ./.github/workflows/frontend-cd.yml
+    secrets: inherit
+    with:
+      caller_event: 'deploy'
+  
+  normalize:
+    name: Normalize Published Images
+    needs: [changes, call-backend-delivery-workflow, call-frontend-delivery-workflow]
+    if: needs.changes.outputs.is-modified == 'true'
+    runs-on: ubuntu-latest
+    env:
+      BACKEND_PUB: ${{ needs.call-backend-delivery-workflow.outputs.published_image }}
+      FRONT_PUB: ${{ needs.call-frontend-delivery-workflow.outputs.published_image }}
+    outputs:
+      backend_image: ${{ steps.set-backend.outputs.image_tag }}
+      frontend_image: ${{ steps.set-frontend.outputs.image_tag }}
+      
+    steps:
+      - name: Normalize published image outputs (backend)
+        id: set-backend
+        run: echo "image_tag=${BACKEND_PUB:-CURRENT}" >> "$GITHUB_OUTPUT"
+      - name: Normalize published image outputs (frontend)
+        id: set-frontend
+        run: echo "image_tag=${FRONT_PUB:-CURRENT}" >> "$GITHUB_OUTPUT"
+  deploy:
+    name: Deploy Application
+    needs: normalize
+    if: "always() && needs.normalize.result == 'success'"
+    uses: ./.github/workflows/deploy.yml
+    secrets: inherit
+    with:
+      backend_image: ${{ needs.normalize.outputs.backend_image }}
+      frontend_image: ${{ needs.normalize.outputs.frontend_image }}

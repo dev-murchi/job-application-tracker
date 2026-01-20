@@ -1,0 +1,23 @@
+name: Deployment Workflow
+
+on:
+  workflow_call:
+    inputs:
+      backend_image:
+        description: 'Backend image tag (or CURRENT)'
+        required: true
+        type: string
+      frontend_image:
+        description: 'Frontend image tag (or CURRENT)'
+        required: true
+        type: string
+
+jobs:
+  deploy:
+    name: Deploy Application
+    runs-on: ubuntu-latest
+    steps:
+    - name: Deploy Application
+      run: |
+        echo "Deploying Backend Image: ${{ inputs.backend_image }}"
+        echo "Deploying Frontend Image: ${{ inputs.frontend_image }}"

@@ -1,0 +1,104 @@
+name: Frontend - CI Workflow
+
+on:
+  workflow_call:
+ 
+  push:
+    branches:
+      - feature/**
+      - bugfix/**
+    paths:
+      - frontend/**
+
+env:
+  NODE_VERSION: '22'
+  WORKING_DIR: ./frontend
+  CACHE_PATH: frontend/package-lock.json
+
+jobs:
+
+  is-bot-commit:
+    uses: ./.github/workflows/check-bot-commit.yml
+
+  lint:
+    name: Lint & Format Check
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    needs: is-bot-commit
+    if: ${{ needs.is-bot-commit.outputs.is-bot == 'false' }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js environment
+        uses: ./.github/actions/setup-node
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          working-directory: ${{ env.WORKING_DIR }}
+          cache-dependency-path: ${{ env.CACHE_PATH }}
+
+      - name: Run ESLint
+        working-directory: ${{ env.WORKING_DIR }}
+        run: npm run lint
+      
+      - name: Run Prettier format check
+        working-directory: ${{ env.WORKING_DIR }}
+        run: npm run format:check
+
+  unit-tests:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    needs: lint
+    env:
+      CHROME_BIN: /usr/bin/google-chrome
+      CHROME_PATH: /usr/bin/google-chrome
+      NODE_ENV: ${{ secrets.TEST_NODE_ENV }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js environment
+        uses: ./.github/actions/setup-node
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          working-directory: ${{ env.WORKING_DIR }}
+          cache-dependency-path: ${{ env.CACHE_PATH }}
+
+      - name: Run unit tests
+        working-directory: ${{ env.WORKING_DIR }}
+        run: npm run test
+
+  build-check:
+    name: Build Check
+    runs-on: ubuntu-latest
+    needs: lint
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js environment
+        uses: ./.github/actions/setup-node
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          working-directory: ${{ env.WORKING_DIR }}
+          cache-dependency-path: ${{ env.CACHE_PATH }}
+
+      - name: Build application
+        working-directory: ${{ env.WORKING_DIR }}
+        run: npm run build -- --configuration production
+
+      - name: Analyze bundle size
+        working-directory: ${{ env.WORKING_DIR }}
+        run: |
+          {
+            echo "### Build Size Analysis :chart_with_upwards_trend:"
+            echo ""
+            echo '```'
+            du -sh dist/frontend/browser
+            echo ""
+            find dist/frontend/browser -name "*.js" -exec du -h "{}" \; | sort -rh | head -10
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
