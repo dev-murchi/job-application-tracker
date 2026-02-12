@@ -1,4 +1,4 @@
-name: Pull Request Workflow
+name: Application Pull Request Workflow
 on:
   pull_request:
     branches:
@@ -6,6 +6,8 @@ on:
     paths:
       - backend/**
       - frontend/**
+      - .github/workflows/application-pr.yml
+
 permissions:
   contents: write
   pull-requests: read
@@ -35,24 +37,24 @@ jobs:
           filters: |
             backend: ['backend/**']
             frontend: ['frontend/**']
+
       - name: Output Detected Changes
         id: output
+        env:
+          BACKEND_CHANGED: ${{ steps.changes.outputs.backend }}
+          FRONTEND_CHANGED: ${{ steps.changes.outputs.frontend }}
         run: |
-          echo "Backend changes detected: ${{ steps.changes.outputs.backend }}"
-          echo "Frontend changes detected: ${{ steps.changes.outputs.frontend }}"
-          version_update_required=false
+          echo "Backend changes detected: $BACKEND_CHANGED"
+          echo "Frontend changes detected: $FRONTEND_CHANGED"
+          echo "Event type: $EVENT_NAME"
           
-          # If backend changes, version update is required
-          if [[ "${{ steps.changes.outputs.backend }}" == "true" ]]; then
+          # Version update is required only on pull_request when backend or frontend changed
+          version_update_required=false
+          if [[ ("$BACKEND_CHANGED" == "true" || "$FRONTEND_CHANGED" == "true") ]]; then
             version_update_required=true
           fi
 
-          # If frontend changes, version update is required
-          if [[ "${{ steps.changes.outputs.frontend }}" == "true" ]]; then
-            version_update_required=true
-          fi
-
-          echo "version-update-required=$version_update_required" >> $GITHUB_OUTPUT
+          echo "version-update-required=$version_update_required" >> "$GITHUB_OUTPUT"
   
   backend-pr:
     needs: detect-changes
@@ -67,7 +69,7 @@ jobs:
     secrets: inherit
 
   update-versions:
-    needs: [ detect-changes, backend-pr, frontend-pr]
+    needs: [detect-changes, backend-pr, frontend-pr]
     if: |
       always() &&
       needs.detect-changes.outputs.version-update-required == 'true' &&
@@ -90,15 +92,15 @@ jobs:
         id: version_type
         run: |
           if [[ "$BRANCH" =~ ^hotfix/ ]]; then
-            echo "mode=patch" >> $GITHUB_OUTPUT
+            echo "mode=patch" >> "$GITHUB_OUTPUT"
           elif [[ "$BRANCH" =~ ^bugfix/ ]]; then
-            echo "mode=patch" >> $GITHUB_OUTPUT
+            echo "mode=patch" >> "$GITHUB_OUTPUT"
           elif [[ "$BRANCH" =~ ^feature/ ]]; then
-            echo "mode=minor" >> $GITHUB_OUTPUT
+            echo "mode=minor" >> "$GITHUB_OUTPUT"
           elif [[ "$BRANCH" =~ ^release/ ]]; then
-            echo "mode=major" >> $GITHUB_OUTPUT
+            echo "mode=major" >> "$GITHUB_OUTPUT"
           else
-            echo "mode=patch" >> $GITHUB_OUTPUT
+            echo "mode=patch" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Update Backend Service Version
@@ -118,14 +120,17 @@ jobs:
           mode: ${{ steps.version_type.outputs.mode }}
       
       - name: Commit Version Updates
+        env:
+          BACKEND_CHANGED: ${{ needs.detect-changes.outputs.backend }}
+          FRONTEND_CHANGED: ${{ needs.detect-changes.outputs.frontend }}
+          BACKEND_VERSION: ${{ steps.update_backend_version.outputs.version }}
+          FRONTEND_VERSION: ${{ steps.update_frontend_version.outputs.version }}
         run: |
           COMMIT_MESSAGE="version-update:"
-          if [ "${{ needs.detect-changes.outputs.backend }}" == "true" ]; then
-            BACKEND_VERSION=${{ steps.update_backend_version.outputs.version }}
+          if [[ "$BACKEND_CHANGED" == "true" ]]; then
             COMMIT_MESSAGE+=" backend v$BACKEND_VERSION"
           fi
-          if [ "${{ needs.detect-changes.outputs.frontend }}" == "true" ]; then
-            FRONTEND_VERSION=${{ steps.update_frontend_version.outputs.version }}
+          if [[ "$FRONTEND_CHANGED" == "true" ]]; then
             COMMIT_MESSAGE+=" frontend v$FRONTEND_VERSION"
           fi
           git add .
