@@ -1,0 +1,150 @@
+name: Pull Request Workflow
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - backend/**
+      - frontend/**
+permissions:
+  contents: write
+  pull-requests: read
+
+jobs:
+  is-bot-commit:
+    uses: ./.github/workflows/check-bot-commit.yml
+  
+  detect-changes:
+    name: Detect Changes
+    runs-on: ubuntu-latest
+    needs: is-bot-commit
+    if: needs.is-bot-commit.outputs.is-bot == 'false'
+    outputs:
+      backend: ${{ steps.changes.outputs.backend }}
+      frontend: ${{ steps.changes.outputs.frontend }}
+      version-update-required: ${{ steps.output.outputs.version-update-required }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Filter Paths
+        id: changes
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            backend: ['backend/**']
+            frontend: ['frontend/**']
+      - name: Output Detected Changes
+        id: output
+        run: |
+          echo "Backend changes detected: ${{ steps.changes.outputs.backend }}"
+          echo "Frontend changes detected: ${{ steps.changes.outputs.frontend }}"
+          version_update_required=false
+          
+          # If backend changes, version update is required
+          if [[ "${{ steps.changes.outputs.backend }}" == "true" ]]; then
+            version_update_required=true
+          fi
+
+          # If frontend changes, version update is required
+          if [[ "${{ steps.changes.outputs.frontend }}" == "true" ]]; then
+            version_update_required=true
+          fi
+
+          echo "version-update-required=$version_update_required" >> $GITHUB_OUTPUT
+  
+  backend-pr:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.backend == 'true'
+    uses: ./.github/workflows/backend-pr.yml
+    secrets: inherit
+  
+  frontend-pr:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.frontend == 'true'
+    uses: ./.github/workflows/frontend-pr.yml
+    secrets: inherit
+
+  update-versions:
+    needs: [ detect-changes, backend-pr, frontend-pr]
+    if: |
+      always() &&
+      needs.detect-changes.outputs.version-update-required == 'true' &&
+      (needs.backend-pr.result == 'success' || needs.backend-pr.result == 'skipped') &&
+      (needs.frontend-pr.result == 'success' || needs.frontend-pr.result == 'skipped')
+    runs-on: ubuntu-latest
+    name: Update Version Files
+    env:
+      BRANCH: ${{ github.head_ref }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          fetch-depth: 0
+          token: ${{ secrets.GH_BOT_PAT }}
+      
+      - name: Determine Version Update Type
+        id: version_type
+        run: |
+          if [[ "$BRANCH" =~ ^hotfix/ ]]; then
+            echo "mode=patch" >> $GITHUB_OUTPUT
+          elif [[ "$BRANCH" =~ ^bugfix/ ]]; then
+            echo "mode=patch" >> $GITHUB_OUTPUT
+          elif [[ "$BRANCH" =~ ^feature/ ]]; then
+            echo "mode=minor" >> $GITHUB_OUTPUT
+          elif [[ "$BRANCH" =~ ^release/ ]]; then
+            echo "mode=major" >> $GITHUB_OUTPUT
+          else
+            echo "mode=patch" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Update Backend Service Version
+        id: update_backend_version
+        if: needs.detect-changes.outputs.backend == 'true'
+        uses: ./.github/actions/npm-version-update
+        with:
+          working_dir: './backend'
+          mode: ${{ steps.version_type.outputs.mode }}
+          
+      - name: Update Frontend Service Version
+        id: update_frontend_version
+        if: needs.detect-changes.outputs.frontend == 'true'
+        uses: ./.github/actions/npm-version-update
+        with:
+          working_dir: './frontend'
+          mode: ${{ steps.version_type.outputs.mode }}
+      
+      - name: Commit Version Updates
+        run: |
+          COMMIT_MESSAGE="version-update:"
+          if [ "${{ needs.detect-changes.outputs.backend }}" == "true" ]; then
+            BACKEND_VERSION=${{ steps.update_backend_version.outputs.version }}
+            COMMIT_MESSAGE+=" backend v$BACKEND_VERSION"
+          fi
+          if [ "${{ needs.detect-changes.outputs.frontend }}" == "true" ]; then
+            FRONTEND_VERSION=${{ steps.update_frontend_version.outputs.version }}
+            COMMIT_MESSAGE+=" frontend v$FRONTEND_VERSION"
+          fi
+          git add .
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git commit -am "$COMMIT_MESSAGE" || echo "No changes to commit"
+          git push origin "HEAD:$BRANCH"
+
+  check-workflow-completion:
+    name: Check Workflow Completion
+    needs: [detect-changes, backend-pr, frontend-pr, update-versions]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Evaluate Results
+        run: |
+          results=$(echo '${{ toJson(needs) }}' | jq -r 'to_entries | map(.value.result) | join(" ")')
+          if [[ "$results" =~ "failure" || "$results" =~ "cancelled" ]]; then
+            echo "Error: One or more dependent jobs failed/cancelled."
+            exit 1
+          fi
+          echo "All dependent jobs completed successfully."

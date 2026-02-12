@@ -9,6 +9,7 @@ on:
       - bugfix/**
     paths:
       - frontend/**
+      - .github/workflows/frontend-ci.yml
 
 env:
   NODE_VERSION: '22'
