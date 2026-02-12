@@ -36,28 +36,28 @@ CMD ["npm", "run", "test"]
 FROM base AS production
 ENV NODE_ENV=production
 
+# Remove npm, yarn, and corepack - not needed at runtime
+# This also eliminates vulnerabilities in these unused packages
+RUN rm -rf /usr/local/lib/node_modules/npm \
+           /usr/local/lib/node_modules/corepack \
+           /usr/local/bin/npm /usr/local/bin/npx \
+           /usr/local/bin/corepack \
+           /opt/yarn-* /usr/local/bin/yarn /usr/local/bin/yarnpkg
+
 # Create non-root user early
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+RUN mkdir logs && chown -R appuser:appgroup ./logs
 
 # Copy production dependencies and application with correct ownership
 COPY --from=dependencies --chown=appuser:appgroup /tmp/prod_node_modules ./node_modules
-COPY --chown=appuser:appgroup package*.json ./
-COPY --chown=appuser:appgroup app.js container.js main.js server.js ./
-COPY --chown=appuser:appgroup config/ ./config
-COPY --chown=appuser:appgroup constants/ ./constants
-COPY --chown=appuser:appgroup controllers/ ./controllers
-COPY --chown=appuser:appgroup db/ ./db
-COPY --chown=appuser:appgroup errors/ ./errors
-COPY --chown=appuser:appgroup middleware/ ./middleware
-COPY --chown=appuser:appgroup models/ ./models
-COPY --chown=appuser:appgroup routes/ ./routes
-COPY --chown=appuser:appgroup schemas/ ./schemas
-COPY --chown=appuser:appgroup services/ ./services
-COPY --chown=appuser:appgroup utils/ ./utils
-RUN mkdir logs && chown -R appuser:appgroup ./logs
+COPY --chown=appuser:appgroup package.json \
+    app.js container.js main.js server.js \
+    config/ constants/ controllers/ \
+    db/ errors/ middleware/ models/ \
+    routes/ schemas/ services/ utils/ ./
 
 
 # Switch to the non-root user for runtime security
 USER appuser
 
-CMD ["npm", "run", "start"]
+CMD ["node", "main.js"]
