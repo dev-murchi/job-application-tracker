@@ -60,15 +60,19 @@ jobs:
     uses: ./.github/workflows/backend-pr.yml
     secrets: inherit
   
-  fontend-pr:
+  frontend-pr:
     needs: detect-changes
     if: needs.detect-changes.outputs.frontend == 'true'
     uses: ./.github/workflows/frontend-pr.yml
     secrets: inherit
 
   update-versions:
-    needs: [ detect-changes, backend-pr, fontend-pr]
-    if: needs.detect-changes.outputs.version-update-required == 'true'
+    needs: [ detect-changes, backend-pr, frontend-pr]
+    if: |
+      always() &&
+      needs.detect-changes.outputs.version-update-required == 'true' &&
+      (needs.backend-pr.result == 'success' || needs.backend-pr.result == 'skipped') &&
+      (needs.frontend-pr.result == 'success' || needs.frontend-pr.result == 'skipped')
     runs-on: ubuntu-latest
     name: Update Version Files
     env:
@@ -132,7 +136,7 @@ jobs:
 
   check-workflow-completion:
     name: Check Workflow Completion
-    needs: [detect-changes, backend-pr, fontend-pr, update-versions]
+    needs: [detect-changes, backend-pr, frontend-pr, update-versions]
     if: always()
     runs-on: ubuntu-latest
     steps:
