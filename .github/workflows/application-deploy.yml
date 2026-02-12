@@ -91,7 +91,7 @@ jobs:
 
   summary:
     name: Deployment Summary
-    needs: [backend-delivery, frontend-delivery, deploy]
+    needs: [normalize, backend-delivery, frontend-delivery, deploy]
     runs-on: ubuntu-latest
     if: always()
     steps:
