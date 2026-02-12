@@ -1,5 +1,4 @@
-name: Continuous Delivery and Deployment Workflow
-
+name: Application Deploy
 on:
   push:
     branches:
@@ -7,9 +6,6 @@ on:
     paths:
       - 'backend/**'
       - 'frontend/**'
-      - 'docker-compose.yml'
-      - '.github/workflows/**'
-      - '.github/actions/**'
 
 permissions:
   packages: write

@@ -6,8 +6,6 @@ on:
     paths:
       - backend/**
       - frontend/**
-      - '.github/workflows/**'
-      - '.github/actions/**'
 permissions:
   contents: write
   pull-requests: read
@@ -24,13 +22,8 @@ jobs:
     outputs:
       backend: ${{ steps.changes.outputs.backend }}
       frontend: ${{ steps.changes.outputs.frontend }}
-      version-update-required: |-
-        ${{
-          (
-            steps.changes.outputs.backend == 'true' || 
-            steps.changes.outputs.frontend == 'true'
-          )
-        }}
+      version-update-required: ${{ steps.output.outputs.version-update-required }}
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -43,29 +36,43 @@ jobs:
             backend: ['backend/**']
             frontend: ['frontend/**']
       - name: Output Detected Changes
+        id: output
         run: |
           echo "Backend changes detected: ${{ steps.changes.outputs.backend }}"
           echo "Frontend changes detected: ${{ steps.changes.outputs.frontend }}"
+          version_update_required=false
+          
+          # If backend changes, version update is required
+          if [[ "${{ steps.changes.outputs.backend }}" == "true" ]]; then
+            version_update_required=true
+          fi
+
+          # If frontend changes, version update is required
+          if [[ "${{ steps.changes.outputs.frontend }}" == "true" ]]; then
+            version_update_required=true
+          fi
+
+          echo "version-update-required=$version_update_required" >> $GITHUB_OUTPUT
   
-  call-backend-ci:
+  backend-pr:
     needs: detect-changes
     if: needs.detect-changes.outputs.backend == 'true'
-    uses: ./.github/workflows/backend-ci.yml
+    uses: ./.github/workflows/backend-pr.yml
     secrets: inherit
   
-  call-frontend-ci:
+  fontend-pr:
     needs: detect-changes
     if: needs.detect-changes.outputs.frontend == 'true'
-    uses: ./.github/workflows/frontend-ci.yml
+    uses: ./.github/workflows/frontend-pr.yml
     secrets: inherit
 
   update-versions:
-    needs: [ is-bot-commit,detect-changes, call-backend-ci, call-frontend-ci]
-    if: needs.is-bot-commit.outputs.is-bot == 'false' && needs.detect-changes.outputs.version-update-required == 'true'
+    needs: [ detect-changes, backend-pr, fontend-pr]
+    if: needs.detect-changes.outputs.version-update-required == 'true'
     runs-on: ubuntu-latest
     name: Update Version Files
     env:
-      HEAD_REF: ${{ github.head_ref }}
+      BRANCH: ${{ github.head_ref }}
     
     steps:
       - name: Checkout code
@@ -74,7 +81,21 @@ jobs:
           ref: ${{ github.head_ref }}
           fetch-depth: 0
           token: ${{ secrets.GH_BOT_PAT }}
-
+      
+      - name: Determine Version Update Type
+        id: version_type
+        run: |
+          if [[ "$BRANCH" =~ ^hotfix/ ]]; then
+            echo "mode=patch" >> $GITHUB_OUTPUT
+          elif [[ "$BRANCH" =~ ^bugfix/ ]]; then
+            echo "mode=patch" >> $GITHUB_OUTPUT
+          elif [[ "$BRANCH" =~ ^feature/ ]]; then
+            echo "mode=minor" >> $GITHUB_OUTPUT
+          elif [[ "$BRANCH" =~ ^release/ ]]; then
+            echo "mode=major" >> $GITHUB_OUTPUT
+          else
+            echo "mode=patch" >> $GITHUB_OUTPUT
+          fi
 
       - name: Update Backend Service Version
         id: update_backend_version
@@ -82,13 +103,7 @@ jobs:
         uses: ./.github/actions/npm-version-update
         with:
           working_dir: './backend'
-          mode: >-
-            ${{ 
-              startsWith(github.head_ref, 'bugfix/') && 'patch' || 
-              startsWith(github.head_ref, 'feature/') && 'minor' || 
-              startsWith(github.head_ref, 'release/') && 'major' || 
-              'patch'
-            }}
+          mode: ${{ steps.version_type.outputs.mode }}
           
       - name: Update Frontend Service Version
         id: update_frontend_version
@@ -96,34 +111,28 @@ jobs:
         uses: ./.github/actions/npm-version-update
         with:
           working_dir: './frontend'
-          mode: >-
-            ${{ 
-              startsWith(github.head_ref, 'bugfix/') && 'patch' || 
-              startsWith(github.head_ref, 'feature/') && 'minor' || 
-              startsWith(github.head_ref, 'release/') && 'major' || 
-              'patch' 
-            }}
+          mode: ${{ steps.version_type.outputs.mode }}
       
       - name: Commit Version Updates
         run: |
-            COMMIT_MESSAGE="version-update:"
-            if [ "${{ needs.detect-changes.outputs.backend }}" == "true" ]; then
-              BACKEND_VERSION=${{ steps.update_backend_version.outputs.version }}
-              COMMIT_MESSAGE+=" Backend api version to v$BACKEND_VERSION."
-            fi
-            if [ "${{ needs.detect-changes.outputs.frontend }}" == "true" ]; then
-              FRONTEND_VERSION=${{ steps.update_frontend_version.outputs.version }}
-              COMMIT_MESSAGE+=" Frontend app version to v$FRONTEND_VERSION."
-            fi
-            git add .
-            git config user.name "github-actions[bot]"
-            git config user.email "github-actions[bot]@users.noreply.github.com"
-            git commit -am "$COMMIT_MESSAGE"
-            git push origin "HEAD:$HEAD_REF"
+          COMMIT_MESSAGE="version-update:"
+          if [ "${{ needs.detect-changes.outputs.backend }}" == "true" ]; then
+            BACKEND_VERSION=${{ steps.update_backend_version.outputs.version }}
+            COMMIT_MESSAGE+=" backend v$BACKEND_VERSION"
+          fi
+          if [ "${{ needs.detect-changes.outputs.frontend }}" == "true" ]; then
+            FRONTEND_VERSION=${{ steps.update_frontend_version.outputs.version }}
+            COMMIT_MESSAGE+=" frontend v$FRONTEND_VERSION"
+          fi
+          git add .
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git commit -am "$COMMIT_MESSAGE" || echo "No changes to commit"
+          git push origin "HEAD:$BRANCH"
 
   check-workflow-completion:
     name: Check Workflow Completion
-    needs: [detect-changes, call-backend-ci, call-frontend-ci, update-versions]
+    needs: [detect-changes, backend-pr, fontend-pr, update-versions]
     if: always()
     runs-on: ubuntu-latest
     steps:

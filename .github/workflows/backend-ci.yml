@@ -9,6 +9,7 @@ on:
       - bugfix/**
     paths:
       - backend/**
+      - .github/workflows/backend-ci.yml
 
 env:
   NODE_VERSION: '22'
