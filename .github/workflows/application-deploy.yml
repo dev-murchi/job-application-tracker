@@ -75,9 +75,11 @@ jobs:
             deploy_required=true
           fi
           
-          echo "backend_image=$backend_image" >> "$GITHUB_OUTPUT"
-          echo "frontend_image=$frontend_image" >> "$GITHUB_OUTPUT"
-          echo "deploy_required=$deploy_required" >> "$GITHUB_OUTPUT"
+          {
+            echo "backend_image=$backend_image"
+            echo "frontend_image=$frontend_image"
+            echo "deploy_required=$deploy_required"
+          } >> "$GITHUB_OUTPUT"
 
   deploy:
     name: Deploy Application
