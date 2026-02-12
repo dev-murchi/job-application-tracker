@@ -6,6 +6,7 @@ on:
     paths:
       - 'backend/**'
       - 'frontend/**'
+      - '.github/workflows/application-deploy.yml'
 
 permissions:
   packages: write
@@ -17,7 +18,6 @@ jobs:
     outputs:
       backend: ${{ steps.changes.outputs.backend }}
       frontend: ${{ steps.changes.outputs.frontend }}
-      is-modified: ${{ steps.calculate.outputs.is-modified }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -31,55 +31,76 @@ jobs:
               - 'backend/**'
             frontend:
               - 'frontend/**'
-      - name: Calculate is-modified output
-        id: calculate
-        run: |
-          echo "is-modified=${{
-            steps.changes.outputs.backend == 'true' ||
-            steps.changes.outputs.frontend == 'true'
-          }}" >> "$GITHUB_OUTPUT"
-  
-  call-backend-delivery-workflow:
+
+  backend-delivery:
     needs: changes
     if: needs.changes.outputs.backend == 'true'
     uses: ./.github/workflows/backend-cd.yml
     secrets: inherit
     with:
       caller_event: 'deploy'
-  
-  call-frontend-delivery-workflow:
+
+  frontend-delivery:
     needs: changes
     if: needs.changes.outputs.frontend == 'true'
     uses: ./.github/workflows/frontend-cd.yml
     secrets: inherit
     with:
       caller_event: 'deploy'
-  
+
   normalize:
     name: Normalize Published Images
-    needs: [changes, call-backend-delivery-workflow, call-frontend-delivery-workflow]
-    if: needs.changes.outputs.is-modified == 'true'
+    needs: [changes, backend-delivery, frontend-delivery]
+    if: |
+      always() &&
+      needs.backend-delivery.result != 'failure' &&
+      needs.frontend-delivery.result != 'failure'
     runs-on: ubuntu-latest
-    env:
-      BACKEND_PUB: ${{ needs.call-backend-delivery-workflow.outputs.published_image }}
-      FRONT_PUB: ${{ needs.call-frontend-delivery-workflow.outputs.published_image }}
     outputs:
-      backend_image: ${{ steps.set-backend.outputs.image_tag }}
-      frontend_image: ${{ steps.set-frontend.outputs.image_tag }}
-      
+      backend_image: ${{ steps.set-outputs.outputs.backend_image }}
+      frontend_image: ${{ steps.set-outputs.outputs.frontend_image }}
+      deploy_required: ${{ steps.set-outputs.outputs.deploy_required }}
     steps:
-      - name: Normalize published image outputs (backend)
-        id: set-backend
-        run: echo "image_tag=${BACKEND_PUB:-CURRENT}" >> "$GITHUB_OUTPUT"
-      - name: Normalize published image outputs (frontend)
-        id: set-frontend
-        run: echo "image_tag=${FRONT_PUB:-CURRENT}" >> "$GITHUB_OUTPUT"
+      - name: Set outputs
+        id: set-outputs
+        env:
+          BACKEND_PUB: ${{ needs.backend-delivery.outputs.published_image }}
+          FRONTEND_PUB: ${{ needs.frontend-delivery.outputs.published_image }}
+        run: |
+          backend_image="${BACKEND_PUB:-CURRENT}"
+          frontend_image="${FRONTEND_PUB:-CURRENT}"
+          
+          deploy_required=false
+          if [[ "$backend_image" != "CURRENT" || "$frontend_image" != "CURRENT" ]]; then
+            deploy_required=true
+          fi
+          
+          {
+            echo "backend_image=$backend_image"
+            echo "frontend_image=$frontend_image"
+            echo "deploy_required=$deploy_required"
+          } >> "$GITHUB_OUTPUT"
+
   deploy:
     name: Deploy Application
     needs: normalize
-    if: "always() && needs.normalize.result == 'success'"
-    uses: ./.github/workflows/deploy.yml
+    if: always() && needs.normalize.result == 'success' && needs.normalize.outputs.deploy_required == 'true'
+    uses: ./.github/workflows/swarm-deploy.yml
     secrets: inherit
     with:
       backend_image: ${{ needs.normalize.outputs.backend_image }}
       frontend_image: ${{ needs.normalize.outputs.frontend_image }}
+
+  summary:
+    name: Deployment Summary
+    needs: [normalize, backend-delivery, frontend-delivery, deploy]
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Print Summary
+        run: |
+          echo "Backend Delivery Result: ${{ needs.backend-delivery.result }}"
+          echo "Frontend Delivery Result: ${{ needs.frontend-delivery.result }}"
+          echo "Deployment Result: ${{ needs.deploy.result }}"
+          echo "Backend Image: ${{ needs.normalize.outputs.backend_image }}"
+          echo "Frontend Image: ${{ needs.normalize.outputs.frontend_image }}"
