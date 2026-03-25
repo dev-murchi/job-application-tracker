@@ -1,5 +1,5 @@
 # Multi-stage build supporting both testing and production
-FROM node:22-alpine AS base
+FROM node:22-alpine3.23 AS base
 WORKDIR /usr/src/app
 
 # ===== Dependencies Stage =====
@@ -47,7 +47,7 @@ COPY . .
 RUN npm run build -- --configuration production
 
 # ===== Production Stage (Nginx) =====
-FROM nginx:alpine AS production
+FROM nginx:stable-alpine AS production
 
 # Upgrade Alpine packages to patch OS-level vulnerabilities (e.g. CVE-2026-22184 zlib)
 RUN apk upgrade --no-cache
