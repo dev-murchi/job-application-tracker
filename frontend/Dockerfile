@@ -49,6 +49,9 @@ RUN npm run build -- --configuration production
 # ===== Production Stage (Nginx) =====
 FROM nginx:alpine AS production
 
+# Upgrade Alpine packages to patch OS-level vulnerabilities (e.g. CVE-2026-22184 zlib)
+RUN apk upgrade --no-cache
+
 # Remove default nginx configuration to avoid conflicts
 RUN rm -f /etc/nginx/conf.d/default.conf
 

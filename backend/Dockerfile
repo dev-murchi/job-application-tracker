@@ -36,6 +36,9 @@ CMD ["npm", "run", "test"]
 FROM base AS production
 ENV NODE_ENV=production
 
+# Upgrade Alpine packages to patch OS-level vulnerabilities (e.g. CVE-2026-22184 zlib)
+RUN apk upgrade --no-cache
+
 # Remove npm, yarn, and corepack - not needed at runtime
 # This also eliminates vulnerabilities in these unused packages
 RUN rm -rf /usr/local/lib/node_modules/npm \
