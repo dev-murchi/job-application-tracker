@@ -47,6 +47,9 @@ outputs:
   image_tags:
     description: 'Tags of the published Docker image'
     value: ${{ steps.build_and_push.outputs.tags }}
+  image_digest:
+    description: 'Digest of the published Docker image'
+    value: ${{ steps.build_and_push.outputs.digest }}
 
 runs:
   using: 'composite'

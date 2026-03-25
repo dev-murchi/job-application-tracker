@@ -20,7 +20,7 @@ jobs:
       contents: read
       packages: write
     outputs:
-      published_image: "${{ env.REGISTRY }}/${{ github.repository }}-backend:${{ steps.get_version.outputs.version }}"
+      published_image: "${{ env.REGISTRY }}/${{ github.repository }}-backend:${{ steps.get_version.outputs.version }}@${{ steps.build_and_push.outputs.image_digest }}"
     env:
       NODE_VERSION: '22'
       WORKING_DIR: ./backend
