@@ -1,0 +1,57 @@
+name: Stack File - Validate
+
+on:
+  push:
+    paths:
+      - docker-stack.yml
+      - .github/workflows/stack-validate.yml
+
+  pull_request:
+    paths:
+      - docker-stack.yml
+      - .github/workflows/stack-validate.yml
+
+jobs:
+  validate:
+    name: Validate docker-stack.yml
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      # Compose needs every ${VAR} resolved to validate structure.
+      # We use safe placeholders since this job only checks syntax, not runtime values.
+      STACK_FILE: 'docker-stack.yml'
+      BACKEND_IMAGE: 'backend-placeholder:1.0.0'
+      FRONTEND_IMAGE: 'frontend-placeholder:1.0.0'
+      SERVER_PORT: '3000'
+      JWT_LIFETIME: '1d'
+      CORS_ORIGIN: 'https://placeholder.local'
+      RATE_LIMIT_WINDOW_MS: '900000'
+      RATE_LIMIT_MAX_REQUESTS: '100'
+      LOG_LEVEL: 'info'
+      REQUEST_SIZE_LIMIT: '10kb'
+      NGINX_HTTPS_PORT: '443'
+      FRONTEND_NGINX_DEF_CONFIG_NAME: 'placeholder_nginx_conf'
+      FRONTEND_NGINX_APP_CONFIG_NAME: 'placeholder_nginx_app_conf'
+      JWT_SECRET_NAME: 'placeholder_jwt_secret'
+      MONGO_URL_SECRET_NAME: 'placeholder_mongo_uri'
+      FRONTEND_SSL_CRT_SECRET_NAME: 'placeholder_frontend_crt'
+      FRONTEND_SSL_PRIVKEY_SECRET_NAME: 'placeholder_frontend_key'
+      SSL_CA_CRT_SECRET_NAME: 'placeholder_ca_crt'
+      
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Validate Compose syntax and structure
+        run: |
+          set -euo pipefail
+
+          if docker compose -f "$STACK_FILE" config --quiet; then
+            echo "Validation passed — ${STACK_FILE} is structurally valid."
+          else
+            echo "[ERROR] ${STACK_FILE} failed Compose validation."
+            exit 1
+          fi
