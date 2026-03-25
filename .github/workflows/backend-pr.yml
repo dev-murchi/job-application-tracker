@@ -24,7 +24,7 @@ jobs:
           docker build -t backend-image-scan -f ./backend/Dockerfile --target production ./backend
 
       - name: Scan image with Trivy
-        uses: aquasecurity/trivy-action@0.28.0
+        uses: aquasecurity/trivy-action@0.35.0
         with:
           image-ref: 'backend-image-scan'
           format: 'table'
