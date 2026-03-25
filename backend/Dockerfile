@@ -1,4 +1,6 @@
-FROM node:22-alpine AS base
+FROM node:22-alpine3.23 AS base
+# Upgrade Alpine packages to patch OS-level vulnerabilities (e.g. CVE-2026-22184 zlib)
+RUN apk upgrade --no-cache
 
 WORKDIR /usr/src/app
 
