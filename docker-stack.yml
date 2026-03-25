@@ -1,0 +1,129 @@
+services:
+  backend:
+    image: ${BACKEND_IMAGE}
+    secrets:
+      - source: jwt_secret
+        target: /run/secrets/jwt_secret
+      - source: mongo_url
+        target: /run/secrets/mongo_url
+    environment:
+      NODE_ENV: production
+      SERVER_PORT: ${SERVER_PORT}
+      MONGO_URL_FILE: /run/secrets/mongo_url
+      JWT_SECRET_FILE: /run/secrets/jwt_secret
+      JWT_LIFETIME: ${JWT_LIFETIME}
+      CORS_ORIGIN: ${CORS_ORIGIN}
+      RATE_LIMIT_WINDOW_MS: ${RATE_LIMIT_WINDOW_MS}
+      RATE_LIMIT_MAX_REQUESTS: ${RATE_LIMIT_MAX_REQUESTS}
+      LOG_LEVEL: ${LOG_LEVEL}
+      REQUEST_SIZE_LIMIT: ${REQUEST_SIZE_LIMIT}
+    networks:
+      - backend_nw
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "${SERVER_PORT}"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    deploy:
+      replicas: 2
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+      update_config:
+        parallelism: 1
+        delay: 10s
+        order: start-first
+        failure_action: rollback
+      rollback_config:
+        parallelism: 1
+        delay: 5s
+      resources:
+        limits:
+          cpus: '0.75'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 768M
+
+  frontend:
+    image: ${FRONTEND_IMAGE}
+    ports:
+      - "${NGINX_HTTPS_PORT}:${NGINX_HTTPS_PORT}"
+    networks:
+      - backend_nw
+      - frontend_nw
+    secrets:
+      - source: frontend_crt
+        target: /etc/nginx/ssl/frontend.crt
+      - source: frontend_privkey
+        target: /etc/nginx/ssl/frontend.key
+      - source: ssl_ca_crt
+        target: /etc/nginx/ssl/ca.crt
+    configs:
+      - source: nginx_conf
+        target: /etc/nginx/nginx.conf
+      - source: nginx_frontend_conf
+        target: /etc/nginx/conf.d/app.conf
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "${NGINX_HTTPS_PORT}"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+      update_config:
+        parallelism: 1
+        delay: 10s
+        order: start-first
+        failure_action: rollback
+      rollback_config:
+        parallelism: 1
+        delay: 5s
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+
+networks:
+  backend_nw:
+    driver: overlay
+  frontend_nw:
+    driver: overlay
+
+configs:
+  nginx_conf:
+    external: true
+    name: ${FRONTEND_NGINX_DEF_CONFIG_NAME}
+  nginx_frontend_conf:
+    external: true
+    name: ${FRONTEND_NGINX_APP_CONFIG_NAME}
+
+secrets:
+  jwt_secret:
+    external: true
+    name: ${JWT_SECRET_NAME}
+  mongo_url:
+    external: true
+    name: ${MONGO_URL_SECRET_NAME}
+
+  frontend_crt:
+    external: true
+    name: ${FRONTEND_SSL_CRT_SECRET_NAME}
+  frontend_privkey:
+    external: true
+    name: ${FRONTEND_SSL_PRIVKEY_SECRET_NAME}
+  ssl_ca_crt:
+    external: true
+    name: ${SSL_CA_CRT_SECRET_NAME}
