@@ -12,7 +12,7 @@ This guide will help you set up and run the Job Application Tracker on your loca
 
 ### Optional (for local development without Docker)
 
-- Node.js 20.x
+- Node.js 22.x
 - MongoDB 8.0
 - npm or yarn
 
@@ -36,7 +36,7 @@ cp .env.example .env.dev
 # For testing
 cp .env.example .env.test
 
-# For production
+# For prod-demo
 cp .env.example .env.prod
 ```
 
@@ -56,7 +56,7 @@ MONGO_URL=mongodb://your_secure_username:your_secure_password@mongodb-dev:27017/
 # Update MongoDB connection string (for testing)
 MONGO_URL=mongodb://your_secure_username:your_secure_password@mongodb-test:27017/jobs-tracker?authSource=admin
 
-# Update MongoDB connection string (for production)
+# Update MongoDB connection string (for prod-demo)
 MONGO_URL=mongodb://your_secure_username:your_secure_password@mongodb-prod:27017/jobs-tracker?authSource=admin
 ```
 
@@ -68,8 +68,8 @@ docker compose --profile dev --env-file .env.dev up
 
 **Access Points:**
 - **Frontend**: http://localhost:4200
-- **Backend API**: http://localhost:3003
-- **Health Check**: http://localhost:3003/health
+- **Backend API**: http://localhost:3000
+- **Health Check**: http://localhost:3000/health
 
 The application will automatically reload when you make changes to the source code.
 
