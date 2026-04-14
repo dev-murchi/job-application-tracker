@@ -3,7 +3,7 @@
 A production-ready, containerized full-stack application for tracking and managing personal job applications with enterprise-grade architecture, security, and deployment efficiency.
 
 [![Docker](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
-[![Node.js](https://img.shields.io/badge/Node.js-20.x-green.svg)](https://nodejs.org/)
+[![Node.js](https://img.shields.io/badge/Node.js-22.x-green.svg)](https://nodejs.org/)
 [![Angular](https://img.shields.io/badge/Angular-20.2-red.svg)](https://angular.io/)
 [![MongoDB](https://img.shields.io/badge/MongoDB-8.0-brightgreen.svg)](https://www.mongodb.com/)
 
@@ -31,7 +31,7 @@ This application is a containerized full-stack implementation of the [Jobs API](
 - **Production-Grade Architecture:** Dependency injection, factory patterns, and clean separation of concerns
 - **Comprehensive Testing:** Full unit and integration test suites with >90% code coverage
 - **Enterprise Security:** JWT authentication, rate limiting, input sanitization, and helmet protection
-- **Multi-Environment Deployment:** Docker Compose profiles for dev, test, and production with NGINX reverse proxy
+- **Multi-Environment Deployment:** Docker Compose profiles for dev, test, and prod-demo with NGINX reverse proxy
 
 <a id="features"></a>
 ## ✨ Features
@@ -106,36 +106,8 @@ This application is a containerized full-stack implementation of the [Jobs API](
 <a id="architecture"></a>
 ## 🏗 Architecture
 
-### High-Level Architecture
-```
-┌─────────────────────────────────────────────────────────────┐
-│                      NGINX Reverse Proxy                     │
-│                    (SSL/TLS Termination)                     │
-└────────────────┬────────────────────────┬───────────────────┘
-                 │                        │
-                 │ /api/*                 │ /*
-                 ▼                        ▼
-    ┌────────────────────────┐  ┌──────────────────────┐
-    │   Backend (Express)    │  │  Frontend (Angular)  │
-    │   Port: 3000           │  │  Port: 4200          │
-    │                        │  │                      │
-    │ • REST API             │  │ • SPA                │
-    │ • JWT Auth             │  │ • State Management   │
-    │ • Rate Limiting        │  │ • Chart.js           │
-    │ • Input Validation     │  │ • Responsive UI      │
-    └───────────┬────────────┘  └──────────────────────┘
-                │
-                │ Mongoose ODM
-                ▼
-    ┌────────────────────────┐
-    │   MongoDB Database     │
-    │   Port: 27017          │
-    │                        │
-    │ • Users Collection     │
-    │ • Jobs Collection      │
-    │ • Indexes & Validation │
-    └────────────────────────┘
-```
+### High Level System Design
+See [High Level System Design](docs/SYSTEM_DESIGN.md) for detailed specifications.
 
 ### Backend Architecture
 
@@ -208,7 +180,7 @@ Complete documentation is available in the [`docs/`](docs/) directory:
 
 ### Quick Links
 
-- 🚀 **[Deployment Modes](docs/GETTING_STARTED.md#deployment-workflow)**: Dev, Test, Production
+- 🚀 **[Deployment Modes](docs/GETTING_STARTED.md#deployment-workflow)**: Dev, Test, Prod-Demo
 - 🔐 **[Environment Configuration](docs/GETTING_STARTED.md#2-configure-environment)**: Required variables and secrets
 - 🧪 **[Running Tests](docs/GETTING_STARTED.md#running-tests)**: Unit and integration testing
 - 📖 **[API Endpoints](docs/API.md)**: Authentication, jobs, user management
@@ -220,23 +192,24 @@ Complete documentation is available in the [`docs/`](docs/) directory:
 jobs-api-v2/
 ├── .env.example               # Environment template
 ├── docker-compose.yml         # Multi-environment orchestration
-├── Dockerfile.backend         # Backend container image
-├── Dockerfile.frontend        # Frontend container image
-├── README.md                  # Project documentation
+├── README.md                  # Project README
+├── docs/                      # Project documentations
 ├── backend/                   # Node.js/Express API
 │   ├── app.js                 # Express app factory
-│   ├── container.js           # Dependency injection container
-│   ├── server.js              # Server entry point
+│   ├── Dockerfile             # Backend container image
 │   ├── config/                # Configuration management
 │   ├── constants/             # Application constants
+│   ├── container.js           # Dependency injection container
 │   ├── controllers/           # Request handlers
 │   ├── db/                    # Database connection & service
 │   ├── errors/                # Custom error classes
+│   ├── main.js                # Main 
 │   ├── middleware/            # Custom middleware
 │   ├── models/                # Mongoose schemas
 │   ├── routes/                # API route definitions
 │   ├── schemas/               # Zod validation schemas
 │   ├── services/              # Business logic layer
+│   ├── server.js              # HTTP Server entry point
 │   ├── tests/                 # Unit & integration tests
 │   │   ├── unit/              # Unit test suites
 │   │   ├── integration/       # Integration test suites
@@ -246,6 +219,7 @@ jobs-api-v2/
 │   │   └── jest-integration-setup.js  # Integration test setup
 │   └── utils/                 # Helper functions
 ├── frontend/                  # Angular SPA
+│   ├── Dockerfile             # Frontend container image
 │   └── src/                   # Source files
 │       ├── index.html         # Application entry HTML
 │       ├── main.ts            # Application bootstrap

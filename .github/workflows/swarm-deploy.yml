@@ -4,20 +4,144 @@ on:
   workflow_call:
     inputs:
       backend_image:
-        description: 'Backend image tag (or CURRENT)'
+        description: 'Backend image tag with its digest (or CURRENT to keep existing)'
         required: true
         type: string
       frontend_image:
-        description: 'Frontend image tag (or CURRENT)'
+        description: 'Frontend image tag with its digest (or CURRENT to keep existing)'
         required: true
         type: string
 
+# Only one deploy at a time — never cancel an in-progress deployment.
+concurrency:
+  group: swarm-deploy
+  cancel-in-progress: false
+
 jobs:
-  deploy:
-    name: Deploy Application
+  validate-inputs:
+    name: Validate Inputs
     runs-on: ubuntu-latest
+    timeout-minutes: 2
     steps:
-    - name: Deploy Application
-      run: |
-        echo "Deploying Backend Image: ${{ inputs.backend_image }}"
-        echo "Deploying Frontend Image: ${{ inputs.frontend_image }}"
+      - name: Check inputs are not empty and properly formatted
+        run: |
+          set -euo pipefail
+          BACKEND="${{ inputs.backend_image }}"
+          FRONTEND="${{ inputs.frontend_image }}"
+
+          validate_image() {
+            local name="$1" value="$2"
+            if [[ -z "${value}" ]]; then
+              echo "[ERROR] ${name} is empty"
+              return 1
+            fi
+            if [[ "${value}" != "CURRENT" ]] && [[ ! "${value}" =~ ^.+:.+@sha256:[a-f0-9]{64}$ ]]; then
+              echo "[ERROR] ${name} must be 'CURRENT' or match image:tag@sha256:<64-hex-chars>"
+              return 1
+            fi
+            echo "${name}: ${value} ✓"
+          }
+
+          validate_image "backend_image" "${BACKEND}"
+          validate_image "frontend_image" "${FRONTEND}"
+
+  deploy:
+    name: Deploy Application (Swarm)
+    needs: validate-inputs
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+    timeout-minutes: 25
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.VPS_SSH_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+
+          # Add host key to known_hosts to avoid interactive prompt
+          ssh-keyscan -p ${{ secrets.VPS_SSH_PORT }} ${{ secrets.VPS_SSH_HOST }} >> ~/.ssh/known_hosts 2>/dev/null
+
+          # Create SSH config alias
+          cat >> ~/.ssh/config <<EOF
+          Host deploy-target
+            HostName ${{ secrets.VPS_SSH_HOST }}
+            User ${{ secrets.VPS_SSH_USER }}
+            Port ${{ secrets.VPS_SSH_PORT }}
+            IdentityFile ~/.ssh/deploy_key
+            StrictHostKeyChecking yes
+          EOF
+          chmod 600 ~/.ssh/config
+
+      # ── Copy stack file to the server ──
+      - name: Copy deployment files to server
+        run: |
+          scp docker-stack.yml deploy-target:${{ secrets.DEPLOY_DIR }}/workspace/
+
+      # ── Build env file, upload, and execute deploy via restricted wrapper ──
+      - name: Deploy to Swarm
+        env:
+          STACK_NAME: ${{ secrets.STACK_NAME }}
+          CR_PAT: ${{ secrets.CR_PAT }}
+          CR_USERNAME: ${{ secrets.CR_USERNAME }}
+          DEPLOY_DIR: ${{ secrets.DEPLOY_DIR }}
+          SERVER_PORT: ${{ secrets.SERVER_PORT }}
+          JWT_LIFETIME: ${{ secrets.JWT_LIFETIME }}
+          CORS_ORIGIN: ${{ secrets.CORS_ORIGIN }}
+          RATE_LIMIT_WINDOW_MS: ${{ secrets.RATE_LIMIT_WINDOW_MS }}
+          RATE_LIMIT_MAX_REQUESTS: ${{ secrets.RATE_LIMIT_MAX_REQUESTS }}
+          LOG_LEVEL: ${{ secrets.LOG_LEVEL }}
+          REQUEST_SIZE_LIMIT: ${{ secrets.REQUEST_SIZE_LIMIT }}
+          JWT_SECRET_NAME: ${{ secrets.JWT_SECRET_NAME }}
+          MONGO_URL_SECRET_NAME: ${{ secrets.MONGO_URL_SECRET_NAME }}
+          FRONTEND_SSL_CRT_SECRET_NAME: ${{ secrets.FRONTEND_SSL_CRT_SECRET_NAME }}
+          FRONTEND_SSL_PRIVKEY_SECRET_NAME: ${{ secrets.FRONTEND_SSL_PRIVKEY_SECRET_NAME }}
+          SSL_CA_CRT_SECRET_NAME: ${{ secrets.SSL_CA_CRT_SECRET_NAME }}
+          NGINX_HTTPS_PORT: ${{ secrets.NGINX_HTTPS_PORT }}
+          FRONTEND_NGINX_DEF_CONFIG_NAME: ${{ secrets.FRONTEND_NGINX_DEF_CONFIG_NAME }}
+          FRONTEND_NGINX_APP_CONFIG_NAME: ${{ secrets.FRONTEND_NGINX_APP_CONFIG_NAME }}
+          BACKEND_IMAGE: ${{ inputs.backend_image }}
+          FRONTEND_IMAGE: ${{ inputs.frontend_image }}
+          COMMIT_SHA: ${{ github.sha }}
+        run: |
+          # Build the env file to send to the remote server
+          env_file=$(mktemp)
+          cat > "${env_file}" <<EOF
+          STACK_NAME=${STACK_NAME}
+          CR_PAT=${CR_PAT}
+          CR_USERNAME=${CR_USERNAME}
+          DEPLOY_DIR=${DEPLOY_DIR}
+          SERVER_PORT=${SERVER_PORT}
+          JWT_LIFETIME=${JWT_LIFETIME}
+          CORS_ORIGIN=${CORS_ORIGIN}
+          RATE_LIMIT_WINDOW_MS=${RATE_LIMIT_WINDOW_MS}
+          RATE_LIMIT_MAX_REQUESTS=${RATE_LIMIT_MAX_REQUESTS}
+          LOG_LEVEL=${LOG_LEVEL}
+          REQUEST_SIZE_LIMIT=${REQUEST_SIZE_LIMIT}
+          JWT_SECRET_NAME=${JWT_SECRET_NAME}
+          MONGO_URL_SECRET_NAME=${MONGO_URL_SECRET_NAME}
+          FRONTEND_SSL_CRT_SECRET_NAME=${FRONTEND_SSL_CRT_SECRET_NAME}
+          FRONTEND_SSL_PRIVKEY_SECRET_NAME=${FRONTEND_SSL_PRIVKEY_SECRET_NAME}
+          SSL_CA_CRT_SECRET_NAME=${SSL_CA_CRT_SECRET_NAME}
+          NGINX_HTTPS_PORT=${NGINX_HTTPS_PORT}
+          FRONTEND_NGINX_DEF_CONFIG_NAME=${FRONTEND_NGINX_DEF_CONFIG_NAME}
+          FRONTEND_NGINX_APP_CONFIG_NAME=${FRONTEND_NGINX_APP_CONFIG_NAME}
+          BACKEND_IMAGE=${BACKEND_IMAGE}
+          FRONTEND_IMAGE=${FRONTEND_IMAGE}
+          COMMIT_SHA=${COMMIT_SHA}
+          EOF
+
+          # Upload env file to server
+          scp "${env_file}" deploy-target:${{ secrets.DEPLOY_DIR }}/workspace/.deploy.env
+          rm -f "${env_file}"
+
+          # Execute deploy via the restricted wrapper
+          ssh deploy-target deploy
+
+      - name: Cleanup SSH
+        if: always()
+        run: |
+          rm -rf ~/.ssh/deploy_key ~/.ssh/config

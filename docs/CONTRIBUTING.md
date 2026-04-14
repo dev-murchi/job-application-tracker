@@ -76,7 +76,7 @@ docker compose --profile dev --env-file .env.dev up
 git checkout -b feature/your-feature-name
 
 # Or for bug fixes
-git checkout -b fix/bug-description
+git checkout -b bugfix/bug-description
 ```
 
 ## Development Workflow
@@ -102,7 +102,7 @@ docker compose --profile dev logs -f frontend-dev
 
 **Access Points**:
 - Frontend: http://localhost:4200
-- Backend: http://localhost:3003
+- Backend: http://localhost:3000
 - MongoDB: Internal only (not exposed)
 
 ### Hot Reload
