@@ -254,7 +254,7 @@ fi
 # ======================================================================
 if [[ "${cmd}" == "deploy" ]]; then
 
-  deploy_script="${WORKSPACE_DIR}/deploy.sh"
+  deploy_script="${DEPLOY_BASE}/deploy.sh"
   env_file="${WORKSPACE_DIR}/.deploy.env"
   stack_file="${WORKSPACE_DIR}/docker-stack.yml"
 
@@ -291,12 +291,11 @@ if [[ "${cmd}" == "deploy" ]]; then
   # ------------------------------------------------------------------
   cleanup_workspace() {
     log "Cleaning workspace..."
-    rm -f "${deploy_script}" "${stack_file}" "${env_file}"
+    rm -f "${stack_file}" "${env_file}"
   }
   trap cleanup_workspace EXIT
 
   log "Starting deployment (commit: ${COMMIT_SHA:-unknown})..."
-  chmod +x "${deploy_script}"
 
   if bash "${deploy_script}"; then
     log "Deployment succeeded."
