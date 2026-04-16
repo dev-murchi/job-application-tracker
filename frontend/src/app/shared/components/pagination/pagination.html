@@ -1,6 +1,8 @@
 <div class="flex flex-row items-center justify-end gap-2 text-[var(--color-text-primary)]">
   <button
+    type="button"
     (click)="firstPageClick()"
+    aria-label="First page"
     class="size-8 flex justify-center items-center p-1 text-sm border-1 border-[var(--color-border-default)] bg-transparend disabled:text-[var(--color-text-secondary)] rounded-lg cursor-pointer disabled:cursor-not-allowed"
     [disabled]="!prevActive()"
   >
@@ -8,7 +10,9 @@
   </button>
 
   <button
+    type="button"
     (click)="prevPageClick()"
+    aria-label="Previous page"
     class="size-8 flex justify-center items-center p-1 text-sm border-1 border-[var(--color-border-default)] bg-transparend disabled:text-[var(--color-text-secondary)] rounded-lg cursor-pointer disabled:cursor-not-allowed"
     [disabled]="!prevActive()"
   >
@@ -18,7 +22,9 @@
   <span class="text-sm">{{ currentPage() }} of {{ totalPages() }}</span>
 
   <button
+    type="button"
     (click)="nextPageClick()"
+    aria-label="Next page"
     class="size-8 flex justify-center items-center p-1 text-sm border-1 border-[var(--color-border-default)] bg-transparend disabled:text-[var(--color-text-secondary)] rounded-lg cursor-pointer disabled:cursor-not-allowed"
     [disabled]="!nextActive()"
   >
@@ -26,7 +32,9 @@
   </button>
 
   <button
+    type="button"
     (click)="lastPageClick()"
+    aria-label="Last page"
     class="size-8 flex justify-center items-center p-1 text-sm border-1 border-[var(--color-border-default)] bg-transparend disabled:text-[var(--color-text-secondary)] rounded-lg cursor-pointer disabled:cursor-not-allowed"
     [disabled]="!nextActive()"
   >

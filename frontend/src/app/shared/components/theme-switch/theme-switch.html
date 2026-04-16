@@ -1,6 +1,7 @@
 <button
   type="button"
   (click)="toggle()"
+  [attr.aria-label]="theme().isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'"
   class="inline-flex items-center justify-center min-w-10 min-h-10 p-2 rounded-lg bg-[var(--color-bg-active)]/25 hover:bg-[var(--color-bg-active)] hover:scale-105 active:scale-95 transition-all duration-200 ease-in-out focus:outline-none cursor-pointer"
 >
   @if (theme().isDarkMode) {

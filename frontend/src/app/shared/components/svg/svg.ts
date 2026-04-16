@@ -1,6 +1,6 @@
-import { Component, effect, ElementRef, HostBinding, inject, input } from '@angular/core';
-import { SvgNameType } from '../../../svg.config';
+import { Component, effect, ElementRef, inject, input } from '@angular/core';
 import { SvgService } from '../../../core/services/svg-service';
+import { SvgNameType } from '../../../svg.config';
 
 @Component({
   selector: 'app-svg',
@@ -8,6 +8,12 @@ import { SvgService } from '../../../core/services/svg-service';
   imports: [],
   template: '',
   styleUrl: './svg.css',
+  host: {
+    '[style.width]': 'width()',
+    '[style.height]': 'height()',
+    '[style.fill]': 'fill()',
+    '[style.stroke]': 'stroke()',
+  },
 })
 export class SvgComponent {
   readonly svgName = input.required<SvgNameType>();
@@ -16,52 +22,40 @@ export class SvgComponent {
   readonly height = input<string>();
   readonly fill = input<string>();
   readonly stroke = input<string>();
-  readonly class = input<string>('');
 
-  @HostBinding('class')
-  get customClass(): string {
-    return this.class();
-  }
-
-  @HostBinding('style.width')
-  get hostWidth(): string | undefined {
-    return this.width();
-  }
-
-  @HostBinding('style.height')
-  get hostHeight(): string | undefined {
-    return this.height();
-  }
-
-  @HostBinding('style.fill')
-  get hostFill(): string | undefined {
-    return this.fill();
-  }
-
-  @HostBinding('style.stroke')
-  get hostStroke(): string | undefined {
-    return this.stroke();
-  }
-
-  private svgService = inject(SvgService);
-  private elementRef = inject(ElementRef<HTMLElement>);
+  private readonly svgService = inject(SvgService);
+  private readonly elementRef = inject(ElementRef<HTMLElement>);
 
   constructor() {
-    effect(() => {
+    effect(onCleanup => {
       const svgName = this.svgName();
       const svgMode = this.mode();
-      if (svgName) {
-        let svgData = this.svgService.getSvg(svgName);
-        if (svgData) {
-          // Remove any hardcoded fill attributes for icons
-          if (svgMode === 'icon') {
-            svgData = svgData.replace(/ fill="[^"]*"/g, '');
-          }
-          this.elementRef.nativeElement.innerHTML = svgData;
-        } else {
-          this.elementRef.nativeElement.innerHTML = '';
-        }
-      }
+
+      const sub = this.svgService.getSvg$(svgName).subscribe(svgText => {
+        this.renderSvg(svgText, svgMode);
+      });
+
+      onCleanup(() => sub.unsubscribe());
     });
+  }
+
+  private renderSvg(svgText: string | null, mode: 'icon' | 'image'): void {
+    if (!svgText) {
+      this.elementRef.nativeElement.innerHTML = '';
+      return;
+    }
+
+    let svgData = svgText;
+
+    // Remove any hardcoded fill attributes for icons.
+    if (mode === 'icon') {
+      svgData = svgData.replace(/ fill="[^"]*"/g, '');
+    }
+
+    // Ensure the SVG isn't focusable (prevents accidental tab stops in some browsers).
+    svgData = svgData.replace(/\s+focusable=(?:"[^"]*"|'[^']*')/gi, '');
+    svgData = svgData.replace(/<svg\b/i, '<svg focusable="false"');
+
+    this.elementRef.nativeElement.innerHTML = svgData;
   }
 }
