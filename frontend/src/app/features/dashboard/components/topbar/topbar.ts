@@ -19,7 +19,7 @@ export class Topbar implements OnInit {
   readonly showDropdown = signal(false);
 
   readonly profileNavigation: NavLink = {
-    link: '/dashboard/profile',
+    link: '/profile',
     text: 'Profile',
     icon: 'accountCircleIcon',
   };

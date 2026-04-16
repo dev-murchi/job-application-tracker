@@ -61,7 +61,7 @@ export class JobDetail {
         this.router.navigate(['/not-found']);
       } else if (job.operation === 'delete') {
         this.alertService.show('Job application deleted successfully', 'success');
-        this.router.navigate(['/dashboard/jobs']);
+        this.router.navigate(['/jobs']);
       } else if (!job.isLoading && !job.data) {
         this.router.navigate(['/not-found']);
       }

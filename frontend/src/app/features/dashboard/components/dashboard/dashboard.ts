@@ -53,7 +53,7 @@ export class Dashboard {
         icon: 'appliedJobsIcon',
         colorClass: 'text-[var(--color-text-secondary)]',
         bgClass: 'bg-[var(--color-bg-active)]',
-        link: { target: ['/dashboard/jobs'] },
+        link: { target: ['/jobs'] },
       },
       {
         label: 'Pending',
@@ -61,7 +61,7 @@ export class Dashboard {
         icon: 'sendIcon',
         colorClass: 'text-[var(--color-job-status-pending-text)]',
         bgClass: 'bg-[var(--color-job-status-pending-bg)]',
-        link: { target: ['/dashboard/jobs'], queryParams: { status: 'pending' } },
+        link: { target: ['/jobs'], queryParams: { status: 'pending' } },
       },
       {
         label: 'Interviews',
@@ -69,7 +69,7 @@ export class Dashboard {
         icon: 'scheduleIcon',
         colorClass: 'text-[var(--color-job-status-interview-text)]',
         bgClass: 'bg-[var(--color-job-status-interview-bg)]',
-        link: { target: ['/dashboard/jobs'], queryParams: { status: 'interview' } },
+        link: { target: ['/jobs'], queryParams: { status: 'interview' } },
       },
       {
         label: 'Offers',
@@ -77,7 +77,7 @@ export class Dashboard {
         icon: 'checkCircleIcon',
         colorClass: 'text-[var(--color-job-status-offered-text)]',
         bgClass: 'bg-[var(--color-job-status-offered-bg)]',
-        link: { target: ['/dashboard/jobs'], queryParams: { status: 'offered' } },
+        link: { target: ['/jobs'], queryParams: { status: 'offered' } },
       },
     ];
   });
@@ -104,19 +104,19 @@ export class Dashboard {
       label: 'Add Application',
       description: 'Track a new job',
       icon: 'addJobApplicationIcon',
-      link: { target: ['/dashboard/create-job'] },
+      link: { target: ['/create-job'] },
     },
     {
       label: 'View All Jobs',
       description: 'Manage applications',
       icon: 'appliedJobsIcon',
-      link: { target: ['/dashboard/jobs'] },
+      link: { target: ['/jobs'] },
     },
     {
       label: 'View Statistics',
       description: 'Detailed insights',
       icon: 'monitoringIcon',
-      link: { target: ['/dashboard/stats'] },
+      link: { target: ['/stats'] },
     },
   ]);
 

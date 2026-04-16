@@ -20,7 +20,7 @@
   @if (isEditMode && jobId) {
     <app-nav-link
       class="nav-link"
-      link="/dashboard/jobs/{{ jobId }}"
+      link="/jobs/{{ jobId }}"
       text="Back to Job Details"
       [icon]="backToPageIcon"
       [cssClass]="'hover:bg-transparent hover:underline'"
@@ -28,7 +28,7 @@
   } @else {
     <app-nav-link
       class="nav-link"
-      link="/dashboard/jobs"
+      link="/jobs"
       text="Back to All Jobs"
       [icon]="backToPageIcon"
       [cssClass]="'hover:bg-transparent hover:underline'"
