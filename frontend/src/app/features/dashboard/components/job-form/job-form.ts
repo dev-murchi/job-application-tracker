@@ -148,9 +148,7 @@ export class JobForm {
       const state = this.jobDetail();
 
       if (this.isEditMode) {
-        if (state.isLoading) {
-          console.log('Loading job detail...');
-        } else if (state.error) {
+        if (state.error) {
           this.alertService.show(state.error, 'error');
         }
         // fetched or cached

@@ -12,17 +12,14 @@ export class AuthApi {
   private readonly http = inject(HttpClient);
 
   register(payload: UserRegister): Observable<any> {
-    console.log('API call: Attempting to register user:', payload.email);
     return this.http.post(`${this.apiUrl}/auth/register`, payload);
   }
 
   login(payload: UserLogin): Observable<any> {
-    console.log('API call: Attempting to login user:', payload.email);
     return this.http.post(`${this.apiUrl}/auth/login`, payload);
   }
 
   logout(): Observable<any> {
-    console.log('API call: Attempting to logout');
     return this.http.get(`${this.apiUrl}/auth/logout`);
   }
 }
