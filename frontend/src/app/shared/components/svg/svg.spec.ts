@@ -1,18 +1,21 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideZonelessChangeDetection } from '@angular/core';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { of } from 'rxjs';
 
-import { SvgComponent } from './svg';
 import { SvgService } from '../../../core/services/svg-service';
 import { SvgNameType } from '../../../svg.config';
+import { SvgComponent } from './svg';
 
 describe('SvgComponent', () => {
   let component: SvgComponent;
   let fixture: ComponentFixture<SvgComponent>;
   let svgServiceSpy: jasmine.SpyObj<SvgService>;
+
   const mockSvgName: SvgNameType = 'errorIcon';
 
   beforeEach(async () => {
-    svgServiceSpy = jasmine.createSpyObj('SvgService', ['getSvg']);
+    svgServiceSpy = jasmine.createSpyObj<SvgService>('SvgService', ['getSvg$']);
+    svgServiceSpy.getSvg$.and.returnValue(of(null));
 
     await TestBed.configureTestingModule({
       imports: [SvgComponent],

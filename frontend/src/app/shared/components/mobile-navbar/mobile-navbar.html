@@ -5,12 +5,18 @@
 
   <div class="flex flex-row items-center justify-end gap-1">
     <app-theme-switch />
-    <app-svg
-      [svgName]="mobileMenuIcon"
-      class="p-1 size-10 cursor-pointer"
-      fill="currentColor"
+    <button
+      type="button"
+      aria-label="Open menu"
       (click)="onToggleMenu()"
-    />
+      class="p-1 size-10 cursor-pointer"
+    >
+      <app-svg
+        [svgName]="mobileMenuIcon"
+        class="size-full pointer-events-none"
+        fill="currentColor"
+      />
+    </button>
   </div>
 </header>
 
@@ -24,12 +30,14 @@
       class="h-16 flex items-center justify-between text-[var(--color-brand-accent)] border-b-2 pr-2 gap-3"
     >
       <app-svg [svgName]="logoImage" [mode]="'image'" class="h-12" fill="currentColor" />
-      <app-svg
-        [svgName]="closeIcon"
-        class="p-1 h-8 cursor-pointer border-1 rounded-lg"
-        fill="currentColor"
+      <button
+        type="button"
+        aria-label="Close menu"
         (click)="closeMenu()"
-      />
+        class="p-1 size-8 cursor-pointer border-1 rounded-lg"
+      >
+        <app-svg [svgName]="closeIcon" class="size-full pointer-events-none" fill="currentColor" />
+      </button>
     </header>
 
     <nav class="flex-1 mt-8 px-2 space-y-2 overflow-y-auto">
