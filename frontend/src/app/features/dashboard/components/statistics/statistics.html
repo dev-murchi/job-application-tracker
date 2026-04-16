@@ -46,7 +46,7 @@
       </p>
     </div>
     <a
-      [routerLink]="['/dashboard/jobs']"
+      [routerLink]="['/jobs']"
       class="flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg bg-[var(--color-brand-primary)] text-[var(--color-text-primary)] transition-colors hover:shadow-lg"
     >
       <app-svg [svgName]="'appliedJobsIcon'" class="size-5" fill="currentColor" />
@@ -193,7 +193,7 @@
         @if (monthlyChartData().length === 0) {
           <div class="flex flex-col items-center justify-center">
             <a
-              [routerLink]="'/dashboard/create-job'"
+              [routerLink]="'/create-job'"
               class="mt-6 px-4 py-2 bg-[var(--color-brand-primary)] text-[var(--color-text-on-brand)] rounded-lg hover:bg-[var(--color-brand-hover)] transition-colors"
             >
               Add Your First Job

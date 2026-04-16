@@ -35,7 +35,7 @@ export class AuthService {
     return this.authApi.login(loginData).pipe(
       tap(() => {
         this.alertService.show('Login successful!', 'success');
-        this.router.navigate(['/dashboard']);
+        this.router.navigate(['/']);
       }),
       catchError(err => {
         this.alertService.show('Login failed! Please check your credentials.', 'error');

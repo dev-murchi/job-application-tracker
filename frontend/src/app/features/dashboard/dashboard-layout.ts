@@ -13,17 +13,17 @@ import { NavLink } from '../../shared/types/nav-link.data';
 })
 export class DashboardLayout {
   sidebarItems: NavLink[] = [
-    { text: 'Dashboard', link: '/dashboard', icon: 'dashboardIcon' },
-    { text: 'Add Job', link: '/dashboard/create-job', icon: 'addJobApplicationIcon' },
-    { text: 'All Jobs', link: '/dashboard/jobs', icon: 'appliedJobsIcon' },
-    { text: 'Statistics', link: '/dashboard/stats', icon: 'monitoringIcon' },
+    { text: 'Dashboard', link: '/', icon: 'dashboardIcon' },
+    { text: 'Add Job', link: '/create-job', icon: 'addJobApplicationIcon' },
+    { text: 'All Jobs', link: '/jobs', icon: 'appliedJobsIcon' },
+    { text: 'Statistics', link: '/stats', icon: 'monitoringIcon' },
   ];
 
   mobileMenuLinks: NavLink[] = [
-    { text: 'Dashboard', link: '/dashboard', icon: 'dashboardIcon' },
-    { text: 'Add Job', link: '/dashboard/create-job', icon: 'addJobApplicationIcon' },
-    { text: 'All Jobs', link: '/dashboard/jobs', icon: 'appliedJobsIcon' },
-    { text: 'Statistics', link: '/dashboard/stats', icon: 'monitoringIcon' },
-    { text: 'Profile', link: '/dashboard/profile', icon: 'accountCircleIcon' },
+    { text: 'Dashboard', link: '/', icon: 'dashboardIcon' },
+    { text: 'Add Job', link: '/create-job', icon: 'addJobApplicationIcon' },
+    { text: 'All Jobs', link: '/jobs', icon: 'appliedJobsIcon' },
+    { text: 'Statistics', link: '/stats', icon: 'monitoringIcon' },
+    { text: 'Profile', link: '/profile', icon: 'accountCircleIcon' },
   ];
 }

@@ -158,7 +158,7 @@ export class JobForm {
         // updated
         else if (state.operation === 'update' && state.data) {
           this.alertService.show('Job application updated successfully!', 'success');
-          this.router.navigate([`/dashboard/jobs/${state.data._id}`]);
+          this.router.navigate([`/jobs/${state.data._id}`]);
         }
       } else {
         if (state.operation === 'create') {
@@ -169,7 +169,7 @@ export class JobForm {
           // data
           else if (state.data) {
             this.alertService.show('Job application created successfully!', 'success');
-            this.router.navigate([`/dashboard/jobs/${state.data._id}`]);
+            this.router.navigate([`/jobs/${state.data._id}`]);
           }
         }
       }
@@ -229,9 +229,9 @@ export class JobForm {
 
   cancelEdit(): void {
     if (this.jobId) {
-      this.router.navigate([`/dashboard/jobs/${this.jobId}`]);
+      this.router.navigate([`/jobs/${this.jobId}`]);
     } else {
-      this.router.navigate(['/dashboard/jobs']);
+      this.router.navigate(['/jobs']);
     }
   }
 }
