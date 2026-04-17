@@ -1,10 +1,11 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
 import { UserApi } from '../../api/user-api';
 import { UserProfile } from '../../shared/types/user-profile.data';
 
 export interface UserProfileState {
   profile: UserProfile | null;
-  status: 'loading' | 'fetched' | 'updated' | 'error' | 'cached';
+  status: 'loading' | 'fetched' | 'updated' | 'error' | 'cached' | 'guest';
   error: string | null;
 }
 
@@ -26,12 +27,18 @@ export class UsersService {
       profile: state.profile,
       isLoading: state.status === 'loading',
       isUpdated: state.status === 'updated',
+      isGuest: state.status === 'guest',
       error: state.error,
     };
   });
 
   getProfile(): void {
     const currentState = this.state();
+
+    if (currentState.status === 'guest') {
+      return;
+    }
+
     if (currentState.profile) {
       if (currentState.status !== 'cached') {
         this.state.update(old => ({ ...old, status: 'cached' }));
@@ -39,21 +46,23 @@ export class UsersService {
       return;
     }
 
-    this.state.set({ profile: null, status: 'loading', error: null });
+    this.reset();
 
     this.userApi.getProfile().subscribe({
       next: profile => {
-        if (profile) {
-          this.state.set({ profile, status: 'fetched', error: null });
-        }
+        this.state.set({ profile, status: 'fetched', error: null });
       },
-      error: err => {
-        this.state.set({
-          profile: null,
-          status: 'error',
-          error: 'Failed to load profile.',
-        });
-        console.error(err);
+      error: (err: unknown) => {
+        if (err instanceof HttpErrorResponse && err.status === 401) {
+          this.setAsGuest();
+        } else {
+          this.state.set({
+            profile: null,
+            status: 'error',
+            error: 'Failed to load profile.',
+          });
+          console.error(err);
+        }
       },
     });
   }
@@ -73,7 +82,11 @@ export class UsersService {
     });
   }
 
-  clearCache(): void {
+  setAsGuest(): void {
+    this.state.set({ profile: null, status: 'guest', error: null });
+  }
+
+  reset(): void {
     this.state.set({ profile: null, status: 'loading', error: null });
   }
 }
