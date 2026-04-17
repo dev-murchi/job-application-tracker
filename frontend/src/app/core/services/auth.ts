@@ -1,8 +1,8 @@
-import { inject, Injectable } from '@angular/core';
+import { inject, Injectable, signal } from '@angular/core';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
-import { firstValueFrom, Observable, throwError } from 'rxjs';
-import { catchError, filter, map, tap } from 'rxjs/operators';
+import { defer, firstValueFrom, Observable, throwError } from 'rxjs';
+import { catchError, filter, finalize, map, tap } from 'rxjs/operators';
 import { AuthApi } from '../../api/auth-api';
 import { AlertService } from '../../shared/components/alert/alert-service';
 import { UserLogin } from '../../shared/types/user-login.data';
@@ -18,7 +18,16 @@ export class AuthService {
   private readonly alertService = inject(AlertService);
   private readonly usersService = inject(UsersService);
 
-  register(userData: UserRegister): Observable<any> {
+  readonly isAuthenticating = signal(false);
+
+  private withAuthFlag<T>(factory: () => Observable<T>): Observable<T> {
+    return defer(() => {
+      this.isAuthenticating.set(true);
+      return factory().pipe(finalize(() => this.isAuthenticating.set(false)));
+    });
+  }
+
+  register(userData: UserRegister): Observable<unknown> {
     return this.authApi.register(userData).pipe(
       tap(() => {
         this.alertService.show('Registration successful!', 'success');
@@ -31,20 +40,27 @@ export class AuthService {
     );
   }
 
-  login(loginData: UserLogin): Observable<any> {
-    return this.authApi.login(loginData).pipe(
-      tap(() => {
-        this.alertService.show('Login successful!', 'success');
-        this.router.navigate(['/']);
-      }),
-      catchError(err => {
-        this.alertService.show('Login failed! Please check your credentials.', 'error');
-        return throwError(() => err);
-      }),
+  login(loginData: UserLogin): Observable<unknown> {
+    return this.withAuthFlag(() =>
+      this.authApi.login(loginData).pipe(
+        tap(() => {
+          this.usersService.reset();
+          this.alertService.show('Login successful!', 'success');
+          this.router.navigate(['/']);
+        }),
+        catchError(err => {
+          this.alertService.show('Login failed! Please check your credentials.', 'error');
+          return throwError(() => err);
+        }),
+      ),
     );
   }
 
   async validateAuthStatus(): Promise<boolean> {
+    if (this.usersService.currentUser().isGuest) {
+      return false;
+    }
+
     if (this.usersService.currentUser().profile) {
       return true;
     }
@@ -59,13 +75,15 @@ export class AuthService {
     );
   }
 
-  logout(): Observable<any> {
-    return this.authApi.logout().pipe(
-      tap(() => {
-        this.usersService.clearCache();
-        this.alertService.show('You have been logged out.', 'success');
-        this.router.navigate(['/']);
-      }),
+  logout(): Observable<unknown> {
+    return this.withAuthFlag(() =>
+      this.authApi.logout().pipe(
+        tap(() => {
+          this.usersService.setAsGuest();
+          this.alertService.show('You have been logged out.', 'success');
+          this.router.navigate(['/'], { onSameUrlNavigation: 'reload' });
+        }),
+      ),
     );
   }
 }
