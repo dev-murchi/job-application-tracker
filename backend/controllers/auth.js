@@ -10,6 +10,7 @@ const { ONE_SECOND_MS } = require('../constants');
  * @returns {Object} Auth controller methods
  */
 const createAuthController = ({ authService, configService }) => {
+  const isProduction = configService.get('isProduction');
   /**
    * Register a new user
    */
@@ -24,7 +25,7 @@ const createAuthController = ({ authService, configService }) => {
   const login = async (req, res) => {
     const { user, token } = await authService.authenticateUser(req.body);
 
-    attachCookie({ res, token, secure: configService.get('isProduction') });
+    attachCookie({ res, token, secure: isProduction });
 
     res.status(StatusCodes.OK).json(user);
   };

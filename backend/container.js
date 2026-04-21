@@ -144,8 +144,8 @@ const createContainer = async ({ configService, loggerService, connection = null
     await dbConnectionManager.connect(mongoUrl);
   }
 
-  const UserSchema = createUserSchema({ autoIndex: !isProduction });
-  const JobSchema = createJobSchema({ autoIndex: !isProduction });
+  const UserSchema = createUserSchema({ configService: container.resolve('configService') });
+  const JobSchema = createJobSchema({ configService: container.resolve('configService') });
 
   const dbService = createDbService(mongooseConnection);
   dbService.createModel('User', UserSchema);
@@ -153,10 +153,7 @@ const createContainer = async ({ configService, loggerService, connection = null
   container.register('dbService', dbService);
 
   // JWT
-  const jwtService = createJwtService({
-    secret: jwtSecret,
-    expiresIn: jwtLifetime,
-  });
+  const jwtService = createJwtService({ configService: container.resolve('configService') });
   container.register('jwtService', jwtService);
 
   // ============================================

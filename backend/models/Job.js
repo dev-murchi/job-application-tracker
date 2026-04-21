@@ -2,11 +2,11 @@ const mongoose = require('mongoose');
 
 /**
  * Creates a Mongoose schema for Job documents
- * @param {Object} options - Configuration options for the schema
- * @param {boolean} options.autoIndex - Whether to automatically build indexes
+ * @param {{ configService: object }} deps
  * @returns {mongoose.Schema} The configured Job schema
  */
-const createJobSchema = ({ autoIndex }) => {
+const createJobSchema = ({ configService }) => {
+  const autoIndex = !configService.get('isProduction');
   const JobSchema = new mongoose.Schema(
     {
       company: {

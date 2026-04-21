@@ -4,6 +4,18 @@ const { createJwtService } = require('../../services/jwt.service');
 
 jest.mock('jsonwebtoken');
 
+const createMockConfigService = (secret, expiresIn) => ({
+  get: (key) => {
+    if (key === 'jwtSecret') {
+      return secret;
+    }
+    if (key === 'jwtLifetime') {
+      return expiresIn;
+    }
+    return null;
+  },
+});
+
 describe('JWT Service', () => {
   let jwtService;
   const testSecret = 'test-secret-key-for-testing';
@@ -12,8 +24,7 @@ describe('JWT Service', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     jwtService = createJwtService({
-      secret: testSecret,
-      expiresIn: testExpiresIn,
+      configService: createMockConfigService(testSecret, testExpiresIn),
     });
   });
 
@@ -56,8 +67,7 @@ describe('JWT Service', () => {
 
     it('should use the configured secret and expiresIn', () => {
       const customService = createJwtService({
-        secret: 'custom-secret',
-        expiresIn: '30d',
+        configService: createMockConfigService('custom-secret', '30d'),
       });
       jwt.sign.mockReturnValue('custom-token');
 
@@ -118,8 +128,12 @@ describe('JWT Service', () => {
 
   describe('service isolation', () => {
     it('should create isolated services with different configurations', () => {
-      const service1 = createJwtService({ secret: 'secret1', expiresIn: '1h' });
-      const service2 = createJwtService({ secret: 'secret2', expiresIn: '2h' });
+      const service1 = createJwtService({
+        configService: createMockConfigService('secret1', '1h'),
+      });
+      const service2 = createJwtService({
+        configService: createMockConfigService('secret2', '2h'),
+      });
 
       jwt.sign.mockReturnValueOnce('token1').mockReturnValueOnce('token2');
 
@@ -135,8 +149,12 @@ describe('JWT Service', () => {
     });
 
     it('should verify tokens with respective secrets', () => {
-      const service1 = createJwtService({ secret: 'secret1', expiresIn: '1h' });
-      const service2 = createJwtService({ secret: 'secret2', expiresIn: '2h' });
+      const service1 = createJwtService({
+        configService: createMockConfigService('secret1', '1h'),
+      });
+      const service2 = createJwtService({
+        configService: createMockConfigService('secret2', '2h'),
+      });
 
       jwt.verify.mockReturnValue({ userId: 'user1' });
 

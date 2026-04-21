@@ -68,10 +68,7 @@ const bootstrap = async () => {
     configService.loadConfig(ConfigSchema, config);
 
     // 2. Create logger service
-    loggerService = createLoggerService({
-      isProduction: configService.get('isProduction'),
-      logLevel: configService.get('logLevel'),
-    });
+    loggerService = createLoggerService({ configService });
 
     loggerService.info('Bootstrapping application');
 

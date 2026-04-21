@@ -2,12 +2,13 @@ const jwt = require('jsonwebtoken');
 
 /**
  * Factory function to create JWT service
- * @param {Object} options - JWT configuration options
- * @param {string} options.secret - JWT secret key
- * @param {string} options.expiresIn - Token expiration time
+ * @param {{ configService: object }} deps
  * @returns {Object} JWT service with sign and verify methods
  */
-const createJwtService = ({ secret, expiresIn }) => {
+const createJwtService = ({ configService }) => {
+  const secret = configService.get('jwtSecret');
+  const expiresIn = configService.get('jwtLifetime');
+
   return {
     /**
      * Create a signed JWT token
