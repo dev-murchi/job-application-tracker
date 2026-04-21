@@ -1,28 +1,56 @@
 const config = require('./config');
 const fs = require('fs/promises');
-const { UserSchema, JobSchema } = require('./models');
+const { createUserSchema, createJobSchema } = require('./models');
 const mongoose = require('mongoose');
-const createConnectionManager = require('./db/connect');
+const createConnectionManager = require('./db/connection-manager');
+const { createMongoConnectionAdapter } = require('./db/adapters/mongo.adapter');
+
+const configService = { get: (key) => config[key] };
+
+const loggerService = {
+  info: (msg, meta) => console.log('[info]', msg, meta ?? ''),
+  warn: (msg, meta) => console.warn('[warn]', msg, meta ?? ''),
+  error: (msg, meta) => console.error('[error]', msg, meta ?? ''),
+  debug: () => {},
+  http: () => {},
+};
 
 const populateJobs = async () => {
   const connection = mongoose.createConnection();
 
-  const User = connection.model('User', UserSchema);
-  const Job = connection.model('Job', JobSchema);
-
-  const dbConnectionManager = createConnectionManager({
+  const mongoAdapter = createMongoConnectionAdapter({
     connection,
-    config: { isProduction: false },
+    configService,
+    loggerService,
   });
+
+  const dbConnectionManager = createConnectionManager({ adapter: mongoAdapter });
 
   await dbConnectionManager.connect(config.mongoUrl);
 
-  const user = await User.findOne({ email: 'test@user.com' });
+  const User = connection.model('User', createUserSchema({ configService }));
+  const Job = connection.model('Job', createJobSchema({ configService }));
+
+  let user = await User.findOne({ email: 'test@user.com' });
+
+  if (!user) {
+    loggerService.info('Seed user not found — creating test user', { email: 'test@user.com' });
+    // Create a minimal seed user that satisfies the model validators
+    user = await User.create({
+      name: 'Test User',
+      email: 'test@user.com',
+      password: 'TestPass.123',
+      lastName: 'Seed',
+      location: 'Remote',
+    });
+    loggerService.info('Seed user created', {
+      id: user._id?.toString?.() || user._id,
+      email: user.email,
+    });
+  }
 
   const jsonJobs = JSON.parse(await fs.readFile('./mockData.json', 'utf-8'));
-  const jobs = jsonJobs.map((job) => {
-    return { ...job, createdBy: user._id };
-  });
+  const jobs = jsonJobs.map((job) => ({ ...job, createdBy: user._id }));
 
   await Job.deleteMany({ createdBy: user._id });
   await Job.create(jobs);
@@ -32,10 +60,10 @@ const populateJobs = async () => {
 
 populateJobs()
   .then(() => {
-    console.log('Success!!!');
+    console.log('Done — jobs populated successfully');
     process.exit(0);
   })
   .catch((error) => {
-    console.log(error);
+    console.error(error);
     process.exit(1);
   });

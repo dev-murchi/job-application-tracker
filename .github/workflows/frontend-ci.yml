@@ -7,6 +7,8 @@ on:
     branches:
       - feature/**
       - bugfix/**
+      - refactor/**
+      - perf/**
     paths:
       - frontend/**
       - .github/workflows/frontend-ci.yml

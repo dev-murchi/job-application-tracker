@@ -7,6 +7,8 @@ on:
     branches:
       - feature/**
       - bugfix/**
+      - refactor/**
+      - perf/**
     paths:
       - backend/**
       - .github/workflows/backend-ci.yml

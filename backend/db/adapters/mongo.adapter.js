@@ -23,7 +23,7 @@ const {
   READY_STATE_CONNECTING,
   READY_STATE_DISCONNECTING,
   READY_STATE_UNINITIALIZED,
-} = require('../constants');
+} = require('../../constants');
 
 const createConnectionOptions = (isProduction) => ({
   // Connection pool settings
@@ -79,10 +79,8 @@ const createEventHandlers = (connection, loggerService, isProduction) => ({
           database: connection.name,
           readyState: connection.readyState,
         };
-
     loggerService.info('MongoDB connected successfully', meta);
   },
-
   onError: (err) => {
     loggerService.error('MongoDB connection error', {
       error: err.message,
@@ -90,29 +88,23 @@ const createEventHandlers = (connection, loggerService, isProduction) => ({
       stack: isProduction ? undefined : err.stack,
     });
   },
-
   onDisconnected: () => {
     loggerService.warn('MongoDB disconnected', {
       readyState: connection.readyState,
     });
   },
-
   onReconnected: () => {
     const meta = isProduction
       ? { readyState: connection.readyState }
       : { host: connection.host, readyState: connection.readyState };
-
     loggerService.info('MongoDB reconnected', meta);
   },
-
   onClose: () => {
     loggerService.info('MongoDB connection closed');
   },
-
   onFullSetup: () => {
     loggerService.info('MongoDB replica set fully set up');
   },
-
   onAll: () => {
     loggerService.info('MongoDB connected to all servers in replica set');
   },
@@ -138,32 +130,35 @@ const validateConnectionUrl = (url) => {
 };
 
 /**
- * Create a connection manager for MongoDB with lifecycle management
- * @param {Object} options - Connection manager options
- * @param {mongoose.Connection} [options.connection] - Existing mongoose connection
- * @param {Object} options.config - Configuration object
- * @param {boolean} options.config.isProduction - Whether running in production mode
- * @param {Object} options.loggerService - Logger service instance for connection logging
- * @returns {Object} Connection manager with connect and closeConnection methods
+ * Creates a MongoDB connection adapter that implements the standard connection adapter protocol.
+ *
+ * Adapter protocol:
+ *   connect(url)    -> Promise  — open the connection
+ *   close(force)    -> Promise  — close the connection
+ *   isConnected()   -> boolean  — true when ready
+ *   getStatus()     -> Object   — connection state snapshot
+ *   getPoolStats()  -> Object|null
+ *   healthPing()    -> Promise<{ success, responseTime, timestamp }>
+ *
+ * @param {{ connection: object, configService: object, loggerService: object }} deps
  */
-const createConnectionManager = ({ connection, config, loggerService }) => {
+const createMongoConnectionAdapter = ({ connection, configService, loggerService }) => {
   const conn = connection || mongoose.connection;
+  const isProduction = configService.get('isProduction');
 
-  const options = createConnectionOptions(config.isProduction);
-  const eventHandlers = createEventHandlers(conn, loggerService, config.isProduction);
+  const options = createConnectionOptions(isProduction);
+  const eventHandlers = createEventHandlers(conn, loggerService, isProduction);
 
   const connect = (url) => {
     validateConnectionUrl(url);
     registerEventListeners(conn, eventHandlers);
-
     if (conn === mongoose.connection) {
       return mongoose.connect(url, options);
-    } else {
-      return conn.openUri(url, options);
     }
+    return conn.openUri(url, options);
   };
 
-  const closeConnection = async (force = false) => {
+  const close = async (force = false) => {
     try {
       loggerService.info('Closing MongoDB connection...', { force });
       await conn.close(force);
@@ -171,7 +166,7 @@ const createConnectionManager = ({ connection, config, loggerService }) => {
     } catch (error) {
       loggerService.error('Error closing MongoDB connection', {
         error: error.message,
-        stack: config.isProduction ? undefined : error.stack,
+        stack: isProduction ? undefined : error.stack,
       });
       throw error;
     }
@@ -190,7 +185,7 @@ const createConnectionManager = ({ connection, config, loggerService }) => {
     return states[readyState] || 'unknown';
   };
 
-  const getConnectionStatus = () => ({
+  const getStatus = () => ({
     state: mapConnectionState(conn.readyState),
     readyState: conn.readyState,
     host: conn.host,
@@ -202,7 +197,6 @@ const createConnectionManager = ({ connection, config, loggerService }) => {
     if (!conn.db) {
       return null;
     }
-
     try {
       return {
         maxPoolSize: conn.options?.maxPoolSize,
@@ -219,7 +213,6 @@ const createConnectionManager = ({ connection, config, loggerService }) => {
     const startTime = Date.now();
     const responseTime = () => Date.now() - startTime;
     const timestamp = () => new Date().toISOString();
-
     try {
       await conn.db.admin().ping();
       return {
@@ -239,12 +232,12 @@ const createConnectionManager = ({ connection, config, loggerService }) => {
 
   return {
     connect,
-    closeConnection,
+    close,
     isConnected,
-    getConnectionStatus,
+    getStatus,
     getPoolStats,
     healthPing,
   };
 };
 
-module.exports = createConnectionManager;
+module.exports = { createMongoConnectionAdapter };

@@ -3,7 +3,7 @@
  */
 
 const config = require('./config');
-const { createContainer } = require('./container');
+const { createContainerRegistry } = require('./ioc/registry');
 const { createHttpServer } = require('./server');
 const { ConfigSchema } = require('./schemas');
 const { createConfigService } = require('./services');
@@ -68,15 +68,12 @@ const bootstrap = async () => {
     configService.loadConfig(ConfigSchema, config);
 
     // 2. Create logger service
-    loggerService = createLoggerService({
-      isProduction: configService.get('isProduction'),
-      logLevel: configService.get('logLevel'),
-    });
+    loggerService = createLoggerService({ configService });
 
     loggerService.info('Bootstrapping application');
 
     // 3. Initialize IoC container
-    container = await createContainer({
+    container = await createContainerRegistry({
       configService,
       loggerService,
     });

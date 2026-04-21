@@ -12,11 +12,11 @@ const {
 
 /**
  * Creates a Mongoose schema for User documents
- * @param {Object} options - Configuration options for the schema
- * @param {boolean} options.autoIndex - Whether to automatically build indexes
+ * @param {{ configService: object }} deps
  * @returns {mongoose.Schema} The configured User schema
  */
-const createUserSchema = ({ autoIndex }) => {
+const createUserSchema = ({ configService }) => {
+  const autoIndex = !configService.get('isProduction');
   const UserSchema = new mongoose.Schema(
     {
       name: {

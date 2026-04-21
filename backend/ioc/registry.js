@@ -1,20 +1,24 @@
 /**
- * Dependency Container / IoC Container
+ * Application DI registry — the composition root.
  *
- * This module is the "Composition Root" - the single place where all
- * dependencies are created and wired together.
+ * This module owns all dependency wiring decisions:
+ *   1. Database layer  (connection adapter -> connection manager -> db-service -> models)
+ *   2. Service layer   (jwt, auth, job, user, health)
+ *   3. Controller layer
+ *   4. Router layer
+ *   5. Middleware
+ *   6. Express app
  *
- * Benefits:
- * - Centralized dependency management
- * - Easy to swap implementations (dev/test/prod)
- * - Clear dependency graph visualization
- * - Configurable for different environments
+ * The generic container (ioc/container.js) has zero application knowledge;
+ * all wiring lives here.
  */
 
 const mongoose = require('mongoose');
-const createConnectionManager = require('./db/connect');
-const { createDbService } = require('./db/db-service');
-const { createUserSchema, createJobSchema } = require('./models');
+
+const createConnectionManager = require('../db/connection-manager');
+const { createMongoConnectionAdapter } = require('../db/adapters/mongo.adapter');
+const { createDbService } = require('../db/db-service');
+const { createUserSchema, createJobSchema } = require('../models');
 
 // Services
 const {
@@ -23,7 +27,7 @@ const {
   createUserService,
   createHealthService,
   createJwtService,
-} = require('./services');
+} = require('../services');
 
 // Controllers
 const {
@@ -31,89 +35,29 @@ const {
   createJobsController,
   createUserController,
   createHealthController,
-} = require('./controllers');
+} = require('../controllers');
 
 // Middleware
-const { createAuthenticationMiddleware } = require('./middleware/auth');
+const { createAuthenticationMiddleware } = require('../middleware/auth');
 
 // Routes
-const { createAuthRouter } = require('./routes/auth');
-const { createJobsRouter } = require('./routes/jobs');
-const { createUserRouter } = require('./routes/user');
-const { createHealthRouter } = require('./routes/health');
+const { createAuthRouter } = require('../routes/auth');
+const { createJobsRouter } = require('../routes/jobs');
+const { createUserRouter } = require('../routes/user');
+const { createHealthRouter } = require('../routes/health');
 
 // App
-const { createApp } = require('./app');
+const { createApp } = require('../app');
+const { createContainerInstance } = require('./container');
 
 /**
- * Create a lightweight dependency container instance.
- * The returned object provides simple registration and resolution
- * semantics and a controlled dispose/cleanup operation.
+ * Build and wire the full application container.
  *
- * @returns {{
- *   register: (name: string, instance: any) => void,
- *   resolve: (name: string) => any,
- *   has: (name: string) => boolean,
- *   dispose: () => Promise<void>,
- *   isDisposed: () => boolean,
- * }} A container instance with lifecycle helpers
+ * @param {{ configService: object, loggerService: object, connection?: object }} deps
+ *   connection — optional pre-existing mongoose connection (used in tests)
+ * @returns {Promise<object>} Fully wired container
  */
-const createContainerInstance = () => {
-  const dependencies = new Map();
-  let disposed = false;
-
-  return {
-    register: (name, instance) => {
-      if (disposed) {
-        throw new Error('Container has been disposed');
-      }
-      dependencies.set(name, instance);
-    },
-
-    resolve: (name) => {
-      if (!dependencies.has(name)) {
-        throw new Error(`Dependency ${name} not registered`);
-      }
-
-      return dependencies.get(name);
-    },
-
-    has: (name) => dependencies.has(name),
-
-    dispose: async () => {
-      if (disposed) {
-        return;
-      }
-      const dbConnectionManager = dependencies.get('dbConnectionManager');
-      if (dbConnectionManager) {
-        await dbConnectionManager.closeConnection();
-      }
-      dependencies.clear();
-      disposed = true;
-    },
-
-    isDisposed: () => disposed,
-  };
-};
-
-/**
- * Container factory - build and wire all application dependencies.
- * This factory initializes database connections, registers services,
- * controllers, routes, middleware and returns a ready-to-use container.
- *
- * @param {Object} options - Container dependencies and options
- * @param {Object} options.configService - Configuration service instance
- * @param {Object} options.loggerService - Logger service instance
- * @param {import('mongoose').Connection} [options.connection] - Optional mongoose connection (used for tests)
- * @returns {Promise<{
- *   register: (name: string, instance: any) => void,
- *   resolve: (name: string) => any,
- *   has: (name: string) => boolean,
- *   dispose: () => Promise<void>,
- *   isDisposed: () => boolean,
- * }>} A fully configured container instance
- */
-const createContainer = async ({ configService, loggerService, connection = null }) => {
+const createContainerRegistry = async ({ configService, loggerService, connection = null }) => {
   const container = createContainerInstance();
 
   // Register core services
@@ -121,9 +65,6 @@ const createContainer = async ({ configService, loggerService, connection = null
   container.register('loggerService', loggerService);
 
   const mongoUrl = configService.get('mongoUrl');
-  const isProduction = configService.get('isProduction');
-  const jwtSecret = configService.get('jwtSecret');
-  const jwtLifetime = configService.get('jwtLifetime');
 
   // ============================================
   // DATABASE LAYER
@@ -132,20 +73,23 @@ const createContainer = async ({ configService, loggerService, connection = null
   const mongooseConnection = connection || mongoose.createConnection();
   container.register('connection', mongooseConnection);
 
-  const dbConnectionManager = createConnectionManager({
+  const mongoAdapter = createMongoConnectionAdapter({
     connection: mongooseConnection,
-    config: { isProduction: isProduction },
+    configService,
     loggerService,
   });
 
-  container.register('dbConnectionManager', dbConnectionManager);
+  const dbConnectionManager = createConnectionManager({ adapter: mongoAdapter });
+  container.register('dbConnectionManager', dbConnectionManager, () =>
+    dbConnectionManager.closeConnection(),
+  );
 
   if (!connection) {
     await dbConnectionManager.connect(mongoUrl);
   }
 
-  const UserSchema = createUserSchema({ autoIndex: !isProduction });
-  const JobSchema = createJobSchema({ autoIndex: !isProduction });
+  const UserSchema = createUserSchema({ configService: container.resolve('configService') });
+  const JobSchema = createJobSchema({ configService: container.resolve('configService') });
 
   const dbService = createDbService(mongooseConnection);
   dbService.createModel('User', UserSchema);
@@ -153,10 +97,7 @@ const createContainer = async ({ configService, loggerService, connection = null
   container.register('dbService', dbService);
 
   // JWT
-  const jwtService = createJwtService({
-    secret: jwtSecret,
-    expiresIn: jwtLifetime,
-  });
+  const jwtService = createJwtService({ configService: container.resolve('configService') });
   container.register('jwtService', jwtService);
 
   // ============================================
@@ -174,7 +115,7 @@ const createContainer = async ({ configService, loggerService, connection = null
     'authController',
     createAuthController({
       authService: container.resolve('authService'),
-      configService,
+      configService: container.resolve('configService'),
     }),
   );
   container.register(
@@ -197,7 +138,7 @@ const createContainer = async ({ configService, loggerService, connection = null
     'authRouter',
     createAuthRouter({
       authController: container.resolve('authController'),
-      configService,
+      configService: container.resolve('configService'),
     }),
   );
   container.register(
@@ -248,7 +189,4 @@ const createContainer = async ({ configService, loggerService, connection = null
   return container;
 };
 
-module.exports = {
-  createContainerInstance,
-  createContainer,
-};
+module.exports = { createContainerRegistry };

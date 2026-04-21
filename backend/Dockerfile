@@ -55,7 +55,6 @@ COPY --from=dependencies --chown=appuser:appgroup /tmp/prod_node_modules ./node_
 COPY --chown=appuser:appgroup \
     ./package.json \
     ./app.js \
-    ./container.js \
     ./main.js \
     ./server.js \
     ./
@@ -66,6 +65,7 @@ COPY --chown=appuser:appgroup ./constants/   ./constants/
 COPY --chown=appuser:appgroup ./controllers/ ./controllers/
 COPY --chown=appuser:appgroup ./db/          ./db/
 COPY --chown=appuser:appgroup ./errors/      ./errors/
+COPY --chown=appuser:appgroup ./ioc/         ./ioc/
 COPY --chown=appuser:appgroup ./middleware/  ./middleware/
 COPY --chown=appuser:appgroup ./models/      ./models/
 COPY --chown=appuser:appgroup ./routes/      ./routes/

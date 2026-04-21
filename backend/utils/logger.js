@@ -1,14 +1,14 @@
 const { createLogger, format, transports } = require('winston');
 
 /**
- * Create a Winston logger service with custom formatting
- * @param {Object} options - Logger configuration options
- * @param {string} [options.logLevel] - Log level (error, warn, info, http, debug)
- * @param {boolean} [options.isProduction] - Whether running in production mode
- * @returns {Object} Configured Logger instance with stream property for Morgan
+ * Create a Winston logger service with custom formatting.
+ *
+ * @param {{ configService: object }} deps
+ * @returns {object} Configured logger instance
  */
-const createLoggerService = (options) => {
-  const logLevel = options.logLevel || (options.isProduction ? 'info' : 'debug');
+const createLoggerService = ({ configService }) => {
+  const isProduction = configService.get('isProduction');
+  const logLevel = configService.get('logLevel') || (isProduction ? 'info' : 'debug');
 
   const customFormat = format.combine(
     format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),

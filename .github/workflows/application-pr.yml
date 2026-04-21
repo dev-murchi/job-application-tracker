@@ -97,6 +97,10 @@ jobs:
             echo "mode=patch" >> "$GITHUB_OUTPUT"
           elif [[ "$BRANCH" =~ ^feature/ ]]; then
             echo "mode=minor" >> "$GITHUB_OUTPUT"
+          elif [[ "$BRANCH" =~ ^refactor/ ]]; then
+            echo "mode=minor" >> "$GITHUB_OUTPUT"
+          elif [[ "$BRANCH" =~ ^perf/ ]]; then
+            echo "mode=minor" >> "$GITHUB_OUTPUT"
           elif [[ "$BRANCH" =~ ^release/ ]]; then
             echo "mode=major" >> "$GITHUB_OUTPUT"
           else
