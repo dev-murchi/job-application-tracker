@@ -12,7 +12,8 @@
  */
 
 const mongoose = require('mongoose');
-const createConnectionManager = require('./db/connect');
+const createConnectionManager = require('./db/connection-manager');
+const { createMongoConnectionAdapter } = require('./db/adapters/mongo.adapter');
 const { createDbService } = require('./db/db-service');
 const { createUserSchema, createJobSchema } = require('./models');
 
@@ -121,9 +122,6 @@ const createContainer = async ({ configService, loggerService, connection = null
   container.register('loggerService', loggerService);
 
   const mongoUrl = configService.get('mongoUrl');
-  const isProduction = configService.get('isProduction');
-  const jwtSecret = configService.get('jwtSecret');
-  const jwtLifetime = configService.get('jwtLifetime');
 
   // ============================================
   // DATABASE LAYER
@@ -132,11 +130,13 @@ const createContainer = async ({ configService, loggerService, connection = null
   const mongooseConnection = connection || mongoose.createConnection();
   container.register('connection', mongooseConnection);
 
-  const dbConnectionManager = createConnectionManager({
+  const mongoAdapter = createMongoConnectionAdapter({
     connection: mongooseConnection,
-    config: { isProduction: isProduction },
+    configService,
     loggerService,
   });
+
+  const dbConnectionManager = createConnectionManager({ adapter: mongoAdapter });
 
   container.register('dbConnectionManager', dbConnectionManager);
 
