@@ -72,12 +72,20 @@ docker compose --profile dev --env-file .env.dev up
 ### 3. Create a Feature Branch
 
 ```bash
-# Create branch from main
+# New feature
 git checkout -b feature/your-feature-name
 
-# Or for bug fixes
+# Bug fix
 git checkout -b bugfix/bug-description
+
+# Refactor (structural changes, may include breaking changes)
+git checkout -b refactor/short-description
+
+# Performance improvement
+git checkout -b perf/short-description
 ```
+
+> **Note**: `refactor/**` and `perf/**` branches also trigger CI and always produce a **minor** version bump (0.x.0).
 
 ## Development Workflow
 
@@ -265,25 +273,31 @@ We follow [Conventional Commits](https://www.conventionalcommits.org/) specifica
 - `docker`: Docker configuration
 - `docs`: Documentation
 
+### Version Bumps
+
+This project follows [Semantic Versioning](https://semver.org/) driven by branch naming:
+
+| Branch prefix | Version bump | Notes |
+|---|---|---|
+| `bugfix/**` | **patch** (0.0.x) | Non-breaking bug fixes |
+| `feature/**` | **minor** (0.x.0) | New backwards-compatible functionality |
+| `refactor/**` | **minor** (0.x.0) | Structural improvements |
+| `perf/**` | **minor** (0.x.0) | Performance improvements |
+
 ### Examples
 
 ```bash
-# Feature
+# Feature -> minor bump
 git commit -m "feat(jobs): add job export to CSV functionality"
 
-# Bug fix
+# Bug fix -> patch bump
 git commit -m "fix(auth): resolve cookie expiration issue in production"
 
-# Documentation
+# Documentation -> no version bump
 git commit -m "docs(api): update authentication endpoint examples"
 
-# Refactor
+# Refactor -> minor bump
 git commit -m "refactor(backend): simplify error handling middleware"
-
-# Breaking change
-git commit -m "feat(api)!: change job status enum values
-
-BREAKING CHANGE: Status values changed from snake_case to kebab-case"
 ```
 
 
