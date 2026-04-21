@@ -12,10 +12,10 @@
  */
 
 const mongoose = require('mongoose');
-const createConnectionManager = require('./db/connection-manager');
-const { createMongoConnectionAdapter } = require('./db/adapters/mongo.adapter');
-const { createDbService } = require('./db/db-service');
-const { createUserSchema, createJobSchema } = require('./models');
+const createConnectionManager = require('../db/connection-manager');
+const { createMongoConnectionAdapter } = require('../db/adapters/mongo.adapter');
+const { createDbService } = require('../db/db-service');
+const { createUserSchema, createJobSchema } = require('../models');
 
 // Services
 const {
@@ -24,7 +24,7 @@ const {
   createUserService,
   createHealthService,
   createJwtService,
-} = require('./services');
+} = require('../services');
 
 // Controllers
 const {
@@ -32,19 +32,19 @@ const {
   createJobsController,
   createUserController,
   createHealthController,
-} = require('./controllers');
+} = require('../controllers');
 
 // Middleware
-const { createAuthenticationMiddleware } = require('./middleware/auth');
+const { createAuthenticationMiddleware } = require('../middleware/auth');
 
 // Routes
-const { createAuthRouter } = require('./routes/auth');
-const { createJobsRouter } = require('./routes/jobs');
-const { createUserRouter } = require('./routes/user');
-const { createHealthRouter } = require('./routes/health');
+const { createAuthRouter } = require('../routes/auth');
+const { createJobsRouter } = require('../routes/jobs');
+const { createUserRouter } = require('../routes/user');
+const { createHealthRouter } = require('../routes/health');
 
 // App
-const { createApp } = require('./app');
+const { createApp } = require('../app');
 
 /**
  * Create a lightweight dependency container instance.
@@ -114,7 +114,7 @@ const createContainerInstance = () => {
  *   isDisposed: () => boolean,
  * }>} A fully configured container instance
  */
-const createContainer = async ({ configService, loggerService, connection = null }) => {
+const createContainerRegistry = async ({ configService, loggerService, connection = null }) => {
   const container = createContainerInstance();
 
   // Register core services
@@ -247,5 +247,5 @@ const createContainer = async ({ configService, loggerService, connection = null
 
 module.exports = {
   createContainerInstance,
-  createContainer,
+  createContainerRegistry,
 };

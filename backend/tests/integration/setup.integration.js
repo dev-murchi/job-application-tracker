@@ -1,4 +1,4 @@
-const { createContainer } = require('../../container');
+const { createContainerRegistry } = require('../../ioc/registry');
 const config = require('../../config');
 const { randomUUID } = require('crypto');
 
@@ -45,7 +45,7 @@ const createTestConnection = async (testSuite) => {
   const configService = createTestConfigService({ mongoUrl: testDbUrl });
 
   // Create container with isolated test database
-  const container = await createContainer({ configService, loggerService });
+  const container = await createContainerRegistry({ configService, loggerService });
 
   // Return a wrapper object with direct access to commonly used dependencies
   return {
