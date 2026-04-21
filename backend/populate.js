@@ -1,7 +1,7 @@
 const config = require('./config');
 const fs = require('fs/promises');
 const { createUserSchema, createJobSchema } = require('./models');
-const mongoose = require('mongoose')
+const mongoose = require('mongoose');
 const createConnectionManager = require('./db/connection-manager');
 const { createMongoConnectionAdapter } = require('./db/adapters/mongo.adapter');
 
@@ -43,7 +43,10 @@ const populateJobs = async () => {
       lastName: 'Seed',
       location: 'Remote',
     });
-    loggerService.info('Seed user created', { id: user._id?.toString?.() || user._id, email: user.email });
+    loggerService.info('Seed user created', {
+      id: user._id?.toString?.() || user._id,
+      email: user.email,
+    });
   }
 
   const jsonJobs = JSON.parse(await fs.readFile('./mockData.json', 'utf-8'));

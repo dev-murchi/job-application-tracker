@@ -4,6 +4,7 @@
     "server.js",
     "controllers/**/*.js",
     "!controllers/index.js",
+    "ioc/container.js",
     "services/**/*.js",
     "!services/index.js",
     "middleware/**/*.js",
