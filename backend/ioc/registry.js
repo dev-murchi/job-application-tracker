@@ -24,6 +24,7 @@ const {
   createUserService,
   createHealthService,
   createJwtService,
+  createHasherService,
 } = require('../services');
 
 // Controllers
@@ -82,6 +83,9 @@ const createContainerRegistry = ({ configService, loggerService }) => {
   dbService.createModel('Job', JobSchema);
   container.register('dbService', dbService);
 
+  const hasherService = createHasherService();
+  container.register('hasherService', hasherService);
+
   // JWT
   const jwtService = createJwtService({ configService: container.resolve('configService') });
   container.register('jwtService', jwtService);
@@ -89,7 +93,7 @@ const createContainerRegistry = ({ configService, loggerService }) => {
   // ============================================
   // BUSINESS LAYER (Services)
   // ============================================
-  container.register('authService', createAuthService({ dbService, jwtService }));
+  container.register('authService', createAuthService({ dbService, jwtService, hasherService }));
   container.register('jobService', createJobService({ dbService }));
   container.register('userService', createUserService({ dbService }));
   container.register('healthService', createHealthService({ dbConnectionManager, configService }));

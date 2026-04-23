@@ -82,6 +82,7 @@ const clearDatabase = async (container) => {
 
 const seedTestUser = async (container, userData = {}) => {
   const User = container.dbService.getModel('User');
+  const hasherService = container.resolve('hasherService');
 
   const defaultUserData = {
     name: 'Test',
@@ -91,6 +92,8 @@ const seedTestUser = async (container, userData = {}) => {
     location: 'Test City',
     ...userData,
   };
+
+  defaultUserData.password = await hasherService.hash(defaultUserData.password);
 
   const user = await User.create(defaultUserData);
   return user;

@@ -6,9 +6,10 @@ const { formatUserResponse } = require('./formatters');
  * @param {Object} dependencies - Dependency object
  * @param {Object} dependencies.dbService - Database service for accessing models
  * @param {Object} dependencies.jwtService - JWT service for token operations
+ * @param {Object} dependencies.hasherService - Hasher service
  * @returns {Object} Auth service methods
  */
-const createAuthService = ({ dbService, jwtService }) => {
+const createAuthService = ({ dbService, jwtService, hasherService }) => {
   const User = dbService.getModel('User');
 
   /**
@@ -26,7 +27,15 @@ const createAuthService = ({ dbService, jwtService }) => {
       throw new BadRequestError('Email already in use');
     }
 
-    const user = await User.create({ name, lastName, email, password, location });
+    const hashedPassword = await hasherService.hash(password);
+
+    const user = await User.create({
+      name,
+      lastName,
+      email,
+      password: hashedPassword,
+      location,
+    });
 
     return formatUserResponse(user);
   };
@@ -46,7 +55,7 @@ const createAuthService = ({ dbService, jwtService }) => {
       throw new UnauthenticatedError('Invalid Credentials');
     }
 
-    const isPasswordCorrect = await user.comparePassword(password);
+    const isPasswordCorrect = await hasherService.compare(password, user.password);
 
     if (!isPasswordCorrect) {
       throw new UnauthenticatedError('Invalid Credentials');

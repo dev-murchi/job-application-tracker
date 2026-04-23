@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-const bcrypt = require('bcryptjs');
 const validator = require('validator');
 const {
   NAME_MIN_LENGTH,
@@ -7,7 +6,6 @@ const {
   PASSWORD_MIN_LENGTH_MODEL,
   LASTNAME_MAX_LENGTH,
   LOCATION_MAX_LENGTH,
-  BCRYPT_SALT_ROUNDS,
 } = require('../../../constants');
 
 /**
@@ -58,20 +56,6 @@ const createUserSchema = ({ configService }) => {
   UserSchema.index({ email: 1 }, { unique: true, background: true, name: 'email_unique_idx' });
 
   UserSchema.index({ email: 1, createdAt: -1 }, { background: true, name: 'email_created_idx' });
-
-  UserSchema.pre('save', async function (next) {
-    if (!this.isModified('password')) {
-      return;
-    }
-    const salt = await bcrypt.genSalt(BCRYPT_SALT_ROUNDS);
-    this.password = await bcrypt.hash(this.password, salt);
-    next();
-  });
-
-  UserSchema.methods.comparePassword = async function (candidatePassword) {
-    const isMatch = await bcrypt.compare(candidatePassword, this.password);
-    return isMatch;
-  };
 
   return UserSchema;
 };

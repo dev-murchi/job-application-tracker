@@ -28,6 +28,11 @@ const createMockDbService = (User) => ({
   }),
 });
 
+const createMockHasherService = () => ({
+  hash: jest.fn(),
+  compare: jest.fn(),
+});
+
 // Create mock jwtService
 const createMockJwtService = () => ({
   sign: jest.fn(),
@@ -39,13 +44,19 @@ describe('Auth Service', () => {
   let mockDbService;
   let mockJwtService;
   let User;
+  let mockHasherService;
 
   beforeEach(() => {
     jest.clearAllMocks();
     User = createMockUser();
     mockDbService = createMockDbService(User);
     mockJwtService = createMockJwtService();
-    authService = createAuthService({ dbService: mockDbService, jwtService: mockJwtService });
+    mockHasherService = createMockHasherService();
+    authService = createAuthService({
+      dbService: mockDbService,
+      jwtService: mockJwtService,
+      hasherService: mockHasherService,
+    });
   });
 
   describe('formatUserResponse', () => {
@@ -109,12 +120,20 @@ describe('Auth Service', () => {
       };
 
       User.findOne.mockResolvedValue(null); // No existing user
+      mockHasherService.hash.mockResolvedValue('hashedPassword');
       User.create.mockResolvedValue(createdUser);
 
       const result = await authService.registerUser(userData);
 
       expect(User.findOne).toHaveBeenCalledWith({ email: userData.email });
-      expect(User.create).toHaveBeenCalledWith(userData);
+      expect(mockHasherService.hash).toHaveBeenCalledWith(userData.password);
+      expect(User.create).toHaveBeenCalledWith({
+        name: userData.name,
+        lastName: userData.lastName,
+        email: userData.email,
+        password: 'hashedPassword',
+        location: userData.location,
+      });
       expect(result).toEqual({
         email: userData.email,
         name: userData.name,
@@ -153,6 +172,7 @@ describe('Auth Service', () => {
       };
 
       User.findOne.mockResolvedValue(null);
+      mockHasherService.hash.mockResolvedValue('hashedPassword');
       User.create.mockRejectedValue(new Error('Database error'));
 
       await expect(authService.registerUser(userData)).rejects.toThrow('Database error');
@@ -168,18 +188,21 @@ describe('Auth Service', () => {
 
       const foundUser = {
         ...mockUser,
-        comparePassword: jest.fn().mockResolvedValue(true),
       };
 
       User.findOne.mockReturnValue({
         select: jest.fn().mockResolvedValue(foundUser),
       });
+      mockHasherService.compare.mockResolvedValue(true);
       mockJwtService.sign.mockReturnValue('jwt-token-123');
 
       const result = await authService.authenticateUser(credentials);
 
       expect(User.findOne).toHaveBeenCalledWith({ email: credentials.email });
-      expect(foundUser.comparePassword).toHaveBeenCalledWith(credentials.password);
+      expect(mockHasherService.compare).toHaveBeenCalledWith(
+        credentials.password,
+        foundUser.password,
+      );
       expect(mockJwtService.sign).toHaveBeenCalledWith({ userId: foundUser._id });
       expect(result).toEqual({
         user: {
@@ -216,19 +239,22 @@ describe('Auth Service', () => {
 
       const foundUser = {
         ...mockUser,
-        comparePassword: jest.fn().mockResolvedValue(false),
       };
 
       User.findOne.mockReturnValue({
         select: jest.fn().mockResolvedValue(foundUser),
       });
+      mockHasherService.compare.mockResolvedValue(false);
 
       await expect(authService.authenticateUser(credentials)).rejects.toThrow(UnauthenticatedError);
       await expect(authService.authenticateUser(credentials)).rejects.toThrow(
         'Invalid Credentials',
       );
 
-      expect(foundUser.comparePassword).toHaveBeenCalledWith(credentials.password);
+      expect(mockHasherService.compare).toHaveBeenCalledWith(
+        credentials.password,
+        foundUser.password,
+      );
       expect(mockJwtService.sign).not.toHaveBeenCalled();
     });
 
