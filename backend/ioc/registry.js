@@ -15,7 +15,8 @@
 
 const { createMongoConnectionManager } = require('../db/mongodb/mongo-connection-manager');
 const { createDbService } = require('../db/mongodb/db-service');
-const { createUserSchema, createJobSchema } = require('../db/mongodb/schemas');
+const { createJobSchema } = require('../db/mongodb/schemas');
+const { createMongoUserRepository } = require('../db/mongodb/repositories/mongo-user.repository');
 
 // Services
 const {
@@ -75,11 +76,17 @@ const createContainerRegistry = ({ configService, loggerService }) => {
   const mongooseConnection = dbConnectionManager.getDriverInstance();
   container.register('connection', mongooseConnection);
 
-  const UserSchema = createUserSchema({ configService: container.resolve('configService') });
+  const userRepository = createMongoUserRepository({
+    configService: container.resolve('configService'),
+    connection: dbConnectionManager.getDriverInstance(),
+  });
+
+  container.register('userRepository', userRepository);
+
   const JobSchema = createJobSchema({ configService: container.resolve('configService') });
 
   const dbService = createDbService(mongooseConnection);
-  dbService.createModel('User', UserSchema);
+
   dbService.createModel('Job', JobSchema);
   container.register('dbService', dbService);
 
@@ -93,9 +100,12 @@ const createContainerRegistry = ({ configService, loggerService }) => {
   // ============================================
   // BUSINESS LAYER (Services)
   // ============================================
-  container.register('authService', createAuthService({ dbService, jwtService, hasherService }));
+  container.register(
+    'authService',
+    createAuthService({ userRepository, jwtService, hasherService }),
+  );
   container.register('jobService', createJobService({ dbService }));
-  container.register('userService', createUserService({ dbService }));
+  container.register('userService', createUserService({ userRepository }));
   container.register('healthService', createHealthService({ dbConnectionManager, configService }));
 
   // ============================================
@@ -149,7 +159,7 @@ const createContainerRegistry = ({ configService, loggerService }) => {
   // ============================================
   container.register(
     'authenticationMiddleware',
-    createAuthenticationMiddleware({ dbService, loggerService, jwtService }),
+    createAuthenticationMiddleware({ userRepository, loggerService, jwtService }),
   );
 
   // ============================================

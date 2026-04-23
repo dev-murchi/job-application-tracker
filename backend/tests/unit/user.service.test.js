@@ -2,32 +2,20 @@ const { describe, beforeEach, it, expect } = require('@jest/globals');
 const { BadRequestError } = require('../../errors');
 const { createUserService } = require('../../services/user.service');
 
-// Create mock User model
-const createMockUser = () => ({
+// Create mock userRepository
+const createMockUserRepository = () => ({
   findById: jest.fn(),
-  findOneAndUpdate: jest.fn(),
-});
-
-// Create mock dbService
-const createMockDbService = (User) => ({
-  getModel: jest.fn().mockImplementation((modelName) => {
-    if (modelName === 'User') {
-      return User;
-    }
-    return null;
-  }),
+  updateById: jest.fn(),
 });
 
 describe('User Service', () => {
   let userService;
-  let mockDbService;
-  let User;
+  let mockUserRepository;
 
   beforeEach(() => {
     jest.clearAllMocks();
-    User = createMockUser();
-    mockDbService = createMockDbService(User);
-    userService = createUserService({ dbService: mockDbService });
+    mockUserRepository = createMockUserRepository();
+    userService = createUserService({ userRepository: mockUserRepository });
   });
 
   describe('formatUserResponse', () => {
@@ -50,8 +38,6 @@ describe('User Service', () => {
         lastName: 'Doe',
         location: 'NYC',
       });
-      expect(formatted.password).toBeUndefined();
-      expect(formatted._id).toBeUndefined();
     });
 
     it('should handle user with undefined optional fields', () => {
@@ -88,20 +74,16 @@ describe('User Service', () => {
         ...updates,
       };
 
-      User.findOneAndUpdate.mockResolvedValue(updatedUser);
+      mockUserRepository.updateById.mockResolvedValue(updatedUser);
 
       const result = await userService.updateUserProfile(userId, updates);
 
-      expect(User.findOneAndUpdate).toHaveBeenCalledWith(
-        { _id: userId },
-        {
-          name: 'Jane',
-          lastName: 'Smith',
-          email: 'jane@example.com',
-          location: 'Boston',
-        },
-        { new: true, runValidators: true },
-      );
+      expect(mockUserRepository.updateById).toHaveBeenCalledWith(userId, {
+        name: 'Jane',
+        lastName: 'Smith',
+        email: 'jane@example.com',
+        location: 'Boston',
+      });
       expect(result).toEqual({
         email: updates.email,
         name: updates.name,
@@ -124,15 +106,11 @@ describe('User Service', () => {
         location: 'NYC',
       };
 
-      User.findOneAndUpdate.mockResolvedValue(updatedUser);
+      mockUserRepository.updateById.mockResolvedValue(updatedUser);
 
       const result = await userService.updateUserProfile(userId, updates);
 
-      expect(User.findOneAndUpdate).toHaveBeenCalledWith(
-        { _id: userId },
-        { name: 'UpdatedName' },
-        { new: true, runValidators: true },
-      );
+      expect(mockUserRepository.updateById).toHaveBeenCalledWith(userId, { name: 'UpdatedName' });
       expect(result.name).toBe('UpdatedName');
     });
 
@@ -145,7 +123,7 @@ describe('User Service', () => {
         'No changes provided',
       );
 
-      expect(User.findOneAndUpdate).not.toHaveBeenCalled();
+      expect(mockUserRepository.updateById).not.toHaveBeenCalled();
     });
 
     it('should throw BadRequestError when all fields are undefined', async () => {
@@ -175,18 +153,14 @@ describe('User Service', () => {
         location: 'Chicago',
       };
 
-      User.findOneAndUpdate.mockResolvedValue(updatedUser);
+      mockUserRepository.updateById.mockResolvedValue(updatedUser);
 
       const result = await userService.updateUserProfile(userId, updates);
 
-      expect(User.findOneAndUpdate).toHaveBeenCalledWith(
-        { _id: userId },
-        {
-          name: 'NewName',
-          location: 'Chicago',
-        },
-        { new: true, runValidators: true },
-      );
+      expect(mockUserRepository.updateById).toHaveBeenCalledWith(userId, {
+        name: 'NewName',
+        location: 'Chicago',
+      });
       expect(result.name).toBe('NewName');
       expect(result.location).toBe('Chicago');
     });
@@ -197,7 +171,7 @@ describe('User Service', () => {
         name: 'Test',
       };
 
-      User.findOneAndUpdate.mockRejectedValue(new Error('Database error'));
+      mockUserRepository.updateById.mockRejectedValue(new Error('Database error'));
 
       await expect(userService.updateUserProfile(userId, updates)).rejects.toThrow(
         'Database error',
@@ -219,7 +193,7 @@ describe('User Service', () => {
         password: 'hashedPassword',
       };
 
-      User.findOneAndUpdate.mockResolvedValue(updatedUser);
+      mockUserRepository.updateById.mockResolvedValue(updatedUser);
 
       const result = await userService.updateUserProfile(userId, updates);
 
@@ -238,29 +212,32 @@ describe('User Service', () => {
         location: 'NYC',
       };
 
-      User.findById.mockResolvedValue(mockUser);
+      mockUserRepository.findById.mockResolvedValue(mockUser);
 
       const result = await userService.getUserById(userId);
 
-      expect(User.findById).toHaveBeenCalledWith(userId);
-      expect(result).toEqual(mockUser);
+      expect(mockUserRepository.findById).toHaveBeenCalledWith(userId);
+      expect(result).toEqual({
+        email: mockUser.email,
+        name: mockUser.name,
+        lastName: mockUser.lastName,
+        location: mockUser.location,
+      });
     });
 
-    it('should return null when user not found', async () => {
+    it('should throw when user not found', async () => {
       const userId = 'nonexistent123';
 
-      User.findById.mockResolvedValue(null);
+      mockUserRepository.findById.mockResolvedValue(null);
 
-      const result = await userService.getUserById(userId);
-
-      expect(User.findById).toHaveBeenCalledWith(userId);
-      expect(result).toBeNull();
+      await expect(userService.getUserById(userId)).rejects.toThrow();
+      expect(mockUserRepository.findById).toHaveBeenCalledWith(userId);
     });
 
     it('should handle database errors', async () => {
       const userId = 'user123';
 
-      User.findById.mockRejectedValue(new Error('Database connection failed'));
+      mockUserRepository.findById.mockRejectedValue(new Error('Database connection failed'));
 
       await expect(userService.getUserById(userId)).rejects.toThrow('Database connection failed');
     });

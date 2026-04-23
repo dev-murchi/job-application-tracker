@@ -49,8 +49,9 @@ const createTestConnection = async (testSuite) => {
 
   // Connect to database
   const dbConnectionManager = container.resolve('dbConnectionManager');
-  await dbConnectionManager.connect(configService.get('mongoUrl'));
+  await dbConnectionManager.connect(testDbUrl);
 
+  const connection = dbConnectionManager.getDriverInstance();
   // Return a wrapper object with direct access to commonly used dependencies
   return {
     // Container methods
@@ -58,9 +59,10 @@ const createTestConnection = async (testSuite) => {
     dispose: () => container.dispose(),
 
     // Direct access to commonly used dependencies for convenience
-    connection: container.resolve('connection'),
+    connection: connection,
     dbService: container.resolve('dbService'),
     dbConnectionManager: dbConnectionManager,
+    userRepository: container.resolve('userRepository'),
     app: container.resolve('app'),
     jwtService: container.resolve('jwtService'),
     authService: container.resolve('authService'),
@@ -81,7 +83,7 @@ const clearDatabase = async (container) => {
 };
 
 const seedTestUser = async (container, userData = {}) => {
-  const User = container.dbService.getModel('User');
+  const userRepository = container.resolve('userRepository');
   const hasherService = container.resolve('hasherService');
 
   const defaultUserData = {
@@ -95,7 +97,7 @@ const seedTestUser = async (container, userData = {}) => {
 
   defaultUserData.password = await hasherService.hash(defaultUserData.password);
 
-  const user = await User.create(defaultUserData);
+  const user = await userRepository.create(defaultUserData);
   return user;
 };
 
@@ -140,8 +142,8 @@ const deleteTestJob = async (container, jobId) => {
 };
 
 const deleteTestUser = async (container, userId) => {
-  const User = container.dbService.getModel('User');
-  await User.findByIdAndDelete(userId);
+  const userRepository = container.resolve('userRepository');
+  await userRepository.deleteById(userId);
 };
 
 const generateTestToken = (container, user) => {
@@ -153,8 +155,13 @@ const createTestCookie = (token) => {
 };
 
 const getAllUsers = async (container) => {
-  const User = container.dbService.getModel('User');
-  return await User.find({}, '+password');
+  const userRepository = container.resolve('userRepository');
+  return await userRepository.findAllWithPassword();
+};
+
+const getUserCount = async (container) => {
+  const userRepository = container.resolve('userRepository');
+  return await userRepository.count({});
 };
 
 const getAllJobs = async (container, userId = null) => {
@@ -187,5 +194,6 @@ module.exports = {
   getAllUsers,
   getAllJobs,
   countDocuments,
+  getUserCount,
   wait,
 };

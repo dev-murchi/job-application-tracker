@@ -4,14 +4,12 @@ const { formatUserResponse } = require('./formatters');
 /**
  * Factory function to create auth service with injected dependencies
  * @param {Object} dependencies - Dependency object
- * @param {Object} dependencies.dbService - Database service for accessing models
+ * @param {Object} dependencies.userRepository - User database repository
  * @param {Object} dependencies.jwtService - JWT service for token operations
- * @param {Object} dependencies.hasherService - Hasher service
+ * @param {Object} dependencies.hasherService - Hash service
  * @returns {Object} Auth service methods
  */
-const createAuthService = ({ dbService, jwtService, hasherService }) => {
-  const User = dbService.getModel('User');
-
+const createAuthService = ({ userRepository, jwtService, hasherService }) => {
   /**
    * Register a new user
    * @param {Object} userData - User registration data
@@ -21,7 +19,7 @@ const createAuthService = ({ dbService, jwtService, hasherService }) => {
   const registerUser = async (userData) => {
     const { name, lastName, email, password, location } = userData;
 
-    const userAlreadyExists = await User.findOne({ email });
+    const userAlreadyExists = await userRepository.findByEmail(email);
 
     if (userAlreadyExists) {
       throw new BadRequestError('Email already in use');
@@ -29,7 +27,7 @@ const createAuthService = ({ dbService, jwtService, hasherService }) => {
 
     const hashedPassword = await hasherService.hash(password);
 
-    const user = await User.create({
+    const user = await userRepository.create({
       name,
       lastName,
       email,
@@ -49,7 +47,7 @@ const createAuthService = ({ dbService, jwtService, hasherService }) => {
   const authenticateUser = async (credentials) => {
     const { email, password } = credentials;
 
-    const user = await User.findOne({ email }).select('+password');
+    const user = await userRepository.findByEmailWithPassword(email);
 
     if (!user) {
       throw new UnauthenticatedError('Invalid Credentials');

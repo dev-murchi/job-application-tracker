@@ -5,7 +5,7 @@ const {
   clearDatabase,
   seedTestUser,
   getAllUsers,
-  countDocuments,
+  getUserCount,
 } = require('./setup.integration');
 
 describe('Auth Integration Tests', () => {
@@ -48,7 +48,7 @@ describe('Auth Integration Tests', () => {
       });
 
       // Verify user is in database
-      const userCount = await countDocuments(container, 'User');
+      const userCount = await getUserCount(container);
       expect(userCount).toBe(1);
 
       const users = await getAllUsers(container);
@@ -86,7 +86,7 @@ describe('Auth Integration Tests', () => {
       expect(response.body.message).toContain('Email already in use');
 
       // Verify only one user was created
-      const userCount = await countDocuments(container, 'User');
+      const userCount = await getUserCount(container);
       expect(userCount).toBe(1);
     });
 
@@ -168,7 +168,7 @@ describe('Auth Integration Tests', () => {
       expect(response.body.success).toBe(false);
       expect(response.body.message).toContain('Name is required');
 
-      const userCount = await countDocuments(container, 'User');
+      const userCount = await getUserCount(container);
       expect(userCount).toBe(0);
     });
 
@@ -186,7 +186,7 @@ describe('Auth Integration Tests', () => {
       expect(response.body.success).toBe(false);
       expect(response.body.message).toContain('email');
 
-      const userCount = await countDocuments(container, 'User');
+      const userCount = await getUserCount(container);
       expect(userCount).toBe(0);
     });
 
@@ -204,7 +204,7 @@ describe('Auth Integration Tests', () => {
       expect(response.body.success).toBe(false);
       expect(response.body.message).toContain('password');
 
-      const userCount = await countDocuments(container, 'User');
+      const userCount = await getUserCount(container);
       expect(userCount).toBe(0);
     });
 
@@ -221,7 +221,7 @@ describe('Auth Integration Tests', () => {
 
       expect(response.body.success).toBe(false);
 
-      const userCount = await countDocuments(container, 'User');
+      const userCount = await getUserCount(container);
       expect(userCount).toBe(0);
     });
 

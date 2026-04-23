@@ -3,12 +3,10 @@ const { formatUserResponse } = require('./formatters');
 
 /**
  * Factory function to create user service with injected dependencies
- * @param {Object} dbService - Database service for accessing models
+ * @param {Object} userRepository - User database repository
  * @returns {Object} User service methods
  */
-const createUserService = ({ dbService }) => {
-  const User = dbService.getModel('User');
-
+const createUserService = ({ userRepository }) => {
   /**
    * Update user profile
    * @param {String} userId - User ID
@@ -30,10 +28,7 @@ const createUserService = ({ dbService }) => {
       ...(location && { location }),
     };
 
-    const user = await User.findOneAndUpdate({ _id: userId }, data, {
-      new: true,
-      runValidators: true,
-    });
+    const user = await userRepository.updateById(userId, data);
 
     return formatUserResponse(user);
   };
@@ -44,8 +39,8 @@ const createUserService = ({ dbService }) => {
    * @returns {Object} User data
    */
   const getUserById = async (userId) => {
-    const user = await User.findById(userId);
-    return user;
+    const user = await userRepository.findById(userId);
+    return formatUserResponse(user);
   };
 
   return {
