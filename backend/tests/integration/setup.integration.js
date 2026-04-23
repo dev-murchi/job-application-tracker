@@ -47,6 +47,10 @@ const createTestConnection = async (testSuite) => {
   // Create container with isolated test database
   const container = await createContainerRegistry({ configService, loggerService });
 
+  // Connect to database
+  const dbConnectionManager = container.resolve('dbConnectionManager');
+  await dbConnectionManager.connect(configService.get('mongoUrl'));
+
   // Return a wrapper object with direct access to commonly used dependencies
   return {
     // Container methods
@@ -56,7 +60,7 @@ const createTestConnection = async (testSuite) => {
     // Direct access to commonly used dependencies for convenience
     connection: container.resolve('connection'),
     dbService: container.resolve('dbService'),
-    dbConnectionManager: container.resolve('dbConnectionManager'),
+    dbConnectionManager: dbConnectionManager,
     app: container.resolve('app'),
     jwtService: container.resolve('jwtService'),
     authService: container.resolve('authService'),

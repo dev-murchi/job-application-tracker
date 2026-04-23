@@ -130,20 +130,68 @@ const validateConnectionUrl = (url) => {
 };
 
 /**
- * Creates a MongoDB connection adapter that implements the standard connection adapter protocol.
- *
- * Adapter protocol:
- *   connect(url)    -> Promise  — open the connection
- *   close(force)    -> Promise  — close the connection
- *   isConnected()   -> boolean  — true when ready
- *   getStatus()     -> Object   — connection state snapshot
- *   getPoolStats()  -> Object|null
- *   healthPing()    -> Promise<{ success, responseTime, timestamp }>
- *
- * @param {{ connection: object, configService: object, loggerService: object }} deps
+ * @typedef {Object} DbConnectionManager
+ * @property {(url: string) => Promise<mongoose.Connection>} connect - Open the connection using a MongoDB URI
+ * @property {(force?: boolean) => Promise<void>} close - Close the connection; optional `force` to immediately close sockets
+ * @property {() => boolean} isConnected - True when the connection `readyState` === `READY_STATE_CONNECTED`
+ * @property {() => {state: string, readyState: number, host?: string, port?: number, name?: string}} getStatus - Connection snapshot
+ * @property {() => ({maxPoolSize?: number, minPoolSize?: number, currentConnections?: number|string}|null)} getPoolStats - Pool configuration/metrics or `null`
+ * @property {() => Promise<{success: boolean, responseTime: number, timestamp: string, error?: string}>} healthPing - Lightweight health check
+ * @property {() => mongoose.Connection} getDriverInstance - Underlying Mongoose `Connection` instance
  */
-const createMongoConnectionAdapter = ({ connection, configService, loggerService }) => {
-  const conn = connection || mongoose.connection;
+
+/**
+ * Create a MongoDB connection manager (Mongoose adapter).
+ *
+ * Returns an adapter that manages a Mongoose connection and exposes lifecycle
+ * management, structured logging, health checks, and the underlying driver.
+ *
+ * Adapter interface (returned object):
+ *  - `connect(url: string): Promise<mongoose.Connection>`
+ *      Open the connection using `mongoose.connect` or the connection's `openUri`.
+ *  - `close(force?: boolean): Promise<void>`
+ *      Close the connection; logs errors and rethrows on failure.
+ *  - `isConnected(): boolean`
+ *      Returns true when the underlying connection `readyState` equals
+ *      `READY_STATE_CONNECTED`.
+ *  - `getStatus(): { state: string, readyState: number, host?: string, port?: number, name?: string }`
+ *      Snapshot of connection state and identifying information where available.
+ *  - `getPoolStats(): { maxPoolSize?: number, minPoolSize?: number, currentConnections?: number|string } | null`
+ *      Returns pool configuration and (when available) metrics, or `null` if the
+ *      driver is not initialized.
+ *  - `healthPing(): Promise<{ success: boolean, responseTime: number, timestamp: string, error?: string }>`
+ *      Performs a lightweight ping against the server via `db.admin().ping()` and
+ *      returns timing and error details.
+ *  - `getDriverInstance(): mongoose.Connection`
+ *      Exposes the underlying Mongoose `Connection` for advanced use.
+ *
+ * Notes and operational considerations:
+ *  - `connect` validates the supplied `url` and wires lifecycle event handlers
+ *    (logging) for the managed connection. Event handlers are registered each
+ *    time `connect` is invoked by this implementation; to avoid duplicate
+ *    handlers, create and use a single manager instance per connection lifecycle.
+ *  - `healthPing` delegates to the driver's admin ping and is intended for
+ *    health-check endpoints (keeps the check lightweight and fast).
+ *  - Errors from Mongoose (connection failures, ping errors, close failures)
+ *    are propagated to callers so the application can decide restart/shutdown
+ *    behavior.
+ *
+ * @param {Object} deps - Dependency bag
+ * @param {Object} deps.configService - Configuration service exposing `get(key)`; expects boolean `isProduction` key
+ * @param {Object} deps.loggerService - Structured logger with `info`, `warn`, `error` methods
+ * @returns {DbConnectionManager} Adapter exposing connection management methods described above
+ *
+ * @throws {Error} If `connect` is called with a missing or invalid `url` (see `validateConnectionUrl`)
+ * @throws {Error} Mongoose/driver errors originating from connect/close/ping operations
+ *
+ * @example
+ * const manager = createMongoConnectionManager({ configService, loggerService });
+ * await manager.connect(process.env.MONGO_URL);
+ * const status = manager.getStatus();
+ * await manager.close();
+ */
+const createMongoConnectionManager = ({ configService, loggerService }) => {
+  const conn = mongoose.createConnection();
   const isProduction = configService.get('isProduction');
 
   const options = createConnectionOptions(isProduction);
@@ -152,9 +200,6 @@ const createMongoConnectionAdapter = ({ connection, configService, loggerService
   const connect = (url) => {
     validateConnectionUrl(url);
     registerEventListeners(conn, eventHandlers);
-    if (conn === mongoose.connection) {
-      return mongoose.connect(url, options);
-    }
     return conn.openUri(url, options);
   };
 
@@ -230,6 +275,8 @@ const createMongoConnectionAdapter = ({ connection, configService, loggerService
     }
   };
 
+  const getDriverInstance = () => conn;
+
   return {
     connect,
     close,
@@ -237,7 +284,8 @@ const createMongoConnectionAdapter = ({ connection, configService, loggerService
     getStatus,
     getPoolStats,
     healthPing,
+    getDriverInstance,
   };
 };
 
-module.exports = { createMongoConnectionAdapter };
+module.exports = { createMongoConnectionManager };

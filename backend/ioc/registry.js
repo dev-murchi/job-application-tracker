@@ -13,10 +13,7 @@
  * all wiring lives here.
  */
 
-const mongoose = require('mongoose');
-
-const createConnectionManager = require('../db/connection-manager');
-const { createMongoConnectionAdapter } = require('../db/adapters/mongo.adapter');
+const { createMongoConnectionManager } = require('../db/adapters/mongo-connection-manager');
 const { createDbService } = require('../db/db-service');
 const { createUserSchema, createJobSchema } = require('../models');
 
@@ -53,40 +50,29 @@ const { createContainerInstance } = require('./container');
 /**
  * Build and wire the full application container.
  *
- * @param {{ configService: object, loggerService: object, connection?: object }} deps
- *   connection — optional pre-existing mongoose connection (used in tests)
+ * @param {{ configService: object, loggerService: object }} deps
  * @returns {Promise<object>} Fully wired container
  */
-const createContainerRegistry = async ({ configService, loggerService, connection = null }) => {
+const createContainerRegistry = ({ configService, loggerService }) => {
   const container = createContainerInstance();
 
   // Register core services
   container.register('configService', configService);
   container.register('loggerService', loggerService);
 
-  const mongoUrl = configService.get('mongoUrl');
-
   // ============================================
   // DATABASE LAYER
   // ============================================
 
-  const mongooseConnection = connection || mongoose.createConnection();
-  container.register('connection', mongooseConnection);
-
-  const mongoAdapter = createMongoConnectionAdapter({
-    connection: mongooseConnection,
+  const dbConnectionManager = createMongoConnectionManager({
     configService,
     loggerService,
   });
 
-  const dbConnectionManager = createConnectionManager({ adapter: mongoAdapter });
-  container.register('dbConnectionManager', dbConnectionManager, () =>
-    dbConnectionManager.closeConnection(),
-  );
+  container.register('dbConnectionManager', dbConnectionManager, () => dbConnectionManager.close());
 
-  if (!connection) {
-    await dbConnectionManager.connect(mongoUrl);
-  }
+  const mongooseConnection = dbConnectionManager.getDriverInstance();
+  container.register('connection', mongooseConnection);
 
   const UserSchema = createUserSchema({ configService: container.resolve('configService') });
   const JobSchema = createJobSchema({ configService: container.resolve('configService') });

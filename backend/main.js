@@ -78,7 +78,11 @@ const bootstrap = async () => {
       loggerService,
     });
 
-    // 4. Create and start HTTP server
+    // 4. Connect to database
+    const dbConnectionManager = container.resolve('dbConnectionManager');
+    await dbConnectionManager.connect(configService.get('mongoUrl'));
+
+    // 5. Create and start HTTP server
     httpServer = createHttpServer({
       configService,
       loggerService,

@@ -1,9 +1,7 @@
 const config = require('./config');
 const fs = require('fs/promises');
 const { createUserSchema, createJobSchema } = require('./models');
-const mongoose = require('mongoose');
-const createConnectionManager = require('./db/connection-manager');
-const { createMongoConnectionAdapter } = require('./db/adapters/mongo.adapter');
+const { createMongoConnectionManager } = require('./db/adapters/mongo-connection-manager');
 
 const configService = { get: (key) => config[key] };
 
@@ -16,15 +14,12 @@ const loggerService = {
 };
 
 const populateJobs = async () => {
-  const connection = mongoose.createConnection();
-
-  const mongoAdapter = createMongoConnectionAdapter({
-    connection,
+  const dbConnectionManager = createMongoConnectionManager({
     configService,
     loggerService,
   });
 
-  const dbConnectionManager = createConnectionManager({ adapter: mongoAdapter });
+  const connection = dbConnectionManager.getDriverInstance();
 
   await dbConnectionManager.connect(config.mongoUrl);
 
@@ -55,7 +50,7 @@ const populateJobs = async () => {
   await Job.deleteMany({ createdBy: user._id });
   await Job.create(jobs);
 
-  await dbConnectionManager.closeConnection();
+  await dbConnectionManager.close();
 };
 
 populateJobs()

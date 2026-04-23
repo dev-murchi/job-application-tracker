@@ -18,7 +18,7 @@ const createHealthService = ({ dbConnectionManager, configService }) => {
     let isConnected = false;
 
     try {
-      dbStatus = dbConnectionManager.getConnectionStatus();
+      dbStatus = dbConnectionManager.getStatus();
       isConnected = dbConnectionManager.isConnected();
       dbPing = await dbConnectionManager.healthPing();
     } catch (_error) {
