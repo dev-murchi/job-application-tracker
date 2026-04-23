@@ -8,7 +8,7 @@ const {
   LASTNAME_MAX_LENGTH,
   LOCATION_MAX_LENGTH,
   BCRYPT_SALT_ROUNDS,
-} = require('../constants');
+} = require('../../../constants');
 
 /**
  * Creates a Mongoose schema for User documents

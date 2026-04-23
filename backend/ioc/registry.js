@@ -15,7 +15,7 @@
 
 const { createMongoConnectionManager } = require('../db/mongodb/mongo-connection-manager');
 const { createDbService } = require('../db/mongodb/db-service');
-const { createUserSchema, createJobSchema } = require('../models');
+const { createUserSchema, createJobSchema } = require('../db/mongodb/schemas');
 
 // Services
 const {
