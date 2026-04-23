@@ -13,8 +13,8 @@
  * all wiring lives here.
  */
 
-const { createMongoConnectionManager } = require('../db/adapters/mongo-connection-manager');
-const { createDbService } = require('../db/db-service');
+const { createMongoConnectionManager } = require('../db/mongodb/mongo-connection-manager');
+const { createDbService } = require('../db/mongodb/db-service');
 const { createUserSchema, createJobSchema } = require('../models');
 
 // Services

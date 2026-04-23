@@ -1,7 +1,7 @@
 const config = require('./config');
 const fs = require('fs/promises');
 const { createUserSchema, createJobSchema } = require('./models');
-const { createMongoConnectionManager } = require('./db/adapters/mongo-connection-manager');
+const { createMongoConnectionManager } = require('./db/mongodb/mongo-connection-manager');
 
 const configService = { get: (key) => config[key] };
 
