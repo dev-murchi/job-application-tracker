@@ -4,7 +4,7 @@ const { createUserService } = require('./user.service');
 const { createHealthService } = require('./health.service');
 const { createJwtService } = require('./jwt.service');
 const { createConfigService } = require('./config.service');
-
+const { createHasherService } = require('./hasher.service');
 module.exports = {
   createAuthService,
   createJobService,
@@ -12,4 +12,5 @@ module.exports = {
   createHealthService,
   createJwtService,
   createConfigService,
+  createHasherService,
 };

@@ -16,37 +16,25 @@ mongoose.Types = {
   },
 };
 
-// Create mock Job model
-const createMockJob = () => ({
+const createMockJobRepository = () => ({
   create: jest.fn(),
-  findOne: jest.fn(),
-  find: jest.fn(),
-  findOneAndUpdate: jest.fn(),
-  findOneAndDelete: jest.fn(),
-  countDocuments: jest.fn(),
-  aggregate: jest.fn(),
-});
-
-// Create mock dbService
-const createMockDbService = (Job) => ({
-  getModel: jest.fn().mockImplementation((modelName) => {
-    if (modelName === 'Job') {
-      return Job;
-    }
-    return null;
-  }),
+  count: jest.fn(),
+  findWithPagination: jest.fn(),
+  updateById: jest.fn(),
+  findById: jest.fn(),
+  deleteById: jest.fn(),
+  getStatusDistributionForUser: jest.fn(),
+  getMonthlyCountsForUser: jest.fn(),
 });
 
 describe('Job Service', () => {
   let jobService;
-  let mockDbService;
-  let Job;
+  let mockJobRepository;
 
   beforeEach(() => {
     jest.clearAllMocks();
-    Job = createMockJob();
-    mockDbService = createMockDbService(Job);
-    jobService = createJobService({ dbService: mockDbService });
+    mockJobRepository = createMockJobRepository();
+    jobService = createJobService({ jobRepository: mockJobRepository });
     checkPermissions.mockImplementation(() => {}); // Default: allow all
   });
 
@@ -68,11 +56,11 @@ describe('Job Service', () => {
         createdBy: userId,
       };
 
-      Job.create.mockResolvedValue(mockCreatedJob);
+      mockJobRepository.create.mockResolvedValue(mockCreatedJob);
 
       const result = await jobService.createJob(jobData, userId);
 
-      expect(Job.create).toHaveBeenCalledWith({
+      expect(mockJobRepository.create).toHaveBeenCalledWith({
         company: jobData.company,
         position: jobData.position,
         createdBy: userId,
@@ -97,11 +85,11 @@ describe('Job Service', () => {
       const userId = 'user456';
 
       const mockCreatedJob = { _id: 'job456', ...jobData };
-      Job.create.mockResolvedValue(mockCreatedJob);
+      mockJobRepository.create.mockResolvedValue(mockCreatedJob);
 
       const result = await jobService.createJob(jobData, userId);
 
-      expect(Job.create).toHaveBeenCalledWith(
+      expect(mockJobRepository.create).toHaveBeenCalledWith(
         expect.objectContaining({
           jobPostingUrl: 'https://startup.com/careers/123',
         }),
@@ -119,7 +107,7 @@ describe('Job Service', () => {
         companyWebsite: 'https://example.com',
       };
 
-      Job.create.mockRejectedValue(new Error('Database error'));
+      mockJobRepository.create.mockRejectedValue(new Error('Database error'));
 
       await expect(jobService.createJob(jobData, 'user123')).rejects.toThrow('Database error');
     });
@@ -142,16 +130,12 @@ describe('Job Service', () => {
         { _id: 'job2', position: 'Engineer', company: 'CompanyB' },
       ];
 
-      Job.countDocuments.mockResolvedValue(2);
-      Job.find.mockReturnValue({
-        sort: jest.fn().mockReturnThis(),
-        skip: jest.fn().mockReturnThis(),
-        limit: jest.fn().mockResolvedValue(mockJobs),
-      });
+      mockJobRepository.count.mockResolvedValue(2);
+      mockJobRepository.findWithPagination.mockResolvedValue(mockJobs);
 
       const result = await jobService.getAllJobs(userId, filters);
 
-      expect(Job.countDocuments).toHaveBeenCalledWith({ createdBy: userId });
+      expect(mockJobRepository.count).toHaveBeenCalledWith({ createdBy: userId });
       expect(result).toEqual({
         jobs: mockJobs,
         page: 1,
@@ -164,7 +148,7 @@ describe('Job Service', () => {
       const userId = 'user123';
       const filters = { page: 1, limit: 10 };
 
-      Job.countDocuments.mockResolvedValue(0);
+      mockJobRepository.count.mockResolvedValue(0);
 
       const result = await jobService.getAllJobs(userId, filters);
 
@@ -174,7 +158,7 @@ describe('Job Service', () => {
         numOfPages: 0,
         totalJobs: 0,
       });
-      expect(Job.find).not.toHaveBeenCalled();
+      expect(mockJobRepository.findWithPagination).not.toHaveBeenCalled();
     });
 
     it('should filter by search term', async () => {
@@ -187,16 +171,12 @@ describe('Job Service', () => {
 
       const mockJobs = [{ _id: 'job1', position: 'Developer' }];
 
-      Job.countDocuments.mockResolvedValue(1);
-      Job.find.mockReturnValue({
-        sort: jest.fn().mockReturnThis(),
-        skip: jest.fn().mockReturnThis(),
-        limit: jest.fn().mockResolvedValue(mockJobs),
-      });
+      mockJobRepository.count.mockResolvedValue(1);
+      mockJobRepository.findWithPagination.mockResolvedValue(mockJobs);
 
       await jobService.getAllJobs(userId, filters);
 
-      expect(Job.countDocuments).toHaveBeenCalledWith({
+      expect(mockJobRepository.count).toHaveBeenCalledWith({
         createdBy: userId,
         $or: [
           { position: { $regex: 'developer', $options: 'i' } },
@@ -213,16 +193,12 @@ describe('Job Service', () => {
         limit: 10,
       };
 
-      Job.countDocuments.mockResolvedValue(5);
-      Job.find.mockReturnValue({
-        sort: jest.fn().mockReturnThis(),
-        skip: jest.fn().mockReturnThis(),
-        limit: jest.fn().mockResolvedValue([]),
-      });
+      mockJobRepository.count.mockResolvedValue(5);
+      mockJobRepository.findWithPagination.mockResolvedValue([]);
 
       await jobService.getAllJobs(userId, filters);
 
-      expect(Job.countDocuments).toHaveBeenCalledWith({
+      expect(mockJobRepository.count).toHaveBeenCalledWith({
         createdBy: userId,
         status: 'interview',
       });
@@ -236,16 +212,12 @@ describe('Job Service', () => {
         limit: 10,
       };
 
-      Job.countDocuments.mockResolvedValue(3);
-      Job.find.mockReturnValue({
-        sort: jest.fn().mockReturnThis(),
-        skip: jest.fn().mockReturnThis(),
-        limit: jest.fn().mockResolvedValue([]),
-      });
+      mockJobRepository.count.mockResolvedValue(3);
+      mockJobRepository.findWithPagination.mockResolvedValue([]);
 
       await jobService.getAllJobs(userId, filters);
 
-      expect(Job.countDocuments).toHaveBeenCalledWith({
+      expect(mockJobRepository.count).toHaveBeenCalledWith({
         createdBy: userId,
         jobType: 'full-time',
       });
@@ -258,7 +230,7 @@ describe('Job Service', () => {
         limit: 10,
       };
 
-      Job.countDocuments.mockResolvedValue(20); // Only 2 pages available
+      mockJobRepository.count.mockResolvedValue(20); // Only 2 pages available
 
       await expect(jobService.getAllJobs(userId, filters)).rejects.toThrow(BadRequestError);
       await expect(jobService.getAllJobs(userId, filters)).rejects.toThrow(
@@ -274,15 +246,11 @@ describe('Job Service', () => {
         limit: 10,
       };
 
-      Job.countDocuments.mockResolvedValue(5);
-      const mockSort = jest.fn().mockReturnThis();
-      const mockSkip = jest.fn().mockReturnThis();
-      const mockLimit = jest.fn().mockResolvedValue([]);
-
-      Job.find.mockReturnValue({
-        sort: mockSort,
-        skip: mockSkip,
-        limit: mockLimit,
+      mockJobRepository.count.mockResolvedValue(5);
+      const mockSort = jest.fn();
+      mockJobRepository.findWithPagination.mockImplementation(() => {
+        mockSort('position');
+        return [];
       });
 
       await jobService.getAllJobs(userId, filters);
@@ -300,17 +268,17 @@ describe('Job Service', () => {
         company: 'TechCo',
       };
 
-      Job.findOne.mockResolvedValue(mockJob);
+      mockJobRepository.findById.mockResolvedValue(mockJob);
 
       const result = await jobService.getJobById(jobId);
 
-      expect(Job.findOne).toHaveBeenCalledWith({ _id: jobId });
+      expect(mockJobRepository.findById).toHaveBeenCalledWith(jobId);
       expect(result).toEqual(mockJob);
     });
 
     it('should throw NotFoundError when job not found', async () => {
       const jobId = 'nonexistent123';
-      Job.findOne.mockResolvedValue(null);
+      mockJobRepository.findById.mockResolvedValue(null);
 
       await expect(jobService.getJobById(jobId)).rejects.toThrow(NotFoundError);
       await expect(jobService.getJobById(jobId)).rejects.toThrow(`No job with id :${jobId}`);
@@ -333,23 +301,19 @@ describe('Job Service', () => {
       };
       const updatedJob = { ...mockJob, ...updates };
 
-      Job.findOne.mockResolvedValue(mockJob);
-      Job.findOneAndUpdate.mockResolvedValue(updatedJob);
+      mockJobRepository.findById.mockResolvedValue(mockJob);
+      mockJobRepository.updateById.mockResolvedValue(updatedJob);
       checkPermissions.mockImplementation(() => {}); // Allow
 
       const result = await jobService.updateJob(jobId, updates, user);
 
-      expect(Job.findOne).toHaveBeenCalledWith({ _id: jobId });
+      expect(mockJobRepository.findById).toHaveBeenCalledWith(jobId);
       expect(checkPermissions).toHaveBeenCalledWith(user, mockJob.createdBy);
-      expect(Job.findOneAndUpdate).toHaveBeenCalledWith(
-        { _id: jobId },
-        expect.objectContaining({
-          position: 'Senior Developer',
-          company: 'NewCorp',
-          status: 'interview',
-        }),
-        { new: true, runValidators: true },
-      );
+      expect(mockJobRepository.updateById).toHaveBeenCalledWith(jobId, {
+        position: 'Senior Developer',
+        company: 'NewCorp',
+        status: 'interview',
+      });
       expect(result).toEqual(updatedJob);
     });
 
@@ -369,7 +333,7 @@ describe('Job Service', () => {
       const updates = { position: 'New Position' };
       const user = { userId: 'user123' };
 
-      Job.findOne.mockResolvedValue(null);
+      mockJobRepository.findById.mockResolvedValue(null);
 
       await expect(jobService.updateJob(jobId, updates, user)).rejects.toThrow(NotFoundError);
     });
@@ -380,13 +344,13 @@ describe('Job Service', () => {
       const user = { userId: 'user123' };
       const mockJob = { _id: jobId, createdBy: 'otherUser456' };
 
-      Job.findOne.mockResolvedValue(mockJob);
+      mockJobRepository.findById.mockResolvedValue(mockJob);
       checkPermissions.mockImplementation(() => {
         throw new Error('Not authorized');
       });
 
       await expect(jobService.updateJob(jobId, updates, user)).rejects.toThrow('Not authorized');
-      expect(Job.findOneAndUpdate).not.toHaveBeenCalled();
+      expect(mockJobRepository.updateById).not.toHaveBeenCalled();
     });
 
     it('should clear jobPostingUrl when empty string provided', async () => {
@@ -398,17 +362,16 @@ describe('Job Service', () => {
       const user = { userId: 'user123' };
       const mockJob = { _id: jobId, createdBy: 'user123' };
 
-      Job.findOne.mockResolvedValue(mockJob);
-      Job.findOneAndUpdate.mockResolvedValue({});
+      mockJobRepository.findById.mockResolvedValue(mockJob);
+      mockJobRepository.updateById.mockResolvedValue({});
 
       await jobService.updateJob(jobId, updates, user);
 
-      expect(Job.findOneAndUpdate).toHaveBeenCalledWith(
-        { _id: jobId },
+      expect(mockJobRepository.updateById).toHaveBeenCalledWith(
+        jobId,
         expect.objectContaining({
           jobPostingUrl: '',
         }),
-        expect.any(Object),
       );
     });
   });
@@ -422,24 +385,24 @@ describe('Job Service', () => {
         createdBy: 'user123',
       };
 
-      Job.findOne.mockResolvedValue(mockJob);
-      Job.findOneAndDelete.mockResolvedValue(mockJob);
+      mockJobRepository.findById.mockResolvedValue(mockJob);
+      mockJobRepository.deleteById.mockResolvedValue(mockJob);
 
       await jobService.deleteJob(jobId, user);
 
-      expect(Job.findOne).toHaveBeenCalledWith({ _id: jobId });
+      expect(mockJobRepository.findById).toHaveBeenCalledWith(jobId);
       expect(checkPermissions).toHaveBeenCalledWith(user, mockJob.createdBy);
-      expect(Job.findOneAndDelete).toHaveBeenCalledWith({ _id: jobId });
+      expect(mockJobRepository.deleteById).toHaveBeenCalledWith(jobId);
     });
 
     it('should throw NotFoundError when job not found', async () => {
       const jobId = 'nonexistent123';
       const user = { userId: 'user123' };
 
-      Job.findOne.mockResolvedValue(null);
+      mockJobRepository.findById.mockResolvedValue(null);
 
       await expect(jobService.deleteJob(jobId, user)).rejects.toThrow(NotFoundError);
-      expect(Job.findOneAndDelete).not.toHaveBeenCalled();
+      expect(mockJobRepository.deleteById).not.toHaveBeenCalled();
     });
 
     it('should check permissions before deleting', async () => {
@@ -447,77 +410,89 @@ describe('Job Service', () => {
       const user = { userId: 'user123' };
       const mockJob = { _id: jobId, createdBy: 'otherUser456' };
 
-      Job.findOne.mockResolvedValue(mockJob);
+      mockJobRepository.findById.mockResolvedValue(mockJob);
       checkPermissions.mockImplementation(() => {
         throw new Error('Not authorized');
       });
 
       await expect(jobService.deleteJob(jobId, user)).rejects.toThrow('Not authorized');
-      expect(Job.findOneAndDelete).not.toHaveBeenCalled();
+      expect(mockJobRepository.deleteById).not.toHaveBeenCalled();
     });
   });
 
   describe('getJobStats', () => {
     it('should return job statistics', async () => {
       const userId = 'user123';
-
-      const mockStatusStats = [
-        { _id: 'pending', count: 5 },
-        { _id: 'interview', count: 3 },
-        { _id: 'declined', count: 2 },
-      ];
-
-      const mockMonthlyStats = [
-        { _id: { year: 2025, month: 11 }, count: 4 },
-        { _id: { year: 2025, month: 10 }, count: 3 },
-      ];
-
-      Job.aggregate
-        .mockResolvedValueOnce(mockStatusStats) // First call for status stats
-        .mockResolvedValueOnce(mockMonthlyStats); // Second call for monthly stats
-
-      const result = await jobService.getJobStats(userId);
-
-      expect(mongoose.Types.ObjectId.createFromHexString).toHaveBeenCalledWith(userId);
-      expect(result.defaultStats).toEqual({
+      const mockStatusStats = {
         pending: 5,
         interview: 3,
         offered: 0,
         accepted: 0,
         declined: 2,
-      });
-      expect(result.monthlyApplications).toHaveLength(6);
-      expect(result.monthlyApplications[0]).toHaveProperty('date');
-      expect(result.monthlyApplications[0]).toHaveProperty('count');
+      };
+      const mockMonthlyStats = [
+        { date: '2025-11', count: 4 },
+        { date: '2025-10', count: 3 },
+        { date: '2025-09', count: 0 },
+        { date: '2025-08', count: 0 },
+        { date: '2025-07', count: 0 },
+        { date: '2025-06', count: 0 },
+      ];
+      mockJobRepository.getStatusDistributionForUser.mockResolvedValue(mockStatusStats);
+      mockJobRepository.getMonthlyCountsForUser.mockResolvedValue(mockMonthlyStats);
+
+      const result = await jobService.getJobStats(userId);
+
+      expect(mockJobRepository.getStatusDistributionForUser).toHaveBeenCalledWith(userId);
+      expect(mockJobRepository.getMonthlyCountsForUser).toHaveBeenCalledWith(
+        userId,
+        expect.any(Number),
+      );
+      expect(result.defaultStats).toEqual(mockStatusStats);
+      expect(result.monthlyApplications).toEqual(mockMonthlyStats);
     });
 
     it('should return zeros for missing statuses', async () => {
       const userId = 'user123';
-
-      Job.aggregate
-        .mockResolvedValueOnce([]) // No stats
-        .mockResolvedValueOnce([]); // No monthly data
-
-      const result = await jobService.getJobStats(userId);
-
-      expect(mongoose.Types.ObjectId.createFromHexString).toHaveBeenCalledWith(userId);
-      expect(result.defaultStats).toEqual({
+      const emptyStats = {
         pending: 0,
         interview: 0,
         offered: 0,
         accepted: 0,
         declined: 0,
-      });
+      };
+      mockJobRepository.getStatusDistributionForUser.mockResolvedValue(emptyStats);
+      mockJobRepository.getMonthlyCountsForUser.mockResolvedValue([]);
+
+      const result = await jobService.getJobStats(userId);
+
+      expect(mockJobRepository.getStatusDistributionForUser).toHaveBeenCalledWith(userId);
+      expect(result.defaultStats).toEqual(emptyStats);
     });
 
     it('should fill missing months with zeros', async () => {
       const userId = 'user123';
-
-      Job.aggregate.mockResolvedValueOnce([{ _id: 'pending', count: 1 }]).mockResolvedValueOnce([]); // No monthly data
+      const statusStats = {
+        pending: 1,
+        interview: 0,
+        offered: 0,
+        accepted: 0,
+        declined: 0,
+      };
+      // Simulate 6 months, all zero
+      const monthlyStats = Array.from({ length: 6 }, (_, i) => ({
+        date: `2025-0${i + 1}`,
+        count: 0,
+      }));
+      mockJobRepository.getStatusDistributionForUser.mockResolvedValue(statusStats);
+      mockJobRepository.getMonthlyCountsForUser.mockResolvedValue(monthlyStats);
 
       const result = await jobService.getJobStats(userId);
 
-      expect(mongoose.Types.ObjectId.createFromHexString).toHaveBeenCalledWith(userId);
+      expect(mockJobRepository.getMonthlyCountsForUser).toHaveBeenCalledWith(
+        userId,
+        expect.any(Number),
+      );
       expect(result.monthlyApplications).toHaveLength(6);
       expect(result.monthlyApplications.every((month) => month.count === 0)).toBe(true);
     });

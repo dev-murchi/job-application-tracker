@@ -67,7 +67,6 @@ COPY --chown=appuser:appgroup ./db/          ./db/
 COPY --chown=appuser:appgroup ./errors/      ./errors/
 COPY --chown=appuser:appgroup ./ioc/         ./ioc/
 COPY --chown=appuser:appgroup ./middleware/  ./middleware/
-COPY --chown=appuser:appgroup ./models/      ./models/
 COPY --chown=appuser:appgroup ./routes/      ./routes/
 COPY --chown=appuser:appgroup ./schemas/     ./schemas/
 COPY --chown=appuser:appgroup ./services/    ./services/

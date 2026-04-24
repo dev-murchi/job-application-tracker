@@ -3,12 +3,12 @@ const { MongooseObjectIdSchema } = require('../schemas');
 
 /**
  * @param {Object} dependencies - Dependency object
- * @param {Object} dependencies.dbService - Database service for accessing User model
+ * @param {Object} dependencies.userRepository - User database repository
  * @param {Object} dependencies.loggerService - Logger service instance for authentication logging
  * @param {Object} dependencies.jwtService - JWT service for token verification
  * @returns {Function} Express middleware function for JWT authentication
  */
-const createAuthenticationMiddleware = ({ dbService, loggerService, jwtService }) => {
+const createAuthenticationMiddleware = ({ userRepository, loggerService, jwtService }) => {
   const authenticateUser = async (req, res, next) => {
     const token = req.cookies.token;
     if (!token) {
@@ -22,8 +22,7 @@ const createAuthenticationMiddleware = ({ dbService, loggerService, jwtService }
     const userId = MongooseObjectIdSchema.parse(payload.userId);
 
     // Fetch user from database to verify existence
-    const User = dbService.getModel('User');
-    const user = await User.findOne({ _id: userId }).lean();
+    const user = await userRepository.findById(userId);
 
     if (!user) {
       loggerService.warn('Authentication failed: User not found');

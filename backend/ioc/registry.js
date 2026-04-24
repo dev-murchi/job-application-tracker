@@ -13,12 +13,8 @@
  * all wiring lives here.
  */
 
-const mongoose = require('mongoose');
-
-const createConnectionManager = require('../db/connection-manager');
-const { createMongoConnectionAdapter } = require('../db/adapters/mongo.adapter');
-const { createDbService } = require('../db/db-service');
-const { createUserSchema, createJobSchema } = require('../models');
+const { createMongoConnectionManager } = require('../db/mongodb/mongo-connection-manager');
+const { createMongoUserRepository } = require('../db/mongodb/repositories/mongo-user.repository');
 
 // Services
 const {
@@ -27,6 +23,7 @@ const {
   createUserService,
   createHealthService,
   createJwtService,
+  createHasherService,
 } = require('../services');
 
 // Controllers
@@ -49,52 +46,51 @@ const { createHealthRouter } = require('../routes/health');
 // App
 const { createApp } = require('../app');
 const { createContainerInstance } = require('./container');
+const { createMongoJobsRepository } = require('../db/mongodb/repositories/mongo-jobs.repository');
 
 /**
  * Build and wire the full application container.
  *
- * @param {{ configService: object, loggerService: object, connection?: object }} deps
- *   connection — optional pre-existing mongoose connection (used in tests)
+ * @param {{ configService: object, loggerService: object }} deps
  * @returns {Promise<object>} Fully wired container
  */
-const createContainerRegistry = async ({ configService, loggerService, connection = null }) => {
+const createContainerRegistry = ({ configService, loggerService }) => {
   const container = createContainerInstance();
 
   // Register core services
   container.register('configService', configService);
   container.register('loggerService', loggerService);
 
-  const mongoUrl = configService.get('mongoUrl');
-
   // ============================================
   // DATABASE LAYER
   // ============================================
 
-  const mongooseConnection = connection || mongoose.createConnection();
-  container.register('connection', mongooseConnection);
-
-  const mongoAdapter = createMongoConnectionAdapter({
-    connection: mongooseConnection,
+  const dbConnectionManager = createMongoConnectionManager({
     configService,
     loggerService,
   });
 
-  const dbConnectionManager = createConnectionManager({ adapter: mongoAdapter });
-  container.register('dbConnectionManager', dbConnectionManager, () =>
-    dbConnectionManager.closeConnection(),
-  );
+  container.register('dbConnectionManager', dbConnectionManager, () => dbConnectionManager.close());
 
-  if (!connection) {
-    await dbConnectionManager.connect(mongoUrl);
-  }
+  const mongooseConnection = dbConnectionManager.getDriverInstance();
+  container.register('connection', mongooseConnection);
 
-  const UserSchema = createUserSchema({ configService: container.resolve('configService') });
-  const JobSchema = createJobSchema({ configService: container.resolve('configService') });
+  const userRepository = createMongoUserRepository({
+    configService: container.resolve('configService'),
+    connection: dbConnectionManager.getDriverInstance(),
+  });
 
-  const dbService = createDbService(mongooseConnection);
-  dbService.createModel('User', UserSchema);
-  dbService.createModel('Job', JobSchema);
-  container.register('dbService', dbService);
+  container.register('userRepository', userRepository);
+
+  const jobRepository = createMongoJobsRepository({
+    configService: container.resolve('configService'),
+    connection: dbConnectionManager.getDriverInstance(),
+  });
+
+  container.register('jobRepository', jobRepository);
+
+  const hasherService = createHasherService();
+  container.register('hasherService', hasherService);
 
   // JWT
   const jwtService = createJwtService({ configService: container.resolve('configService') });
@@ -103,9 +99,12 @@ const createContainerRegistry = async ({ configService, loggerService, connectio
   // ============================================
   // BUSINESS LAYER (Services)
   // ============================================
-  container.register('authService', createAuthService({ dbService, jwtService }));
-  container.register('jobService', createJobService({ dbService }));
-  container.register('userService', createUserService({ dbService }));
+  container.register(
+    'authService',
+    createAuthService({ userRepository, jwtService, hasherService }),
+  );
+  container.register('jobService', createJobService({ jobRepository }));
+  container.register('userService', createUserService({ userRepository }));
   container.register('healthService', createHealthService({ dbConnectionManager, configService }));
 
   // ============================================
@@ -159,7 +158,7 @@ const createContainerRegistry = async ({ configService, loggerService, connectio
   // ============================================
   container.register(
     'authenticationMiddleware',
-    createAuthenticationMiddleware({ dbService, loggerService, jwtService }),
+    createAuthenticationMiddleware({ userRepository, loggerService, jwtService }),
   );
 
   // ============================================

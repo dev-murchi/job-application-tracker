@@ -1,21 +1,10 @@
 const { createAuthenticationMiddleware } = require('../../middleware/auth');
 const { UnauthenticatedError } = require('../../errors');
 
-// Mock dbService factory
-const createMockDbService = () => {
-  const mockUser = {
-    findOne: jest.fn(),
-  };
-
-  return {
-    getModel: jest.fn().mockImplementation((modelName) => {
-      if (modelName === 'User') {
-        return mockUser;
-      }
-      return null;
-    }),
-  };
-};
+// Mock userRepository factory
+const createMockUserRepository = () => ({
+  findById: jest.fn(),
+});
 
 // Mock jwtService factory
 const createMockJwtService = () => ({
@@ -24,10 +13,10 @@ const createMockJwtService = () => ({
 });
 
 describe('Auth Middleware', () => {
-  let req, res, next, mockDbService, mockJwtService, authenticateUser, mockUserModel, mockLogger;
+  let req, res, next, mockUserRepository, mockJwtService, authenticateUser, mockLogger;
 
   beforeEach(() => {
-    mockDbService = createMockDbService();
+    mockUserRepository = createMockUserRepository();
     mockJwtService = createMockJwtService();
     mockLogger = {
       error: jest.fn(),
@@ -36,12 +25,11 @@ describe('Auth Middleware', () => {
       debug: jest.fn(),
     };
     const authMiddleware = createAuthenticationMiddleware({
-      dbService: mockDbService,
+      userRepository: mockUserRepository,
       jwtService: mockJwtService,
       loggerService: mockLogger,
     });
     authenticateUser = authMiddleware.authenticateUser;
-    mockUserModel = mockDbService.getModel('User');
 
     req = {
       cookies: {},
@@ -61,14 +49,12 @@ describe('Auth Middleware', () => {
 
     req.cookies.token = token;
     mockJwtService.verify.mockReturnValue(payload);
-    mockUserModel.findOne.mockReturnValue({
-      lean: jest.fn().mockResolvedValue(mockUser),
-    });
+    mockUserRepository.findById.mockResolvedValue(mockUser);
 
     await authenticateUser(req, res, next);
 
     expect(mockJwtService.verify).toHaveBeenCalledWith(token);
-    expect(mockUserModel.findOne).toHaveBeenCalledWith({ _id: payload.userId });
+    expect(mockUserRepository.findById).toHaveBeenCalledWith(payload.userId);
     expect(req.user).toEqual({
       _id: '507f1f77bcf86cd799439011',
       email: 'test@example.com',

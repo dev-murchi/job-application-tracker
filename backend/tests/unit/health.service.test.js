@@ -3,7 +3,7 @@ const { createHealthService } = require('../../services/health.service');
 
 // Mock dbConnectionManager factory
 const createMockDbConnectionManager = () => ({
-  getConnectionStatus: jest.fn(),
+  getStatus: jest.fn(),
   isConnected: jest.fn(),
   healthPing: jest.fn(),
 });
@@ -49,7 +49,7 @@ describe('Health Service', () => {
         responseTime: 10,
       };
 
-      mockDbConnectionManager.getConnectionStatus.mockReturnValue(mockDbStatus);
+      mockDbConnectionManager.getStatus.mockReturnValue(mockDbStatus);
       mockDbConnectionManager.isConnected.mockReturnValue(true);
       mockDbConnectionManager.healthPing.mockResolvedValue(mockDbPing);
 
@@ -78,7 +78,7 @@ describe('Health Service', () => {
         responseTime: null,
       };
 
-      mockDbConnectionManager.getConnectionStatus.mockReturnValue(mockDbStatus);
+      mockDbConnectionManager.getStatus.mockReturnValue(mockDbStatus);
       mockDbConnectionManager.isConnected.mockReturnValue(false);
       mockDbConnectionManager.healthPing.mockResolvedValue(mockDbPing);
 
@@ -103,7 +103,7 @@ describe('Health Service', () => {
         error: 'Timeout',
       };
 
-      mockDbConnectionManager.getConnectionStatus.mockReturnValue(mockDbStatus);
+      mockDbConnectionManager.getStatus.mockReturnValue(mockDbStatus);
       mockDbConnectionManager.isConnected.mockReturnValue(true);
       mockDbConnectionManager.healthPing.mockResolvedValue(mockDbPing);
 
@@ -113,7 +113,7 @@ describe('Health Service', () => {
     });
 
     it('should handle errors gracefully and return degraded status', async () => {
-      mockDbConnectionManager.getConnectionStatus.mockImplementation(() => {
+      mockDbConnectionManager.getStatus.mockImplementation(() => {
         throw new Error('Connection manager error');
       });
 
@@ -133,7 +133,7 @@ describe('Health Service', () => {
         readyState: 1,
       };
 
-      mockDbConnectionManager.getConnectionStatus.mockReturnValue(mockDbStatus);
+      mockDbConnectionManager.getStatus.mockReturnValue(mockDbStatus);
       mockDbConnectionManager.isConnected.mockReturnValue(true);
       mockDbConnectionManager.healthPing.mockResolvedValue({ success: true, responseTime: 5 });
 
@@ -155,7 +155,7 @@ describe('Health Service', () => {
         readyState: 1,
       };
 
-      mockDbConnectionManager.getConnectionStatus.mockReturnValue(mockDbStatus);
+      mockDbConnectionManager.getStatus.mockReturnValue(mockDbStatus);
       mockDbConnectionManager.isConnected.mockReturnValue(true);
       mockDbConnectionManager.healthPing.mockResolvedValue({ success: true, responseTime: 5 });
 
@@ -183,7 +183,7 @@ describe('Health Service', () => {
         readyState: 1,
       };
 
-      mockDbConnectionManager.getConnectionStatus.mockReturnValue(mockDbStatus);
+      mockDbConnectionManager.getStatus.mockReturnValue(mockDbStatus);
       mockDbConnectionManager.isConnected.mockReturnValue(true);
       mockDbConnectionManager.healthPing.mockResolvedValue({ success: true, responseTime: 5 });
 

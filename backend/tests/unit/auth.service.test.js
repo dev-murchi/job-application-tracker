@@ -2,7 +2,7 @@ const { describe, beforeEach, it, expect } = require('@jest/globals');
 const { BadRequestError, UnauthenticatedError } = require('../../errors');
 const { createAuthService } = require('../../services/auth.service');
 
-// Mock User model
+// Mock user repository
 const mockUser = {
   _id: 'user123',
   email: 'test@example.com',
@@ -10,25 +10,19 @@ const mockUser = {
   lastName: 'Doe',
   location: 'New York',
   password: 'hashedPassword',
-  comparePassword: jest.fn(),
 };
 
-const createMockUser = () => ({
+const createMockUserRepository = () => ({
+  findByEmail: jest.fn(),
+  findByEmailWithPassword: jest.fn(),
   create: jest.fn(),
-  findOne: jest.fn(),
 });
 
-// Create mock dbService
-const createMockDbService = (User) => ({
-  getModel: jest.fn().mockImplementation((modelName) => {
-    if (modelName === 'User') {
-      return User;
-    }
-    return null;
-  }),
+const createMockHasherService = () => ({
+  hash: jest.fn(),
+  compare: jest.fn(),
 });
 
-// Create mock jwtService
 const createMockJwtService = () => ({
   sign: jest.fn(),
   verify: jest.fn(),
@@ -36,16 +30,20 @@ const createMockJwtService = () => ({
 
 describe('Auth Service', () => {
   let authService;
-  let mockDbService;
+  let mockUserRepository;
   let mockJwtService;
-  let User;
+  let mockHasherService;
 
   beforeEach(() => {
     jest.clearAllMocks();
-    User = createMockUser();
-    mockDbService = createMockDbService(User);
+    mockUserRepository = createMockUserRepository();
     mockJwtService = createMockJwtService();
-    authService = createAuthService({ dbService: mockDbService, jwtService: mockJwtService });
+    mockHasherService = createMockHasherService();
+    authService = createAuthService({
+      userRepository: mockUserRepository,
+      jwtService: mockJwtService,
+      hasherService: mockHasherService,
+    });
   });
 
   describe('formatUserResponse', () => {
@@ -108,13 +106,21 @@ describe('Auth Service', () => {
         password: 'hashedPassword',
       };
 
-      User.findOne.mockResolvedValue(null); // No existing user
-      User.create.mockResolvedValue(createdUser);
+      mockUserRepository.findByEmail.mockResolvedValue(null);
+      mockHasherService.hash.mockResolvedValue('hashedPassword');
+      mockUserRepository.create.mockResolvedValue(createdUser);
 
       const result = await authService.registerUser(userData);
 
-      expect(User.findOne).toHaveBeenCalledWith({ email: userData.email });
-      expect(User.create).toHaveBeenCalledWith(userData);
+      expect(mockUserRepository.findByEmail).toHaveBeenCalledWith(userData.email);
+      expect(mockHasherService.hash).toHaveBeenCalledWith(userData.password);
+      expect(mockUserRepository.create).toHaveBeenCalledWith({
+        name: userData.name,
+        lastName: userData.lastName,
+        email: userData.email,
+        password: 'hashedPassword',
+        location: userData.location,
+      });
       expect(result).toEqual({
         email: userData.email,
         name: userData.name,
@@ -134,13 +140,13 @@ describe('Auth Service', () => {
       };
 
       const existingUser = { _id: 'existing123', email: userData.email };
-      User.findOne.mockResolvedValue(existingUser);
+      mockUserRepository.findByEmail.mockResolvedValue(existingUser);
 
       await expect(authService.registerUser(userData)).rejects.toThrow(BadRequestError);
       await expect(authService.registerUser(userData)).rejects.toThrow('Email already in use');
 
-      expect(User.findOne).toHaveBeenCalledWith({ email: userData.email });
-      expect(User.create).not.toHaveBeenCalled();
+      expect(mockUserRepository.findByEmail).toHaveBeenCalledWith(userData.email);
+      expect(mockUserRepository.create).not.toHaveBeenCalled();
     });
 
     it('should handle database errors during user creation', async () => {
@@ -152,8 +158,9 @@ describe('Auth Service', () => {
         location: 'Chicago',
       };
 
-      User.findOne.mockResolvedValue(null);
-      User.create.mockRejectedValue(new Error('Database error'));
+      mockUserRepository.findByEmail.mockResolvedValue(null);
+      mockHasherService.hash.mockResolvedValue('hashedPassword');
+      mockUserRepository.create.mockRejectedValue(new Error('Database error'));
 
       await expect(authService.registerUser(userData)).rejects.toThrow('Database error');
     });
@@ -168,18 +175,19 @@ describe('Auth Service', () => {
 
       const foundUser = {
         ...mockUser,
-        comparePassword: jest.fn().mockResolvedValue(true),
       };
 
-      User.findOne.mockReturnValue({
-        select: jest.fn().mockResolvedValue(foundUser),
-      });
+      mockUserRepository.findByEmailWithPassword.mockResolvedValue(foundUser);
+      mockHasherService.compare.mockResolvedValue(true);
       mockJwtService.sign.mockReturnValue('jwt-token-123');
 
       const result = await authService.authenticateUser(credentials);
 
-      expect(User.findOne).toHaveBeenCalledWith({ email: credentials.email });
-      expect(foundUser.comparePassword).toHaveBeenCalledWith(credentials.password);
+      expect(mockUserRepository.findByEmailWithPassword).toHaveBeenCalledWith(credentials.email);
+      expect(mockHasherService.compare).toHaveBeenCalledWith(
+        credentials.password,
+        foundUser.password,
+      );
       expect(mockJwtService.sign).toHaveBeenCalledWith({ userId: foundUser._id });
       expect(result).toEqual({
         user: {
@@ -198,9 +206,7 @@ describe('Auth Service', () => {
         password: 'password123',
       };
 
-      User.findOne.mockReturnValue({
-        select: jest.fn().mockResolvedValue(null),
-      });
+      mockUserRepository.findByEmailWithPassword.mockResolvedValue(null);
 
       await expect(authService.authenticateUser(credentials)).rejects.toThrow(UnauthenticatedError);
       await expect(authService.authenticateUser(credentials)).rejects.toThrow(
@@ -216,19 +222,20 @@ describe('Auth Service', () => {
 
       const foundUser = {
         ...mockUser,
-        comparePassword: jest.fn().mockResolvedValue(false),
       };
 
-      User.findOne.mockReturnValue({
-        select: jest.fn().mockResolvedValue(foundUser),
-      });
+      mockUserRepository.findByEmailWithPassword.mockResolvedValue(foundUser);
+      mockHasherService.compare.mockResolvedValue(false);
 
       await expect(authService.authenticateUser(credentials)).rejects.toThrow(UnauthenticatedError);
       await expect(authService.authenticateUser(credentials)).rejects.toThrow(
         'Invalid Credentials',
       );
 
-      expect(foundUser.comparePassword).toHaveBeenCalledWith(credentials.password);
+      expect(mockHasherService.compare).toHaveBeenCalledWith(
+        credentials.password,
+        foundUser.password,
+      );
       expect(mockJwtService.sign).not.toHaveBeenCalled();
     });
 
@@ -238,9 +245,9 @@ describe('Auth Service', () => {
         password: 'password123',
       };
 
-      User.findOne.mockReturnValue({
-        select: jest.fn().mockRejectedValue(new Error('Database connection failed')),
-      });
+      mockUserRepository.findByEmailWithPassword.mockRejectedValue(
+        new Error('Database connection failed'),
+      );
 
       await expect(authService.authenticateUser(credentials)).rejects.toThrow(
         'Database connection failed',
