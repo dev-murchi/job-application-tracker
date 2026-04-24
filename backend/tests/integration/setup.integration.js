@@ -60,9 +60,9 @@ const createTestConnection = async (testSuite) => {
 
     // Direct access to commonly used dependencies for convenience
     connection: connection,
-    dbService: container.resolve('dbService'),
     dbConnectionManager: dbConnectionManager,
     userRepository: container.resolve('userRepository'),
+    jobRepository: container.resolve('jobRepository'),
     app: container.resolve('app'),
     jwtService: container.resolve('jwtService'),
     authService: container.resolve('authService'),
@@ -102,7 +102,7 @@ const seedTestUser = async (container, userData = {}) => {
 };
 
 const seedTestJobs = async (container, userId, count = 5) => {
-  const Job = container.dbService.getModel('Job');
+  const jobRepository = container.resolve('jobRepository');
 
   const jobs = Array.from({ length: count }, (_, i) => ({
     company: `Test Company ${i + 1}`,
@@ -114,12 +114,12 @@ const seedTestJobs = async (container, userId, count = 5) => {
     createdBy: userId,
   }));
 
-  const createdJobs = await Job.insertMany(jobs);
+  const createdJobs = await Promise.all(jobs.map((j) => jobRepository.create(j)));
   return createdJobs;
 };
 
 const createTestJob = async (container, userId, jobData = {}) => {
-  const Job = container.dbService.getModel('Job');
+  const jobRepository = container.resolve('jobRepository');
 
   const defaultJobData = {
     company: 'Test Company',
@@ -132,13 +132,13 @@ const createTestJob = async (container, userId, jobData = {}) => {
     ...jobData,
   };
 
-  const job = await Job.create(defaultJobData);
+  const job = await jobRepository.create(defaultJobData);
   return job;
 };
 
 const deleteTestJob = async (container, jobId) => {
-  const Job = container.dbService.getModel('Job');
-  await Job.findByIdAndDelete(jobId);
+  const jobRepository = container.resolve('jobRepository');
+  await jobRepository.deleteById(jobId);
 };
 
 const deleteTestUser = async (container, userId) => {
@@ -165,14 +165,14 @@ const getUserCount = async (container) => {
 };
 
 const getAllJobs = async (container, userId = null) => {
-  const Job = container.dbService.getModel('Job');
+  const jobRepository = container.resolve('jobRepository');
   const query = userId ? { createdBy: userId } : {};
-  return await Job.find(query);
+  return await jobRepository.find(query);
 };
 
-const countDocuments = async (container, modelName) => {
-  const Model = container.dbService.getModel(modelName);
-  return await Model.countDocuments({});
+const getJobCount = async (container) => {
+  const jobRepository = container.resolve('jobRepository');
+  return await jobRepository.count({});
 };
 
 const wait = (ms) =>
@@ -193,7 +193,7 @@ module.exports = {
   createTestCookie,
   getAllUsers,
   getAllJobs,
-  countDocuments,
+  getJobCount,
   getUserCount,
   wait,
 };

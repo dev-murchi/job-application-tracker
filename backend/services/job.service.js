@@ -1,17 +1,12 @@
 const { BadRequestError, NotFoundError } = require('../errors');
 const { checkPermissions } = require('../utils');
-const mongoose = require('mongoose');
-const { format } = require('date-fns');
 const { MONTHLY_STATS_LOOKBACK_MONTHS } = require('../constants');
 
 /**
  * Factory function to create job service with injected dependencies
- * @param {Object} dbService - Database service for accessing models
- * @returns {Object} Job service methods
+ * @param {Object} jobRepository - Job database repository
  */
-const createJobService = ({ dbService }) => {
-  const Job = dbService.getModel('Job');
-
+const createJobService = ({ jobRepository }) => {
   /**
    * Create a new job posting
    * @param {Object} jobData - Job data
@@ -33,7 +28,7 @@ const createJobService = ({ dbService }) => {
       ...(jobPostingUrl && { jobPostingUrl }),
     };
 
-    const job = await Job.create(data);
+    const job = await jobRepository.create(data);
     return job;
   };
 
@@ -84,7 +79,7 @@ const createJobService = ({ dbService }) => {
     const queryObject = buildSearchQuery(userId, filters);
     const sortOptions = getSortOptions();
 
-    const totalJobs = await Job.countDocuments(queryObject);
+    const totalJobs = await jobRepository.count(queryObject);
 
     if (totalJobs === 0) {
       return { jobs: [], page, numOfPages: 0, totalJobs: 0 };
@@ -100,10 +95,11 @@ const createJobService = ({ dbService }) => {
 
     const skip = (page - 1) * limit;
 
-    const jobs = await Job.find(queryObject)
-      .sort(sortOptions[sort] || '-createdAt')
-      .skip(skip)
-      .limit(limit);
+    const jobs = await jobRepository.findWithPagination(queryObject, {
+      sort: sortOptions[sort] || '-createdAt',
+      skip,
+      limit,
+    });
 
     return { jobs, page, numOfPages, totalJobs };
   };
@@ -115,7 +111,7 @@ const createJobService = ({ dbService }) => {
    * @throws {NotFoundError} If job not found
    */
   const getJobById = async (jobId) => {
-    const job = await Job.findOne({ _id: jobId });
+    const job = await jobRepository.findById(jobId);
 
     if (!job) {
       throw new NotFoundError(`No job with id :${jobId}`);
@@ -149,7 +145,7 @@ const createJobService = ({ dbService }) => {
       throw new BadRequestError('No changes provided');
     }
 
-    const job = await Job.findOne({ _id: jobId });
+    const job = await jobRepository.findById(jobId);
 
     if (!job) {
       throw new NotFoundError(`No job with id :${jobId}`);
@@ -171,10 +167,7 @@ const createJobService = ({ dbService }) => {
       data['jobPostingUrl'] = '';
     }
 
-    const updatedJob = await Job.findOneAndUpdate({ _id: jobId }, data, {
-      new: true,
-      runValidators: true,
-    });
+    const updatedJob = await jobRepository.updateById(jobId, data);
 
     return updatedJob;
   };
@@ -186,7 +179,7 @@ const createJobService = ({ dbService }) => {
    * @throws {NotFoundError} If job not found
    */
   const deleteJob = async (jobId, user) => {
-    const job = await Job.findOne({ _id: jobId });
+    const job = await jobRepository.findById(jobId);
 
     if (!job) {
       throw new NotFoundError(`No job with id :${jobId}`);
@@ -194,7 +187,7 @@ const createJobService = ({ dbService }) => {
 
     checkPermissions(user, job.createdBy);
 
-    await Job.findOneAndDelete({ _id: jobId });
+    await jobRepository.deleteById(jobId);
   };
 
   /**
@@ -203,68 +196,16 @@ const createJobService = ({ dbService }) => {
    * @returns {Object} Stats by status and monthly applications
    */
   const getJobStats = async (userId) => {
-    const userObjectId = mongoose.Types.ObjectId.createFromHexString(userId);
-
-    // Get stats by status
-    let stats = await Job.aggregate([
-      { $match: { createdBy: userObjectId } },
-      { $group: { _id: '$status', count: { $sum: 1 } } },
+    // Use Promise.all for high performance (run both queries in parallel)
+    const [defaultStats, monthlyApplications] = await Promise.all([
+      jobRepository.getStatusDistributionForUser(userId),
+      jobRepository.getMonthlyCountsForUser(userId, MONTHLY_STATS_LOOKBACK_MONTHS),
     ]);
 
-    stats = stats.reduce((acc, curr) => {
-      const { _id: title, count } = curr;
-      acc[title] = count;
-      return acc;
-    }, {});
-
-    const defaultStats = {
-      pending: stats.pending || 0,
-      interview: stats.interview || 0,
-      offered: stats.offered || 0,
-      accepted: stats.accepted || 0,
-      declined: stats.declined || 0,
+    return {
+      defaultStats,
+      monthlyApplications,
     };
-
-    // Get monthly applications for last N months
-    const endDate = new Date(Date.now());
-    const startDate = new Date(
-      endDate.getFullYear(),
-      endDate.getMonth() - (MONTHLY_STATS_LOOKBACK_MONTHS - 1),
-      1,
-    );
-
-    const monthlyApplications = await Job.aggregate([
-      { $match: { createdBy: userObjectId, createdAt: { $gte: startDate } } },
-      {
-        $group: {
-          _id: { year: { $year: '$createdAt' }, month: { $month: '$createdAt' } },
-          count: { $sum: 1 },
-        },
-      },
-      { $sort: { '_id.year': -1, '_id.month': -1 } },
-    ]);
-
-    const monthlyMap = monthlyApplications.reduce((acc, item) => {
-      const { year, month } = item._id;
-      const key = `${year}-${month}`;
-      acc[key] = item.count;
-      return acc;
-    }, {});
-
-    const monthlyApplicationsFilled = [];
-    for (let i = MONTHLY_STATS_LOOKBACK_MONTHS - 1; i >= 0; i--) {
-      const dateObj = new Date(endDate.getFullYear(), endDate.getMonth() - i, 1);
-      const year = dateObj.getFullYear();
-      const month = dateObj.getMonth() + 1;
-      const key = `${year}-${month}`;
-      const date = format(dateObj, 'yyyy-MM');
-      monthlyApplicationsFilled.push({
-        date,
-        count: monthlyMap[key] || 0,
-      });
-    }
-
-    return { defaultStats, monthlyApplications: monthlyApplicationsFilled };
   };
 
   return {

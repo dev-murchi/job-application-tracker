@@ -14,8 +14,6 @@
  */
 
 const { createMongoConnectionManager } = require('../db/mongodb/mongo-connection-manager');
-const { createDbService } = require('../db/mongodb/db-service');
-const { createJobSchema } = require('../db/mongodb/schemas');
 const { createMongoUserRepository } = require('../db/mongodb/repositories/mongo-user.repository');
 
 // Services
@@ -48,6 +46,7 @@ const { createHealthRouter } = require('../routes/health');
 // App
 const { createApp } = require('../app');
 const { createContainerInstance } = require('./container');
+const { createMongoJobsRepository } = require('../db/mongodb/repositories/mongo-jobs.repository');
 
 /**
  * Build and wire the full application container.
@@ -83,12 +82,12 @@ const createContainerRegistry = ({ configService, loggerService }) => {
 
   container.register('userRepository', userRepository);
 
-  const JobSchema = createJobSchema({ configService: container.resolve('configService') });
+  const jobRepository = createMongoJobsRepository({
+    configService: container.resolve('configService'),
+    connection: dbConnectionManager.getDriverInstance(),
+  });
 
-  const dbService = createDbService(mongooseConnection);
-
-  dbService.createModel('Job', JobSchema);
-  container.register('dbService', dbService);
+  container.register('jobRepository', jobRepository);
 
   const hasherService = createHasherService();
   container.register('hasherService', hasherService);
@@ -104,7 +103,7 @@ const createContainerRegistry = ({ configService, loggerService }) => {
     'authService',
     createAuthService({ userRepository, jwtService, hasherService }),
   );
-  container.register('jobService', createJobService({ dbService }));
+  container.register('jobService', createJobService({ jobRepository }));
   container.register('userService', createUserService({ userRepository }));
   container.register('healthService', createHealthService({ dbConnectionManager, configService }));
 

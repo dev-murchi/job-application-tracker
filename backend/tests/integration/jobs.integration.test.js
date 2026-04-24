@@ -9,7 +9,7 @@ const {
   generateTestToken,
   createTestCookie,
   getAllJobs,
-  countDocuments,
+  getJobCount,
   deleteTestJob,
 } = require('./setup.integration');
 
@@ -95,7 +95,7 @@ describe('Jobs Integration Tests', () => {
       expect(response.body.job.createdBy).toBe(testUser._id.toString());
 
       // Verify job is in database
-      const jobCount = await countDocuments(container, 'Job');
+      const jobCount = await getJobCount(container);
       expect(jobCount).toBe(1);
     });
 
@@ -134,7 +134,7 @@ describe('Jobs Integration Tests', () => {
       expect(response.body.success).toBe(false);
       expect(response.body.message).toContain('Authentication Invalid');
 
-      const jobCount = await countDocuments(container, 'Job');
+      const jobCount = await getJobCount(container);
       expect(jobCount).toBe(0);
     });
 
