@@ -23,8 +23,9 @@ const {
   createUserService,
   createHealthService,
   createJwtService,
-  createHasherService,
 } = require('../services');
+
+const { createHasherService } = require('../crypto/hasher.service');
 
 // Controllers
 const {

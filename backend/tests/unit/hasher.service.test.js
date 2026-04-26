@@ -9,7 +9,7 @@ jest.mock('bcryptjs', () => ({
 
 const bcrypt = require('bcryptjs');
 const { BCRYPT_SALT_ROUNDS } = require('../../constants');
-const { createHasherService } = require('../../services/hasher.service');
+const { createHasherService } = require('../../crypto/hasher.service');
 
 describe('hasher service', () => {
   beforeEach(() => {
