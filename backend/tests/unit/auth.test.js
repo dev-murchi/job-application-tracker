@@ -3,8 +3,8 @@ const { createAuthController } = require('../../http/api/controllers');
 const { HttpStatusCodes } = require('../../constants');
 
 // Mock dependencies before importing
-jest.mock('../../utils/attach-cookie.js');
-const { attachCookie } = require('../../utils');
+// jest.mock('../../utils/attach-cookie.js');
+// const { attachCookie } = require('../../utils');
 
 // Create mock auth service
 const createMockAuthService = () => ({
@@ -140,10 +140,12 @@ describe('Auth Controller', () => {
       await authController.login(mockReq, mockRes);
 
       expect(mockAuthService.authenticateUser).toHaveBeenCalledWith(loginData);
-      expect(attachCookie).toHaveBeenCalledWith({
-        res: mockRes,
-        token: 'mock-jwt-token',
+      expect(mockRes.cookie).toHaveBeenCalledWith('token', 'mock-jwt-token', {
+        httpOnly: true,
+        expires: expect.any(Date),
         secure: false,
+        sameSite: 'lax',
+        path: '/',
       });
       expect(mockRes.status).toHaveBeenCalledWith(HttpStatusCodes.OK);
       expect(mockRes.json).toHaveBeenCalledWith(mockAuthResult.user);
@@ -160,7 +162,7 @@ describe('Auth Controller', () => {
 
       await expect(authController.login(mockReq, mockRes)).rejects.toThrow('Invalid Credentials');
       expect(mockAuthService.authenticateUser).toHaveBeenCalledWith(loginData);
-      expect(attachCookie).not.toHaveBeenCalled();
+      expect(mockRes.cookie).not.toHaveBeenCalled();
     });
 
     it('should throw error when password is incorrect', async () => {
@@ -174,10 +176,10 @@ describe('Auth Controller', () => {
 
       await expect(authController.login(mockReq, mockRes)).rejects.toThrow('Invalid Credentials');
       expect(mockAuthService.authenticateUser).toHaveBeenCalledWith(loginData);
-      expect(attachCookie).not.toHaveBeenCalled();
+      expect(mockRes.cookie).not.toHaveBeenCalled();
     });
 
-    it('should not call attachCookie when authentication fails', async () => {
+    it('should not call res.cookie when authentication fails', async () => {
       const loginData = {
         email: 'test@example.com',
         password: 'wrongpassword',
@@ -187,7 +189,7 @@ describe('Auth Controller', () => {
       mockAuthService.authenticateUser.mockRejectedValue(new Error('Invalid Credentials'));
 
       await expect(authController.login(mockReq, mockRes)).rejects.toThrow('Invalid Credentials');
-      expect(attachCookie).not.toHaveBeenCalled();
+      expect(mockRes.cookie).not.toHaveBeenCalled();
     });
   });
 

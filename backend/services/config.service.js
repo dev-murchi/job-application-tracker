@@ -1,4 +1,4 @@
-const { loadAndValidate } = require('../utils/config-validation');
+const { loadAndValidate } = require('../config/config-validation');
 
 /**
  * @typedef {Object} ConfigService

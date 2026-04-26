@@ -13,7 +13,7 @@
     "!http/api/middleware/index.js",
     "utils/**/*.js",
     "!utils/logger.js",
-    "!utils/config-validation.js",
+    "!config/config-validation.js",
     "!**/node_modules/**",
     "!**/tests/**",
     "!**/coverage/**"

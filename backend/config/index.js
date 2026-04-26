@@ -5,7 +5,7 @@ require('dotenv').config({
 });
 
 const { ConfigSchema } = require('../schemas');
-const { loadAndValidate } = require('../utils/config-validation');
+const { loadAndValidate } = require('./config-validation');
 
 // Helper to read Docker secrets
 const readSecret = (envVar, fileEnvVar) => {
