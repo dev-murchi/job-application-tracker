@@ -1,6 +1,7 @@
 {
   "testEnvironment": "node",
   "collectCoverageFrom": [
+    "config/config.service.js",
     "crypto/**/*.js",
     "server.js",
     "http/api/controllers/**/*.js",

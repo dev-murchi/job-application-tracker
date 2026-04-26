@@ -1,6 +1,7 @@
 const { createContainerRegistry } = require('../../ioc/registry');
-const config = require('../../config');
+const { rawConfig, createConfigService } = require('../../config');
 const { randomUUID } = require('crypto');
+const { ConfigSchema } = require('../../schemas');
 
 /**
  * Create a silent logger service for integration tests
@@ -16,22 +17,10 @@ const createTestLoggerService = () => ({
   stream: { write: () => {} },
 });
 
-/**
- * Create a config service from config object with a get() method
- * @param {Object} configOverrides - Config values to override
- * @returns {Object} Config service with get method
- */
-const createTestConfigService = (configOverrides = {}) => {
-  const mergedConfig = { ...config, ...configOverrides };
-  return {
-    get: (key) => mergedConfig[key],
-  };
-};
-
 const createTestConnection = async (testSuite) => {
   const workerId = process.env.JEST_WORKER_ID ?? '1';
   const testDbName = `test_db_${testSuite}_${workerId}_${randomUUID().replace(/-/g, '')}`;
-  const dbUrl = process.env.MONGO_TEST_URL || config.mongoUrl;
+  const dbUrl = process.env.MONGO_TEST_URL || rawConfig.mongoUrl;
   const index = dbUrl.lastIndexOf('/');
   const url = dbUrl.slice(0, index);
   const authSource = dbUrl.slice(index).split('?authSource=')[1] ?? 'admin';
@@ -41,8 +30,10 @@ const createTestConnection = async (testSuite) => {
   // Create a test logger service for the container
   const loggerService = createTestLoggerService();
 
-  // Create a config service with the test database URL
-  const configService = createTestConfigService({ mongoUrl: testDbUrl });
+  const configService = createConfigService();
+
+  const mergedConfig = { ...rawConfig, mongoUrl: testDbUrl };
+  configService.loadConfig(ConfigSchema, mergedConfig);
 
   // Create container with isolated test database
   const container = await createContainerRegistry({ configService, loggerService });
