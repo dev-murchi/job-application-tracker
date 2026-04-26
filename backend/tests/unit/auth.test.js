@@ -1,6 +1,6 @@
 const { describe, beforeEach, afterEach, it, expect } = require('@jest/globals');
 const { createAuthController } = require('../../http/api/controllers');
-const { StatusCodes } = require('http-status-codes');
+const { HttpStatusCodes } = require('../../constants');
 
 // Mock dependencies before importing
 jest.mock('../../utils/attach-cookie.js');
@@ -73,7 +73,7 @@ describe('Auth Controller', () => {
       await authController.register(mockReq, mockRes);
 
       expect(mockAuthService.registerUser).toHaveBeenCalledWith(userData);
-      expect(mockRes.status).toHaveBeenCalledWith(StatusCodes.CREATED);
+      expect(mockRes.status).toHaveBeenCalledWith(HttpStatusCodes.CREATED);
       expect(mockRes.json).toHaveBeenCalledWith(formattedUser);
     });
 
@@ -145,7 +145,7 @@ describe('Auth Controller', () => {
         token: 'mock-jwt-token',
         secure: false,
       });
-      expect(mockRes.status).toHaveBeenCalledWith(StatusCodes.OK);
+      expect(mockRes.status).toHaveBeenCalledWith(HttpStatusCodes.OK);
       expect(mockRes.json).toHaveBeenCalledWith(mockAuthResult.user);
     });
 
@@ -199,7 +199,7 @@ describe('Auth Controller', () => {
         httpOnly: true,
         expires: expect.any(Date),
       });
-      expect(mockRes.status).toHaveBeenCalledWith(StatusCodes.OK);
+      expect(mockRes.status).toHaveBeenCalledWith(HttpStatusCodes.OK);
       expect(mockRes.json).toHaveBeenCalledWith({ msg: 'user logged out!' });
     });
 

@@ -1,4 +1,4 @@
-const { StatusCodes } = require('http-status-codes');
+const { HttpStatusCodes } = require('../../../constants');
 
 /**
  * Factory function to create health controller with injected dependencies
@@ -17,7 +17,7 @@ const createHealthController = ({ healthService }) => {
     // Return 503 Service Unavailable if system is degraded
     // This helps load balancers and monitoring tools detect issues
     const statusCode =
-      healthStatus.status === 'ok' ? StatusCodes.OK : StatusCodes.SERVICE_UNAVAILABLE;
+      healthStatus.status === 'ok' ? HttpStatusCodes.OK : HttpStatusCodes.SERVICE_UNAVAILABLE;
 
     res.status(statusCode).json(healthStatus);
   };

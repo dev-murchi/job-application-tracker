@@ -2,6 +2,7 @@
  * Global Constants
  * Centralized location for all application-wide constants
  */
+const HttpStatusCodes = require('./http-status-codes');
 
 // ==================== Time Constants ====================
 const ONE_SECOND_MS = 1000;
@@ -207,4 +208,7 @@ module.exports = {
 
   // Mongoose
   MONGOOSE_OBJECT_ID_LENGTH,
+
+  // HTTP Status Codes (RFC 7231)
+  HttpStatusCodes,
 };

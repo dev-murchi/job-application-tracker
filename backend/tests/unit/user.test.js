@@ -1,6 +1,6 @@
 const { describe, beforeEach, afterEach, it, expect } = require('@jest/globals');
 
-const { StatusCodes } = require('http-status-codes');
+const { HttpStatusCodes } = require('../../constants');
 const { createUserController } = require('../../http/api/controllers');
 
 // Mock user service factory
@@ -51,7 +51,7 @@ describe('User Controller', () => {
       userController.getCurrentUser(mockReq, mockRes);
 
       expect(mockUserService.formatUserResponse).toHaveBeenCalledWith(mockReq.user);
-      expect(mockRes.status).toHaveBeenCalledWith(StatusCodes.OK);
+      expect(mockRes.status).toHaveBeenCalledWith(HttpStatusCodes.OK);
       expect(mockRes.json).toHaveBeenCalledWith(formattedUser);
     });
   });
@@ -81,7 +81,7 @@ describe('User Controller', () => {
         mockReq.user.userId,
         updateData,
       );
-      expect(mockRes.status).toHaveBeenCalledWith(StatusCodes.OK);
+      expect(mockRes.status).toHaveBeenCalledWith(HttpStatusCodes.OK);
       expect(mockRes.json).toHaveBeenCalledWith(updatedUser);
     });
 

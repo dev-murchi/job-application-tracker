@@ -1,4 +1,4 @@
-const { StatusCodes } = require('http-status-codes');
+const { HttpStatusCodes } = require('../../../constants');
 const { attachCookie } = require('../../../utils');
 const { ONE_SECOND_MS } = require('../../../constants');
 
@@ -16,7 +16,7 @@ const createAuthController = ({ authService, configService }) => {
    */
   const register = async (req, res) => {
     const user = await authService.registerUser(req.body);
-    res.status(StatusCodes.CREATED).json(user);
+    res.status(HttpStatusCodes.CREATED).json(user);
   };
 
   /**
@@ -27,7 +27,7 @@ const createAuthController = ({ authService, configService }) => {
 
     attachCookie({ res, token, secure: isProduction });
 
-    res.status(StatusCodes.OK).json(user);
+    res.status(HttpStatusCodes.OK).json(user);
   };
 
   /**
@@ -38,7 +38,7 @@ const createAuthController = ({ authService, configService }) => {
       httpOnly: true,
       expires: new Date(Date.now() + ONE_SECOND_MS),
     });
-    res.status(StatusCodes.OK).json({ msg: 'user logged out!' });
+    res.status(HttpStatusCodes.OK).json({ msg: 'user logged out!' });
   };
 
   return {

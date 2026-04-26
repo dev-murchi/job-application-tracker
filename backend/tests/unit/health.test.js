@@ -1,6 +1,6 @@
 const { describe, beforeEach, it, expect } = require('@jest/globals');
 const { createHealthController } = require('../../http/api/controllers');
-const { StatusCodes } = require('http-status-codes');
+const { HttpStatusCodes } = require('../../constants');
 
 // Mock health service factory
 const createMockHealthService = () => ({
@@ -43,7 +43,7 @@ describe('Health Controller', () => {
       await healthController.getHealth(mockReq, mockRes);
 
       expect(mockHealthService.getHealthStatus).toHaveBeenCalled();
-      expect(mockRes.status).toHaveBeenCalledWith(StatusCodes.OK);
+      expect(mockRes.status).toHaveBeenCalledWith(HttpStatusCodes.OK);
       expect(mockRes.json).toHaveBeenCalledWith(mockHealthStatus);
     });
 
@@ -64,7 +64,7 @@ describe('Health Controller', () => {
       await healthController.getHealth(mockReq, mockRes);
 
       expect(mockHealthService.getHealthStatus).toHaveBeenCalled();
-      expect(mockRes.status).toHaveBeenCalledWith(StatusCodes.SERVICE_UNAVAILABLE);
+      expect(mockRes.status).toHaveBeenCalledWith(HttpStatusCodes.SERVICE_UNAVAILABLE);
       expect(mockRes.json).toHaveBeenCalledWith(mockHealthStatus);
     });
 

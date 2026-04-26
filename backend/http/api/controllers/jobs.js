@@ -1,4 +1,4 @@
-const { StatusCodes } = require('http-status-codes');
+const { HttpStatusCodes } = require('../../../constants');
 
 /**
  * Factory function to create jobs controller with injected dependencies
@@ -11,7 +11,7 @@ const createJobsController = ({ jobService }) => {
    */
   const createJob = async (req, res) => {
     const job = await jobService.createJob(req.body, req.user.userId);
-    res.status(StatusCodes.CREATED).json({ job });
+    res.status(HttpStatusCodes.CREATED).json({ job });
   };
 
   /**
@@ -19,7 +19,7 @@ const createJobsController = ({ jobService }) => {
    */
   const getAllJobs = async (req, res) => {
     const result = await jobService.getAllJobs(req.user.userId, req.query);
-    res.status(StatusCodes.OK).json(result);
+    res.status(HttpStatusCodes.OK).json(result);
   };
 
   /**
@@ -27,7 +27,7 @@ const createJobsController = ({ jobService }) => {
    */
   const getJob = async (req, res) => {
     const job = await jobService.getJobById(req.params.id);
-    res.status(StatusCodes.OK).json({ job });
+    res.status(HttpStatusCodes.OK).json({ job });
   };
 
   /**
@@ -35,7 +35,7 @@ const createJobsController = ({ jobService }) => {
    */
   const updateJob = async (req, res) => {
     const job = await jobService.updateJob(req.params.id, req.body, req.user);
-    res.status(StatusCodes.OK).json({ job });
+    res.status(HttpStatusCodes.OK).json({ job });
   };
 
   /**
@@ -43,7 +43,7 @@ const createJobsController = ({ jobService }) => {
    */
   const deleteJob = async (req, res) => {
     await jobService.deleteJob(req.params.id, req.user);
-    res.status(StatusCodes.OK).json({ msg: 'Success! Job removed' });
+    res.status(HttpStatusCodes.OK).json({ msg: 'Success! Job removed' });
   };
 
   /**
@@ -51,7 +51,7 @@ const createJobsController = ({ jobService }) => {
    */
   const showStats = async (req, res) => {
     const stats = await jobService.getJobStats(req.user.userId);
-    res.status(StatusCodes.OK).json(stats);
+    res.status(HttpStatusCodes.OK).json(stats);
   };
 
   return {

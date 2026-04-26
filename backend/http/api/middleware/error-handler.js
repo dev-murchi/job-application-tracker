@@ -1,4 +1,4 @@
-const { StatusCodes } = require('http-status-codes');
+const { HttpStatusCodes } = require('../../../constants');
 const { MONGO_DUPLICATE_KEY_ERROR_CODE } = require('../../../constants');
 
 const errorHandlers = {
@@ -6,22 +6,22 @@ const errorHandlers = {
     msg: Object.values(err.errors)
       .map((item) => item.message)
       .join(', '),
-    statusCode: StatusCodes.BAD_REQUEST,
+    statusCode: HttpStatusCodes.BAD_REQUEST,
   }),
 
   CastError: (err) => ({
     msg: `No resource found with id: ${err.value}`,
-    statusCode: StatusCodes.NOT_FOUND,
+    statusCode: HttpStatusCodes.NOT_FOUND,
   }),
 
   JsonWebTokenError: () => ({
     msg: 'Invalid token. Please provide valid token.',
-    statusCode: StatusCodes.UNAUTHORIZED,
+    statusCode: HttpStatusCodes.UNAUTHORIZED,
   }),
 
   TokenExpiredError: () => ({
     msg: 'Token expired. Please provide valid token.',
-    statusCode: StatusCodes.UNAUTHORIZED,
+    statusCode: HttpStatusCodes.UNAUTHORIZED,
   }),
 
   ZodError: (err) => ({
@@ -31,7 +31,7 @@ const errorHandlers = {
         return `${path}${issue.message}`;
       })
       .join(', '),
-    statusCode: StatusCodes.BAD_REQUEST,
+    statusCode: HttpStatusCodes.BAD_REQUEST,
   }),
 };
 
@@ -40,14 +40,14 @@ const handleMongoError = (err) => {
     const field = err.keyValue ? Object.keys(err.keyValue)[0] : 'Field';
     return {
       msg: `${field} already exists. Please choose another value.`,
-      statusCode: StatusCodes.BAD_REQUEST,
+      statusCode: HttpStatusCodes.BAD_REQUEST,
     };
   }
   return null;
 };
 
 const sanitizeErrorMessage = (message, statusCode, isProduction) => {
-  if (isProduction && statusCode >= StatusCodes.INTERNAL_SERVER_ERROR) {
+  if (isProduction && statusCode >= HttpStatusCodes.INTERNAL_SERVER_ERROR) {
     return 'Internal server error. Please try again later.';
   }
   return message;
@@ -79,7 +79,7 @@ const createErrorHandler = ({ configService }) => {
     const customError = handler
       ? handler(err)
       : mongoError || {
-          statusCode: err.statusCode || StatusCodes.INTERNAL_SERVER_ERROR,
+          statusCode: err.statusCode || HttpStatusCodes.INTERNAL_SERVER_ERROR,
           msg: err.message || 'Something went wrong, please try again later',
         };
 

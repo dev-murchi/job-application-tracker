@@ -1,5 +1,5 @@
 const { createErrorHandler } = require('../../http/api/middleware');
-const { StatusCodes } = require('http-status-codes');
+const { HttpStatusCodes } = require('../../constants');
 
 // Mock configService factory
 const createMockConfigService = (isProduction = false) => ({
@@ -37,25 +37,25 @@ describe('Error Handler Middleware', () => {
 
     errorHandler(error, req, res, next);
 
-    expect(res.status).toHaveBeenCalledWith(StatusCodes.INTERNAL_SERVER_ERROR);
+    expect(res.status).toHaveBeenCalledWith(HttpStatusCodes.INTERNAL_SERVER_ERROR);
     expect(res.json).toHaveBeenCalledWith({
       success: false,
       message: 'Something went wrong',
-      statusCode: StatusCodes.INTERNAL_SERVER_ERROR,
+      statusCode: HttpStatusCodes.INTERNAL_SERVER_ERROR,
     });
   });
 
   it('should handle errors with custom status code', () => {
     const error = new Error('Bad request');
-    error.statusCode = StatusCodes.BAD_REQUEST;
+    error.statusCode = HttpStatusCodes.BAD_REQUEST;
 
     errorHandler(error, req, res, next);
 
-    expect(res.status).toHaveBeenCalledWith(StatusCodes.BAD_REQUEST);
+    expect(res.status).toHaveBeenCalledWith(HttpStatusCodes.BAD_REQUEST);
     expect(res.json).toHaveBeenCalledWith({
       success: false,
       message: 'Bad request',
-      statusCode: StatusCodes.BAD_REQUEST,
+      statusCode: HttpStatusCodes.BAD_REQUEST,
     });
   });
 
@@ -70,11 +70,11 @@ describe('Error Handler Middleware', () => {
 
     errorHandler(error, req, res, next);
 
-    expect(res.status).toHaveBeenCalledWith(StatusCodes.BAD_REQUEST);
+    expect(res.status).toHaveBeenCalledWith(HttpStatusCodes.BAD_REQUEST);
     expect(res.json).toHaveBeenCalledWith({
       success: false,
       message: 'Name is required, Email is invalid',
-      statusCode: StatusCodes.BAD_REQUEST,
+      statusCode: HttpStatusCodes.BAD_REQUEST,
     });
   });
 
@@ -86,11 +86,11 @@ describe('Error Handler Middleware', () => {
 
     errorHandler(error, req, res, next);
 
-    expect(res.status).toHaveBeenCalledWith(StatusCodes.BAD_REQUEST);
+    expect(res.status).toHaveBeenCalledWith(HttpStatusCodes.BAD_REQUEST);
     expect(res.json).toHaveBeenCalledWith({
       success: false,
       message: 'email already exists. Please choose another value.',
-      statusCode: StatusCodes.BAD_REQUEST,
+      statusCode: HttpStatusCodes.BAD_REQUEST,
     });
   });
 
@@ -102,11 +102,11 @@ describe('Error Handler Middleware', () => {
 
     errorHandler(error, req, res, next);
 
-    expect(res.status).toHaveBeenCalledWith(StatusCodes.NOT_FOUND);
+    expect(res.status).toHaveBeenCalledWith(HttpStatusCodes.NOT_FOUND);
     expect(res.json).toHaveBeenCalledWith({
       success: false,
       message: 'No resource found with id: invalid-id-123',
-      statusCode: StatusCodes.NOT_FOUND,
+      statusCode: HttpStatusCodes.NOT_FOUND,
     });
   });
 
@@ -118,11 +118,11 @@ describe('Error Handler Middleware', () => {
 
     errorHandler(error, req, res, next);
 
-    expect(res.status).toHaveBeenCalledWith(StatusCodes.UNAUTHORIZED);
+    expect(res.status).toHaveBeenCalledWith(HttpStatusCodes.UNAUTHORIZED);
     expect(res.json).toHaveBeenCalledWith({
       success: false,
       message: 'Invalid token. Please provide valid token.',
-      statusCode: StatusCodes.UNAUTHORIZED,
+      statusCode: HttpStatusCodes.UNAUTHORIZED,
     });
   });
 
@@ -134,11 +134,11 @@ describe('Error Handler Middleware', () => {
 
     errorHandler(error, req, res, next);
 
-    expect(res.status).toHaveBeenCalledWith(StatusCodes.UNAUTHORIZED);
+    expect(res.status).toHaveBeenCalledWith(HttpStatusCodes.UNAUTHORIZED);
     expect(res.json).toHaveBeenCalledWith({
       success: false,
       message: 'Token expired. Please provide valid token.',
-      statusCode: StatusCodes.UNAUTHORIZED,
+      statusCode: HttpStatusCodes.UNAUTHORIZED,
     });
   });
 
@@ -153,11 +153,11 @@ describe('Error Handler Middleware', () => {
 
     errorHandler(error, req, res, next);
 
-    expect(res.status).toHaveBeenCalledWith(StatusCodes.BAD_REQUEST);
+    expect(res.status).toHaveBeenCalledWith(HttpStatusCodes.BAD_REQUEST);
     expect(res.json).toHaveBeenCalledWith({
       success: false,
       message: 'name: Required, email: Invalid email',
-      statusCode: StatusCodes.BAD_REQUEST,
+      statusCode: HttpStatusCodes.BAD_REQUEST,
     });
   });
 
@@ -167,11 +167,11 @@ describe('Error Handler Middleware', () => {
 
     errorHandler(error, req, res, next);
 
-    expect(res.status).toHaveBeenCalledWith(StatusCodes.INTERNAL_SERVER_ERROR);
+    expect(res.status).toHaveBeenCalledWith(HttpStatusCodes.INTERNAL_SERVER_ERROR);
     expect(res.json).toHaveBeenCalledWith({
       success: false,
       message: 'Test error',
-      statusCode: StatusCodes.INTERNAL_SERVER_ERROR,
+      statusCode: HttpStatusCodes.INTERNAL_SERVER_ERROR,
     });
   });
 
@@ -179,14 +179,14 @@ describe('Error Handler Middleware', () => {
     const prodConfigService = createMockConfigService(true);
     const prodErrorHandler = createErrorHandler({ configService: prodConfigService });
     const error = new Error('Database connection failed');
-    error.statusCode = StatusCodes.INTERNAL_SERVER_ERROR;
+    error.statusCode = HttpStatusCodes.INTERNAL_SERVER_ERROR;
 
     prodErrorHandler(error, req, res, next);
 
     expect(res.json).toHaveBeenCalledWith({
       success: false,
       message: 'Internal server error. Please try again later.',
-      statusCode: StatusCodes.INTERNAL_SERVER_ERROR,
+      statusCode: HttpStatusCodes.INTERNAL_SERVER_ERROR,
     });
   });
 
@@ -194,14 +194,14 @@ describe('Error Handler Middleware', () => {
     const prodConfigService = createMockConfigService(true);
     const prodErrorHandler = createErrorHandler({ configService: prodConfigService });
     const error = new Error('Invalid input');
-    error.statusCode = StatusCodes.BAD_REQUEST;
+    error.statusCode = HttpStatusCodes.BAD_REQUEST;
 
     prodErrorHandler(error, req, res, next);
 
     expect(res.json).toHaveBeenCalledWith({
       success: false,
       message: 'Invalid input',
-      statusCode: StatusCodes.BAD_REQUEST,
+      statusCode: HttpStatusCodes.BAD_REQUEST,
     });
   });
 
@@ -211,11 +211,11 @@ describe('Error Handler Middleware', () => {
 
     errorHandler(error, req, res, next);
 
-    expect(res.status).toHaveBeenCalledWith(StatusCodes.INTERNAL_SERVER_ERROR);
+    expect(res.status).toHaveBeenCalledWith(HttpStatusCodes.INTERNAL_SERVER_ERROR);
     expect(res.json).toHaveBeenCalledWith({
       success: false,
       message: 'Test error',
-      statusCode: StatusCodes.INTERNAL_SERVER_ERROR,
+      statusCode: HttpStatusCodes.INTERNAL_SERVER_ERROR,
     });
   });
 });
