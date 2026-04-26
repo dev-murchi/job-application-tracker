@@ -61,6 +61,7 @@ COPY --chown=appuser:appgroup ./db/          ./db/
 COPY --chown=appuser:appgroup ./errors/      ./errors/
 COPY --chown=appuser:appgroup ./http/        ./http/
 COPY --chown=appuser:appgroup ./ioc/         ./ioc/
+COPY --chown=appuser:appgroup ./logger/         ./logger/
 COPY --chown=appuser:appgroup ./schemas/     ./schemas/
 COPY --chown=appuser:appgroup ./services/    ./services/
 COPY --chown=appuser:appgroup ./utils/       ./utils/

@@ -7,7 +7,7 @@ const { createContainerRegistry } = require('./ioc/registry');
 const { createHttpServer } = require('./http/server');
 const { ConfigSchema } = require('./schemas');
 const { createConfigService } = require('./services');
-const { createLoggerService } = require('./utils');
+const { createLoggerService } = require('./logger/logger');
 
 const FORCE_EXIT_TIMEOUT = 10_000;
 

@@ -12,7 +12,7 @@
     "!http/api/middleware/validator.js",
     "!http/api/middleware/index.js",
     "utils/**/*.js",
-    "!utils/logger.js",
+    "!logger/logger.js",
     "!config/config-validation.js",
     "!**/node_modules/**",
     "!**/tests/**",
