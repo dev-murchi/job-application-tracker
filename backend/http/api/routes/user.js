@@ -1,5 +1,5 @@
 const express = require('express');
-const { UserUpdateSchema } = require('../schemas');
+const { UserUpdateSchema } = require('../../../schemas');
 const { validateBody } = require('../middleware');
 
 /**

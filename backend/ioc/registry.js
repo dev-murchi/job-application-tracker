@@ -32,19 +32,19 @@ const {
   createJobsController,
   createUserController,
   createHealthController,
-} = require('../controllers');
+} = require('../http/api/controllers');
 
 // Middleware
-const { createAuthenticationMiddleware } = require('../middleware/auth');
+const { createAuthenticationMiddleware } = require('../http/api/middleware/auth');
 
 // Routes
-const { createAuthRouter } = require('../routes/auth');
-const { createJobsRouter } = require('../routes/jobs');
-const { createUserRouter } = require('../routes/user');
-const { createHealthRouter } = require('../routes/health');
+const { createAuthRouter } = require('../http/api/routes/auth');
+const { createJobsRouter } = require('../http/api/routes/jobs');
+const { createUserRouter } = require('../http/api/routes/user');
+const { createHealthRouter } = require('../http/api/routes/health');
 
 // App
-const { createApp } = require('../app');
+const { createApp } = require('../http/api/app');
 const { createContainerInstance } = require('./container');
 const { createMongoJobsRepository } = require('../db/mongodb/repositories/mongo-jobs.repository');
 

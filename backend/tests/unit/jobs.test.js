@@ -1,5 +1,5 @@
 const { BadRequestError, NotFoundError } = require('../../errors');
-const { createJobsController } = require('../../controllers/jobs');
+const { createJobsController } = require('../../http/api/controllers');
 
 // Mock job service factory
 const createMockJobService = () => ({

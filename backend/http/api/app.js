@@ -14,7 +14,7 @@ const mongoSanitize = require('express-mongo-sanitize');
 const { createRateLimiters, notFound, createErrorHandler } = require('./middleware');
 
 // Utilities
-const { createSanitizer } = require('./utils');
+const { createSanitizer } = require('../../utils');
 
 /**
  * Factory function to create Express app with injected dependencies

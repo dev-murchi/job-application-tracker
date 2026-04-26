@@ -1,5 +1,5 @@
 const { describe, beforeEach, afterEach, it, expect } = require('@jest/globals');
-const { createAuthController } = require('../../controllers/auth');
+const { createAuthController } = require('../../http/api/controllers');
 const { StatusCodes } = require('http-status-codes');
 
 // Mock dependencies before importing

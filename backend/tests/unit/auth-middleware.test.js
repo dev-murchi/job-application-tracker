@@ -1,4 +1,4 @@
-const { createAuthenticationMiddleware } = require('../../middleware/auth');
+const { createAuthenticationMiddleware } = require('../../http/api/middleware/auth');
 const { UnauthenticatedError } = require('../../errors');
 
 // Mock userRepository factory

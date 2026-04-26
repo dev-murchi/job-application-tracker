@@ -1,5 +1,5 @@
-const { UnauthenticatedError } = require('../errors');
-const { MongooseObjectIdSchema } = require('../schemas');
+const { UnauthenticatedError } = require('../../../errors');
+const { MongooseObjectIdSchema } = require('../../../schemas');
 
 /**
  * @param {Object} dependencies - Dependency object

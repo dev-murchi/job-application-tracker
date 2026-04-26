@@ -1,5 +1,5 @@
 const express = require('express');
-const { UserRegisterSchema, UserLoginSchema } = require('../schemas');
+const { UserRegisterSchema, UserLoginSchema } = require('../../../schemas');
 const { validateBody, createRateLimiters } = require('../middleware');
 
 /**

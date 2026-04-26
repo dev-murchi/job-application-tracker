@@ -1,4 +1,4 @@
-const { createErrorHandler } = require('../../middleware');
+const { createErrorHandler } = require('../../http/api/middleware');
 const { StatusCodes } = require('http-status-codes');
 
 // Mock configService factory

@@ -1,4 +1,4 @@
-const { notFound } = require('../../middleware');
+const { notFound } = require('../../http/api/middleware');
 
 describe('Not Found Middleware', () => {
   let req, res;

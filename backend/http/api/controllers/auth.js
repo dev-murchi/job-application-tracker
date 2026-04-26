@@ -1,6 +1,6 @@
 const { StatusCodes } = require('http-status-codes');
-const { attachCookie } = require('../utils');
-const { ONE_SECOND_MS } = require('../constants');
+const { attachCookie } = require('../../../utils');
+const { ONE_SECOND_MS } = require('../../../constants');
 
 /**
  * Factory function to create auth controller with injected dependencies

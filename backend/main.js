@@ -4,7 +4,7 @@
 
 const config = require('./config');
 const { createContainerRegistry } = require('./ioc/registry');
-const { createHttpServer } = require('./server');
+const { createHttpServer } = require('./http/server');
 const { ConfigSchema } = require('./schemas');
 const { createConfigService } = require('./services');
 const { createLoggerService } = require('./utils');

@@ -1,5 +1,5 @@
 const { StatusCodes } = require('http-status-codes');
-const { MONGO_DUPLICATE_KEY_ERROR_CODE } = require('../constants');
+const { MONGO_DUPLICATE_KEY_ERROR_CODE } = require('../../../constants');
 
 const errorHandlers = {
   ValidationError: (err) => ({
