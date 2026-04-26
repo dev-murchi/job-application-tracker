@@ -1,11 +1,13 @@
 {
   "testEnvironment": "node",
   "collectCoverageFrom": [
+    "crypto/**/*.js",
     "server.js",
     "http/api/controllers/**/*.js",
     "!http/api/controllers/index.js",
     "ioc/container.js",
     "services/**/*.js",
+    "security/**/*.js",
     "!services/index.js",
     "http/api/middleware/**/*.js",
     "!http/api/middleware/rate-limiter.js",

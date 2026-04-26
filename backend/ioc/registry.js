@@ -22,10 +22,10 @@ const {
   createJobService,
   createUserService,
   createHealthService,
-  createJwtService,
 } = require('../services');
 
 const { createHasherService } = require('../crypto/hasher.service');
+const { createJwtService } = require('../security/jwt.service');
 
 // Controllers
 const {
