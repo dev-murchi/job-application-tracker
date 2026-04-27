@@ -1,7 +1,14 @@
-const { BadRequestError, NotFoundError } = require('../errors');
-const { checkPermissions } = require('../utils');
+const { BadRequestError, NotFoundError, UnauthenticatedError } = require('../errors');
 const { MONTHLY_STATS_LOOKBACK_MONTHS } = require('../constants');
 const { createJobDTO } = require('../dtos/job.dto');
+
+const checkPermissions = (requestUser, resourceUserId) => {
+  if (requestUser.userId === resourceUserId.toString()) {
+    return;
+  }
+
+  throw new UnauthenticatedError('Not authorized to access this job');
+};
 
 /**
  * Factory function to create job service with injected dependencies

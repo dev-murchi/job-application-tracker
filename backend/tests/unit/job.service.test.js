@@ -2,10 +2,6 @@ const { describe, beforeEach, it, expect } = require('@jest/globals');
 const { BadRequestError, NotFoundError } = require('../../errors');
 const { createJobService } = require('../../services/job.service');
 
-// Mock check-permissions utility
-jest.mock('../../utils/check-permissions');
-const { checkPermissions } = require('../../utils');
-
 // Mock mongoose ObjectId
 jest.mock('mongoose');
 const mongoose = require('mongoose');
@@ -35,7 +31,6 @@ describe('Job Service', () => {
     jest.clearAllMocks();
     mockJobRepository = createMockJobRepository();
     jobService = createJobService({ jobRepository: mockJobRepository });
-    checkPermissions.mockImplementation(() => {}); // Default: allow all
   });
 
   describe('createJob', () => {
@@ -326,12 +321,10 @@ describe('Job Service', () => {
 
       mockJobRepository.findById.mockResolvedValue(mockJob);
       mockJobRepository.updateById.mockResolvedValue(updatedJob);
-      checkPermissions.mockImplementation(() => {}); // Allow
 
       const result = await jobService.updateJob(jobId, updates, user);
 
       expect(mockJobRepository.findById).toHaveBeenCalledWith(jobId);
-      expect(checkPermissions).toHaveBeenCalledWith(user, mockJob.createdBy);
       expect(mockJobRepository.updateById).toHaveBeenCalledWith(jobId, {
         position: 'Senior Developer',
         company: 'NewCorp',
@@ -380,11 +373,9 @@ describe('Job Service', () => {
       const mockJob = { _id: jobId, createdBy: 'otherUser456' };
 
       mockJobRepository.findById.mockResolvedValue(mockJob);
-      checkPermissions.mockImplementation(() => {
-        throw new Error('Not authorized');
-      });
-
-      await expect(jobService.updateJob(jobId, updates, user)).rejects.toThrow('Not authorized');
+      await expect(jobService.updateJob(jobId, updates, user)).rejects.toThrow(
+        'Not authorized to access this job',
+      );
       expect(mockJobRepository.updateById).not.toHaveBeenCalled();
     });
 
@@ -426,7 +417,6 @@ describe('Job Service', () => {
       await jobService.deleteJob(jobId, user);
 
       expect(mockJobRepository.findById).toHaveBeenCalledWith(jobId);
-      expect(checkPermissions).toHaveBeenCalledWith(user, mockJob.createdBy);
       expect(mockJobRepository.deleteById).toHaveBeenCalledWith(jobId);
     });
 
@@ -446,11 +436,9 @@ describe('Job Service', () => {
       const mockJob = { _id: jobId, createdBy: 'otherUser456' };
 
       mockJobRepository.findById.mockResolvedValue(mockJob);
-      checkPermissions.mockImplementation(() => {
-        throw new Error('Not authorized');
-      });
-
-      await expect(jobService.deleteJob(jobId, user)).rejects.toThrow('Not authorized');
+      await expect(jobService.deleteJob(jobId, user)).rejects.toThrow(
+        'Not authorized to access this job',
+      );
       expect(mockJobRepository.deleteById).not.toHaveBeenCalled();
     });
   });
