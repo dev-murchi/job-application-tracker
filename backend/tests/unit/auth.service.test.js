@@ -46,50 +46,6 @@ describe('Auth Service', () => {
     });
   });
 
-  describe('formatUserResponse', () => {
-    it('should format user data correctly', () => {
-      const user = {
-        _id: 'user123',
-        email: 'john@example.com',
-        name: 'John',
-        lastName: 'Doe',
-        location: 'NYC',
-        password: 'hashedPassword',
-        createdAt: new Date(),
-      };
-
-      const formatted = authService.formatUserResponse(user);
-
-      expect(formatted).toEqual({
-        email: 'john@example.com',
-        name: 'John',
-        lastName: 'Doe',
-        location: 'NYC',
-      });
-      expect(formatted.password).toBeUndefined();
-      expect(formatted._id).toBeUndefined();
-      expect(formatted.createdAt).toBeUndefined();
-    });
-
-    it('should handle user with missing optional fields', () => {
-      const user = {
-        email: 'test@test.com',
-        name: 'Test',
-        lastName: undefined,
-        location: undefined,
-      };
-
-      const formatted = authService.formatUserResponse(user);
-
-      expect(formatted).toEqual({
-        email: 'test@test.com',
-        name: 'Test',
-        lastName: undefined,
-        location: undefined,
-      });
-    });
-  });
-
   describe('registerUser', () => {
     it('should register a new user successfully', async () => {
       const userData = {

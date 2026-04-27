@@ -6,7 +6,6 @@ const { createUserController } = require('../../http/api/controllers');
 // Mock user service factory
 const createMockUserService = () => ({
   updateUserProfile: jest.fn(),
-  formatUserResponse: jest.fn(),
 });
 
 describe('User Controller', () => {
@@ -46,11 +45,7 @@ describe('User Controller', () => {
         location: mockReq.user.location,
       };
 
-      mockUserService.formatUserResponse.mockReturnValue(formattedUser);
-
       userController.getCurrentUser(mockReq, mockRes);
-
-      expect(mockUserService.formatUserResponse).toHaveBeenCalledWith(mockReq.user);
       expect(mockRes.status).toHaveBeenCalledWith(HttpStatusCodes.OK);
       expect(mockRes.json).toHaveBeenCalledWith(formattedUser);
     });

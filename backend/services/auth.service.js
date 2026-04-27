@@ -1,5 +1,5 @@
 const { BadRequestError, UnauthenticatedError } = require('../errors');
-const { formatUserResponse } = require('./formatters');
+const { crateUserDTO } = require('../dtos/user.dto');
 
 /**
  * Factory function to create auth service with injected dependencies
@@ -35,7 +35,7 @@ const createAuthService = ({ userRepository, jwtService, hasherService }) => {
       location,
     });
 
-    return formatUserResponse(user);
+    return crateUserDTO(user);
   };
 
   /**
@@ -62,7 +62,7 @@ const createAuthService = ({ userRepository, jwtService, hasherService }) => {
     const token = jwtService.sign({ userId: user._id });
 
     return {
-      user: formatUserResponse(user),
+      user: crateUserDTO(user),
       token,
     };
   };
@@ -70,7 +70,6 @@ const createAuthService = ({ userRepository, jwtService, hasherService }) => {
   return {
     registerUser,
     authenticateUser,
-    formatUserResponse,
   };
 };
 

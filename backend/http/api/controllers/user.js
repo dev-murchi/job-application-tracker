@@ -1,4 +1,5 @@
 const { HttpStatusCodes } = require('../../../constants');
+const { crateUserDTO } = require('../../../dtos/user.dto');
 
 /**
  * Factory function to create user controller with injected dependencies
@@ -18,7 +19,7 @@ const createUserController = ({ userService }) => {
    * Get current user profile
    */
   const getCurrentUser = (req, res) => {
-    const formattedUser = userService.formatUserResponse(req.user);
+    const formattedUser = crateUserDTO(req.user);
     res.status(HttpStatusCodes.OK).json(formattedUser);
   };
 

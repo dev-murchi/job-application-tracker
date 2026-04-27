@@ -1,5 +1,6 @@
 const { describe, beforeEach, it, expect } = require('@jest/globals');
 const { BadRequestError } = require('../../errors');
+
 const { createUserService } = require('../../services/user.service');
 
 // Create mock userRepository
@@ -16,47 +17,6 @@ describe('User Service', () => {
     jest.clearAllMocks();
     mockUserRepository = createMockUserRepository();
     userService = createUserService({ userRepository: mockUserRepository });
-  });
-
-  describe('formatUserResponse', () => {
-    it('should format user data correctly', () => {
-      const user = {
-        _id: 'user123',
-        email: 'john@example.com',
-        name: 'John',
-        lastName: 'Doe',
-        location: 'NYC',
-        password: 'hashedPassword',
-        createdAt: new Date(),
-      };
-
-      const formatted = userService.formatUserResponse(user);
-
-      expect(formatted).toEqual({
-        email: 'john@example.com',
-        name: 'John',
-        lastName: 'Doe',
-        location: 'NYC',
-      });
-    });
-
-    it('should handle user with undefined optional fields', () => {
-      const user = {
-        email: 'test@test.com',
-        name: 'Test',
-        lastName: undefined,
-        location: undefined,
-      };
-
-      const formatted = userService.formatUserResponse(user);
-
-      expect(formatted).toEqual({
-        email: 'test@test.com',
-        name: 'Test',
-        lastName: undefined,
-        location: undefined,
-      });
-    });
   });
 
   describe('updateUserProfile', () => {
