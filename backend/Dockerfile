@@ -59,14 +59,14 @@ COPY --chown=appuser:appgroup ./config/      ./config/
 COPY --chown=appuser:appgroup ./constants/   ./constants/
 COPY --chown=appuser:appgroup ./crypto/      ./crypto/
 COPY --chown=appuser:appgroup ./db/          ./db/
+COPY --chown=appuser:appgroup ./dtos/        ./dtos/
 COPY --chown=appuser:appgroup ./errors/      ./errors/
 COPY --chown=appuser:appgroup ./http/        ./http/
 COPY --chown=appuser:appgroup ./ioc/         ./ioc/
-COPY --chown=appuser:appgroup ./logger/         ./logger/
+COPY --chown=appuser:appgroup ./logger/      ./logger/
 COPY --chown=appuser:appgroup ./schemas/     ./schemas/
 COPY --chown=appuser:appgroup ./security/    ./security/
 COPY --chown=appuser:appgroup ./services/    ./services/
-COPY --chown=appuser:appgroup ./utils/       ./utils/
 
 
 # Switch to the non-root user for runtime security
