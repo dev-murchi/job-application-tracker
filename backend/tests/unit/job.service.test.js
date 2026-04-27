@@ -54,6 +54,8 @@ describe('Job Service', () => {
         _id: 'job123',
         ...jobData,
         createdBy: userId,
+        createdAt: new Date(),
+        updatedAt: new Date(),
       };
 
       mockJobRepository.create.mockResolvedValue(mockCreatedJob);
@@ -69,7 +71,18 @@ describe('Job Service', () => {
         jobLocation: jobData.jobLocation,
         status: jobData.status,
       });
-      expect(result).toEqual(mockCreatedJob);
+      expect(result).toEqual({
+        _id: mockCreatedJob._id,
+        company: mockCreatedJob.company,
+        position: mockCreatedJob.position,
+        status: mockCreatedJob.status,
+        jobType: mockCreatedJob.jobType,
+        jobLocation: mockCreatedJob.jobLocation,
+        companyWebsite: mockCreatedJob.companyWebsite,
+        createdBy: mockCreatedJob.createdBy,
+        createdAt: mockCreatedJob.createdAt,
+        updatedAt: mockCreatedJob.updatedAt,
+      });
     });
 
     it('should create a job with jobPostingUrl when provided', async () => {
@@ -288,16 +301,26 @@ describe('Job Service', () => {
   describe('updateJob', () => {
     it('should update job successfully', async () => {
       const jobId = 'job123';
-      const updates = {
-        position: 'Senior Developer',
-        company: 'NewCorp',
-        status: 'interview',
-      };
+
       const user = { userId: 'user123' };
       const mockJob = {
         _id: jobId,
         createdBy: 'user123',
         position: 'Developer',
+        company: 'New_Corp',
+        jobType: 'full-time',
+        jobLocation: 'Remote',
+        status: 'pending',
+        companyWebsite: 'https://techcorp.com',
+        createdAt: new Date(Date.now() - 1 * 5 * 1000), // created 5 minutes ago
+        updatedAt: new Date(Date.now() - 1 * 5 * 1000), // created 5 minutes ago
+      };
+
+      const updates = {
+        position: 'Senior Developer',
+        company: 'NewCorp',
+        status: 'interview',
+        updatedAt: new Date(), // updated now
       };
       const updatedJob = { ...mockJob, ...updates };
 
@@ -314,7 +337,19 @@ describe('Job Service', () => {
         company: 'NewCorp',
         status: 'interview',
       });
-      expect(result).toEqual(updatedJob);
+      expect(result).toEqual({
+        _id: updatedJob._id,
+        company: updatedJob.company,
+        position: updatedJob.position,
+        status: updatedJob.status,
+        jobType: updatedJob.jobType,
+        jobLocation: updatedJob.jobLocation,
+        companyWebsite: updatedJob.companyWebsite,
+        jobPostingUrl: updatedJob.jobPostingUrl,
+        createdBy: updatedJob.createdBy,
+        createdAt: updatedJob.createdAt,
+        updatedAt: updatedJob.updatedAt,
+      });
     });
 
     it('should throw BadRequestError when no changes provided', async () => {
