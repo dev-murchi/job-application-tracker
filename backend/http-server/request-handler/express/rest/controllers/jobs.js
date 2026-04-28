@@ -1,4 +1,4 @@
-const { HttpStatusCodes } = require('../../../constants');
+const { HttpStatusCodes } = require('../../../../../constants');
 
 /**
  * Factory function to create jobs controller with injected dependencies

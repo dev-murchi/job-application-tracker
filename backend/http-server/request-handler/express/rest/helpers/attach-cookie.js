@@ -1,4 +1,4 @@
-const { ONE_DAY_MS } = require('../../../constants');
+const { ONE_DAY_MS } = require('../../../../../constants');
 
 /**
  * Attaches a token cookie to the response

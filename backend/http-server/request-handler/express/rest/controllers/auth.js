@@ -1,5 +1,5 @@
-const { HttpStatusCodes } = require('../../../constants');
-const { ONE_SECOND_MS } = require('../../../constants');
+const { HttpStatusCodes } = require('../../../../../constants');
+const { ONE_SECOND_MS } = require('../../../../../constants');
 const { attachCookie } = require('../helpers/attach-cookie');
 
 /**

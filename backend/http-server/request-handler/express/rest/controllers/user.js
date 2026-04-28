@@ -1,5 +1,5 @@
-const { HttpStatusCodes } = require('../../../constants');
-const { crateUserDTO } = require('../../../dtos/user.dto');
+const { HttpStatusCodes } = require('../../../../../constants');
+const { crateUserDTO } = require('../../../../../dtos/user.dto');
 
 /**
  * Factory function to create user controller with injected dependencies

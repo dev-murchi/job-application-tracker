@@ -33,19 +33,23 @@ const {
   createJobsController,
   createUserController,
   createHealthController,
-} = require('../http/api/controllers');
+} = require('../http-server/request-handler/express/rest/controllers');
 
 // Middleware
-const { createAuthenticationMiddleware } = require('../http/api/middleware/auth');
+const {
+  createAuthenticationMiddleware,
+} = require('../http-server/request-handler/express/rest/middlewares/auth');
 
 // Routes
-const { createAuthRouter } = require('../http/api/routes/auth');
-const { createJobsRouter } = require('../http/api/routes/jobs');
-const { createUserRouter } = require('../http/api/routes/user');
-const { createHealthRouter } = require('../http/api/routes/health');
+const { createAuthRouter } = require('../http-server/request-handler/express/rest/routers/auth');
+const { createJobsRouter } = require('../http-server/request-handler/express/rest/routers/jobs');
+const { createUserRouter } = require('../http-server/request-handler/express/rest/routers/user');
+const {
+  createHealthRouter,
+} = require('../http-server/request-handler/express/rest/routers/health');
 
 // App
-const { createApp } = require('../http/api/app');
+const { createApp } = require('../http-server/request-handler/express/app');
 const { createContainerInstance } = require('./container');
 const { createMongoJobsRepository } = require('../db/mongodb/repositories/mongo-jobs.repository');
 

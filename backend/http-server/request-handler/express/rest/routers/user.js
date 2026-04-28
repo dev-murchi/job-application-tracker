@@ -1,6 +1,6 @@
 const express = require('express');
-const { UserUpdateSchema } = require('../../../schemas');
-const { validateBody } = require('../middleware');
+const { UserUpdateSchema } = require('../../../../../schemas');
+const { validateBody } = require('../middlewares');
 
 /**
  * Factory function to create user router with injected dependencies

@@ -1,6 +1,6 @@
 const express = require('express');
-const { UserRegisterSchema, UserLoginSchema } = require('../../../schemas');
-const { validateBody, createRateLimiters } = require('../middleware');
+const { UserRegisterSchema, UserLoginSchema } = require('../../../../../schemas');
+const { validateBody, createRateLimiters } = require('../middlewares');
 
 /**
  * Factory function to create auth router with injected dependencies

@@ -5,7 +5,7 @@ const http = require('http');
 
 const { KEEP_ALIVE_TIMEOUT_MS, HEADERS_TIMEOUT_MS } = require('../../constants');
 
-const { createHttpServer } = require('../../http/server');
+const { createHttpServer } = require('../../http-server/server');
 
 const REQUEST_TIMEOUT_BUFFER_MS = 5_000;
 const EXPECTED_REQUEST_TIMEOUT_MS = Math.max(

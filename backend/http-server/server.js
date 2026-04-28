@@ -5,7 +5,7 @@ const {
   HEADERS_TIMEOUT_MS,
   GRACEFUL_SHUTDOWN_TIMEOUT_MS,
   REQUEST_TIMEOUT_BUFFER_MS,
-} = require('../../constants');
+} = require('../constants');
 
 /**
  * No-op async function used as a default cleanup hook.

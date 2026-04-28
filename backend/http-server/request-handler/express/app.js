@@ -11,10 +11,10 @@ const cors = require('cors');
 const mongoSanitize = require('express-mongo-sanitize');
 
 // Custom middleware imports
-const { createRateLimiters, notFound, createErrorHandler } = require('./middleware');
+const { createRateLimiters, notFound, createErrorHandler } = require('./rest/middlewares');
 
 // Utilities
-const { createSanitizer } = require('../../security/sanitize');
+const { createSanitizer } = require('../../../security/sanitize');
 
 /**
  * Factory function to create Express app with injected dependencies
