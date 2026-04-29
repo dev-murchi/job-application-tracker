@@ -1,7 +1,7 @@
 const { rawConfig } = require('./config');
 const fs = require('fs/promises');
 const { createUserSchema, createJobSchema } = require('./models');
-const { createMongoConnectionManager } = require('./db/mongodb/mongo-connection-manager');
+const { createMongoConnectionManager } = require('./database/mongodb/mongo-connection-manager');
 
 const configService = { get: (key) => rawConfig[key] };
 

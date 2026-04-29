@@ -13,8 +13,10 @@
  * all wiring lives here.
  */
 
-const { createMongoConnectionManager } = require('../db/mongodb/mongo-connection-manager');
-const { createMongoUserRepository } = require('../db/mongodb/repositories/mongo-user.repository');
+const { createMongoConnectionManager } = require('../database/mongodb/mongo-connection-manager');
+const {
+  createMongoUserRepository,
+} = require('../database/mongodb/repositories/mongo-user.repository');
 
 // Services
 const {
@@ -51,7 +53,9 @@ const {
 // App
 const { createApp } = require('../http-server/request-handler/express/app');
 const { createContainerInstance } = require('./container');
-const { createMongoJobsRepository } = require('../db/mongodb/repositories/mongo-jobs.repository');
+const {
+  createMongoJobsRepository,
+} = require('../database/mongodb/repositories/mongo-jobs.repository');
 
 /**
  * Build and wire the full application container.
