@@ -1,8 +1,8 @@
 const { describe, beforeEach, it, expect } = require('@jest/globals');
 const {
   createHealthController,
-} = require('../../http-server/request-handler/express/rest/controllers');
-const { HttpStatusCodes } = require('../../constants');
+} = require('../../../../../../../http-server/request-handler/express/rest/controllers');
+const { HttpStatusCodes } = require('../../../../../../../constants');
 
 // Mock health service factory
 const createMockHealthService = () => ({

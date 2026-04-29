@@ -1,12 +1,12 @@
 const { describe, beforeEach, it, expect } = require('@jest/globals');
-const { createConfigService } = require('../../config/config.service');
+const { createConfigService } = require('../../../config/config.service');
 
 // Mock the validation utility
-jest.mock('../../config/config-validation', () => ({
+jest.mock('../../../config/config-validation', () => ({
   loadAndValidate: jest.fn(),
 }));
 
-const { loadAndValidate } = require('../../config/config-validation');
+const { loadAndValidate } = require('../../../config/config-validation');
 
 describe('Config Service', () => {
   let configService;

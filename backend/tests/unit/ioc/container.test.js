@@ -1,5 +1,5 @@
 const { describe, beforeEach, it, expect } = require('@jest/globals');
-const { createContainerInstance } = require('../../ioc/container');
+const { createContainerInstance } = require('../../../ioc/container');
 
 describe('createContainerInstance', () => {
   let container;

@@ -1,8 +1,8 @@
 const { describe, beforeEach, afterEach, it, expect } = require('@jest/globals');
 const {
   createAuthController,
-} = require('../../http-server/request-handler/express/rest/controllers');
-const { HttpStatusCodes } = require('../../constants');
+} = require('../../../../../../../http-server/request-handler/express/rest/controllers');
+const { HttpStatusCodes } = require('../../../../../../../constants');
 
 // Mock dependencies before importing
 // jest.mock('../../utils/attach-cookie.js');
