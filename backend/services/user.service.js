@@ -1,5 +1,5 @@
 const { BadRequestError } = require('../errors');
-const { formatUserResponse } = require('./formatters');
+const { crateUserDTO } = require('../dtos/user.dto');
 
 /**
  * Factory function to create user service with injected dependencies
@@ -30,7 +30,7 @@ const createUserService = ({ userRepository }) => {
 
     const user = await userRepository.updateById(userId, data);
 
-    return formatUserResponse(user);
+    return crateUserDTO(user);
   };
 
   /**
@@ -40,13 +40,12 @@ const createUserService = ({ userRepository }) => {
    */
   const getUserById = async (userId) => {
     const user = await userRepository.findById(userId);
-    return formatUserResponse(user);
+    return crateUserDTO(user);
   };
 
   return {
     updateUserProfile,
     getUserById,
-    formatUserResponse,
   };
 };
 

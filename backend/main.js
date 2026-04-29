@@ -2,12 +2,11 @@
  * Application Bootstrap - Composition Root Orchestrator
  */
 
-const config = require('./config');
+const { rawConfig, createConfigService } = require('./config');
 const { createContainerRegistry } = require('./ioc/registry');
-const { createHttpServer } = require('./server');
+const { createHttpServer } = require('./http-server/server');
 const { ConfigSchema } = require('./schemas');
-const { createConfigService } = require('./services');
-const { createLoggerService } = require('./utils');
+const { createLoggerService } = require('./logger/winston/logger');
 
 const FORCE_EXIT_TIMEOUT = 10_000;
 
@@ -65,7 +64,7 @@ const bootstrap = async () => {
   try {
     // 1. Create configuration service
     const configService = createConfigService();
-    configService.loadConfig(ConfigSchema, config);
+    configService.loadConfig(ConfigSchema, rawConfig);
 
     // 2. Create logger service
     loggerService = createLoggerService({ configService });

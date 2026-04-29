@@ -20,7 +20,7 @@ const {
   REQUEST_SIZE_LIMIT_REGEX_ERROR,
 } = require('../constants');
 
-const { calculateShannonEntropy } = require('../utils/config-validation');
+const { calculateShannonEntropy } = require('../config/config-validation');
 
 /**
  * JWT Secret validation based on JWT BCP recommendations

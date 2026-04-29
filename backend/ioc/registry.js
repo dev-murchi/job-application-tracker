@@ -13,8 +13,10 @@
  * all wiring lives here.
  */
 
-const { createMongoConnectionManager } = require('../db/mongodb/mongo-connection-manager');
-const { createMongoUserRepository } = require('../db/mongodb/repositories/mongo-user.repository');
+const { createMongoConnectionManager } = require('../database/mongodb/mongo-connection-manager');
+const {
+  createMongoUserRepository,
+} = require('../database/mongodb/repositories/mongo-user.repository');
 
 // Services
 const {
@@ -22,9 +24,10 @@ const {
   createJobService,
   createUserService,
   createHealthService,
-  createJwtService,
-  createHasherService,
 } = require('../services');
+
+const { createBcryptCryptoService } = require('../crypto/bcrypt-crypto.service');
+const { createJwtService } = require('../security/jwt.service');
 
 // Controllers
 const {
@@ -32,21 +35,27 @@ const {
   createJobsController,
   createUserController,
   createHealthController,
-} = require('../controllers');
+} = require('../http-server/request-handler/express/rest/controllers');
 
 // Middleware
-const { createAuthenticationMiddleware } = require('../middleware/auth');
+const {
+  createAuthenticationMiddleware,
+} = require('../http-server/request-handler/express/rest/middlewares/auth');
 
 // Routes
-const { createAuthRouter } = require('../routes/auth');
-const { createJobsRouter } = require('../routes/jobs');
-const { createUserRouter } = require('../routes/user');
-const { createHealthRouter } = require('../routes/health');
+const { createAuthRouter } = require('../http-server/request-handler/express/rest/routers/auth');
+const { createJobsRouter } = require('../http-server/request-handler/express/rest/routers/jobs');
+const { createUserRouter } = require('../http-server/request-handler/express/rest/routers/user');
+const {
+  createHealthRouter,
+} = require('../http-server/request-handler/express/rest/routers/health');
 
 // App
-const { createApp } = require('../app');
+const { createApp } = require('../http-server/request-handler/express/app');
 const { createContainerInstance } = require('./container');
-const { createMongoJobsRepository } = require('../db/mongodb/repositories/mongo-jobs.repository');
+const {
+  createMongoJobsRepository,
+} = require('../database/mongodb/repositories/mongo-jobs.repository');
 
 /**
  * Build and wire the full application container.
@@ -89,8 +98,8 @@ const createContainerRegistry = ({ configService, loggerService }) => {
 
   container.register('jobRepository', jobRepository);
 
-  const hasherService = createHasherService();
-  container.register('hasherService', hasherService);
+  const cryptoService = createBcryptCryptoService();
+  container.register('cryptoService', cryptoService);
 
   // JWT
   const jwtService = createJwtService({ configService: container.resolve('configService') });
@@ -101,7 +110,7 @@ const createContainerRegistry = ({ configService, loggerService }) => {
   // ============================================
   container.register(
     'authService',
-    createAuthService({ userRepository, jwtService, hasherService }),
+    createAuthService({ userRepository, jwtService, cryptoService }),
   );
   container.register('jobService', createJobService({ jobRepository }));
   container.register('userService', createUserService({ userRepository }));

@@ -52,25 +52,21 @@ RUN rm -rf /usr/local/lib/node_modules/npm \
 COPY --from=dependencies --chown=appuser:appgroup /tmp/prod_node_modules ./node_modules
 
 # Flat source files — combined into one layer
-COPY --chown=appuser:appgroup \
-    ./package.json \
-    ./app.js \
-    ./main.js \
-    ./server.js \
-    ./
+COPY --chown=appuser:appgroup ./package.json ./main.js ./
 
 # Application directories — explicit per directory for controlled inclusion
 COPY --chown=appuser:appgroup ./config/      ./config/
 COPY --chown=appuser:appgroup ./constants/   ./constants/
-COPY --chown=appuser:appgroup ./controllers/ ./controllers/
-COPY --chown=appuser:appgroup ./db/          ./db/
+COPY --chown=appuser:appgroup ./crypto/      ./crypto/
+COPY --chown=appuser:appgroup ./database/    ./database/
+COPY --chown=appuser:appgroup ./dtos/        ./dtos/
 COPY --chown=appuser:appgroup ./errors/      ./errors/
+COPY --chown=appuser:appgroup ./http-server/  ./http-server/
 COPY --chown=appuser:appgroup ./ioc/         ./ioc/
-COPY --chown=appuser:appgroup ./middleware/  ./middleware/
-COPY --chown=appuser:appgroup ./routes/      ./routes/
+COPY --chown=appuser:appgroup ./logger/      ./logger/
 COPY --chown=appuser:appgroup ./schemas/     ./schemas/
+COPY --chown=appuser:appgroup ./security/    ./security/
 COPY --chown=appuser:appgroup ./services/    ./services/
-COPY --chown=appuser:appgroup ./utils/       ./utils/
 
 
 # Switch to the non-root user for runtime security

@@ -1,9 +1,9 @@
-const config = require('./config');
+const { rawConfig } = require('./config');
 const fs = require('fs/promises');
 const { createUserSchema, createJobSchema } = require('./models');
-const { createMongoConnectionManager } = require('./db/mongodb/mongo-connection-manager');
+const { createMongoConnectionManager } = require('./database/mongodb/mongo-connection-manager');
 
-const configService = { get: (key) => config[key] };
+const configService = { get: (key) => rawConfig[key] };
 
 const loggerService = {
   info: (msg, meta) => console.log('[info]', msg, meta ?? ''),
@@ -21,7 +21,7 @@ const populateJobs = async () => {
 
   const connection = dbConnectionManager.getDriverInstance();
 
-  await dbConnectionManager.connect(config.mongoUrl);
+  await dbConnectionManager.connect(rawConfig.mongoUrl);
 
   const User = connection.model('User', createUserSchema({ configService }));
   const Job = connection.model('Job', createJobSchema({ configService }));
