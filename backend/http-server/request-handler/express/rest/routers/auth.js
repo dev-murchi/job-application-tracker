@@ -12,7 +12,7 @@ const { createAuthController } = require('../controllers/auth');
  */
 const createAuthRouter = ({ authService, configService }) => {
   const router = express.Router();
-  const authController = createAuthController({ authService });
+  const authController = createAuthController({ authService, configService });
 
   if (configService.get('isProduction')) {
     const { authRouteRateLimit } = createRateLimiters({ configService });
