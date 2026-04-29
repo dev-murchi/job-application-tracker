@@ -2,7 +2,8 @@ const { HttpStatusCodes } = require('../../../../../constants');
 
 /**
  * Factory function to create health controller with injected dependencies
- * @param {Object} healthService - Health service for health checks
+ * @param {Object} dependencies - Dependency object
+ * @param {Object} dependencies.healthService - Health service for health checks
  * @returns {Object} Health controller methods
  */
 const createHealthController = ({ healthService }) => {

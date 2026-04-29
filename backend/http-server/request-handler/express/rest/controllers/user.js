@@ -3,7 +3,8 @@ const { crateUserDTO } = require('../../../../../dtos/user.dto');
 
 /**
  * Factory function to create user controller with injected dependencies
- * @param {Object} userService - User service instance
+ * @param {Object} dependencies - Dependency object
+ * @param {Object} dependencies.userService - User service instance
  * @returns {Object} User controller methods
  */
 const createUserController = ({ userService }) => {

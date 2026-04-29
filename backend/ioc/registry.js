@@ -29,14 +29,6 @@ const {
 const { createBcryptCryptoService } = require('../crypto/bcrypt-crypto.service');
 const { createJwtService } = require('../security/jwt.service');
 
-// Controllers
-const {
-  createAuthController,
-  createJobsController,
-  createUserController,
-  createHealthController,
-} = require('../http-server/request-handler/express/rest/controllers');
-
 // Middleware
 const {
   createAuthenticationMiddleware,
@@ -117,49 +109,26 @@ const createContainerRegistry = ({ configService, loggerService }) => {
   container.register('healthService', createHealthService({ dbConnectionManager, configService }));
 
   // ============================================
-  // PRESENTATION LAYER (Controllers)
-  // ============================================
-  container.register(
-    'authController',
-    createAuthController({
-      authService: container.resolve('authService'),
-      configService: container.resolve('configService'),
-    }),
-  );
-  container.register(
-    'jobsController',
-    createJobsController({ jobService: container.resolve('jobService') }),
-  );
-  container.register(
-    'userController',
-    createUserController({ userService: container.resolve('userService') }),
-  );
-  container.register(
-    'healthController',
-    createHealthController({ healthService: container.resolve('healthService') }),
-  );
-
-  // ============================================
   // ROUTING LAYER
   // ============================================
   container.register(
     'authRouter',
     createAuthRouter({
-      authController: container.resolve('authController'),
+      authService: container.resolve('authService'),
       configService: container.resolve('configService'),
     }),
   );
   container.register(
     'jobsRouter',
-    createJobsRouter({ jobsController: container.resolve('jobsController') }),
+    createJobsRouter({ jobService: container.resolve('jobService') }),
   );
   container.register(
     'userRouter',
-    createUserRouter({ userController: container.resolve('userController') }),
+    createUserRouter({ userService: container.resolve('userService') }),
   );
   container.register(
     'healthRouter',
-    createHealthRouter({ healthController: container.resolve('healthController') }),
+    createHealthRouter({ healthService: container.resolve('healthService') }),
   );
 
   // ============================================

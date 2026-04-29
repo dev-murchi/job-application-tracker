@@ -7,15 +7,17 @@ const {
 } = require('../../../../../schemas');
 const { validateQuery, validateBody, validateParams } = require('../middlewares');
 const { z } = require('zod');
+const { createJobsController } = require('../controllers/jobs');
 
 /**
  * Factory function to create jobs router with injected dependencies
  * @param {Object} dependencies - Jobs Router dependencies
- * @param {Object} dependencies.jobsController - Jobs controller
+ * @param {Object} dependencies.jobService - Jobs service
  * @returns {express.Router} Configured Express router
  */
-const createJobsRouter = ({ jobsController }) => {
+const createJobsRouter = ({ jobService }) => {
   const router = express.Router();
+  const jobsController = createJobsController({ jobService });
 
   router
     .route('/')
