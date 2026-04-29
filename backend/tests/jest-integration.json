@@ -14,8 +14,7 @@
     "!http-server/request-handler/express/rest/middlewares/index.js",
     "http-server/request-handler/express/rest/routers/**/*.js",
     "!http-server/request-handler/express/rest/routers/index.js",
-    "utils/**/*.js",
-    "!logger/logger.js",
+    "!logger/winston/logger.js",
     "!**/node_modules/**",
     "!**/tests/**",
     "!**/coverage/**"

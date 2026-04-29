@@ -9,7 +9,7 @@ jest.mock('bcryptjs', () => ({
 
 const bcrypt = require('bcryptjs');
 const { BCRYPT_SALT_ROUNDS } = require('../../constants');
-const { createHasherService } = require('../../crypto/hasher.service');
+const { createBcryptCryptoService } = require('../../crypto/bcrypt-crypto.service');
 
 describe('hasher service', () => {
   beforeEach(() => {
@@ -17,7 +17,7 @@ describe('hasher service', () => {
   });
 
   it('exposes hash and compare functions', () => {
-    const hasher = createHasherService();
+    const hasher = createBcryptCryptoService();
     expect(typeof hasher.hash).toBe('function');
     expect(typeof hasher.compare).toBe('function');
   });
@@ -26,7 +26,7 @@ describe('hasher service', () => {
     bcrypt.genSalt.mockResolvedValue('salt-123');
     bcrypt.hash.mockResolvedValue('hashed-xyz');
 
-    const hasher = createHasherService();
+    const hasher = createBcryptCryptoService();
     const result = await hasher.hash('plain-password');
 
     expect(bcrypt.genSalt).toHaveBeenCalledWith(BCRYPT_SALT_ROUNDS);
@@ -37,7 +37,7 @@ describe('hasher service', () => {
   it('compare returns boolean result from bcrypt.compare', async () => {
     bcrypt.compare.mockResolvedValueOnce(true).mockResolvedValueOnce(false);
 
-    const hasher = createHasherService();
+    const hasher = createBcryptCryptoService();
     const match = await hasher.compare('plain', 'hashed');
     expect(bcrypt.compare).toHaveBeenCalledWith('plain', 'hashed');
     expect(match).toBe(true);
@@ -50,7 +50,7 @@ describe('hasher service', () => {
     const err = new Error('gen failure');
     bcrypt.genSalt.mockRejectedValue(err);
 
-    const hasher = createHasherService();
+    const hasher = createBcryptCryptoService();
     await expect(hasher.hash('p')).rejects.toThrow(err);
   });
 
@@ -58,14 +58,14 @@ describe('hasher service', () => {
     bcrypt.genSalt.mockResolvedValue('salt');
     bcrypt.hash.mockRejectedValue(new Error('hash failure'));
 
-    const hasher = createHasherService();
+    const hasher = createBcryptCryptoService();
     await expect(hasher.hash('p')).rejects.toThrow('hash failure');
   });
 
   it('propagates errors from bcrypt.compare', async () => {
     bcrypt.compare.mockRejectedValue(new Error('compare failure'));
 
-    const hasher = createHasherService();
+    const hasher = createBcryptCryptoService();
     await expect(hasher.compare('a', 'b')).rejects.toThrow('compare failure');
   });
 });

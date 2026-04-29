@@ -26,7 +26,7 @@ const {
   createHealthService,
 } = require('../services');
 
-const { createHasherService } = require('../crypto/hasher.service');
+const { createBcryptCryptoService } = require('../crypto/bcrypt-crypto.service');
 const { createJwtService } = require('../security/jwt.service');
 
 // Controllers
@@ -98,8 +98,8 @@ const createContainerRegistry = ({ configService, loggerService }) => {
 
   container.register('jobRepository', jobRepository);
 
-  const hasherService = createHasherService();
-  container.register('hasherService', hasherService);
+  const cryptoService = createBcryptCryptoService();
+  container.register('cryptoService', cryptoService);
 
   // JWT
   const jwtService = createJwtService({ configService: container.resolve('configService') });
@@ -110,7 +110,7 @@ const createContainerRegistry = ({ configService, loggerService }) => {
   // ============================================
   container.register(
     'authService',
-    createAuthService({ userRepository, jwtService, hasherService }),
+    createAuthService({ userRepository, jwtService, cryptoService }),
   );
   container.register('jobService', createJobService({ jobRepository }));
   container.register('userService', createUserService({ userRepository }));

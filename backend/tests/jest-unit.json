@@ -15,7 +15,7 @@
     "!http-server/request-handler/express/rest/middlewares/validator.js",
     "!http-server/request-handler/express/rest/middlewares/index.js",
     "utils/**/*.js",
-    "!logger/logger.js",
+    "!logger/winston/logger.js",
     "!config/config-validation.js",
     "!**/node_modules/**",
     "!**/tests/**",

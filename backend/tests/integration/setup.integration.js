@@ -75,7 +75,7 @@ const clearDatabase = async (container) => {
 
 const seedTestUser = async (container, userData = {}) => {
   const userRepository = container.resolve('userRepository');
-  const hasherService = container.resolve('hasherService');
+  const cryptoService = container.resolve('cryptoService');
 
   const defaultUserData = {
     name: 'Test',
@@ -86,7 +86,7 @@ const seedTestUser = async (container, userData = {}) => {
     ...userData,
   };
 
-  defaultUserData.password = await hasherService.hash(defaultUserData.password);
+  defaultUserData.password = await cryptoService.hash(defaultUserData.password);
 
   const user = await userRepository.create(defaultUserData);
   return user;

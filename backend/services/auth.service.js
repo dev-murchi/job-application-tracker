@@ -6,10 +6,10 @@ const { crateUserDTO } = require('../dtos/user.dto');
  * @param {Object} dependencies - Dependency object
  * @param {Object} dependencies.userRepository - User database repository
  * @param {Object} dependencies.jwtService - JWT service for token operations
- * @param {Object} dependencies.hasherService - Hash service
+ * @param {Object} dependencies.cryptoService - Hash service
  * @returns {Object} Auth service methods
  */
-const createAuthService = ({ userRepository, jwtService, hasherService }) => {
+const createAuthService = ({ userRepository, jwtService, cryptoService }) => {
   /**
    * Register a new user
    * @param {Object} userData - User registration data
@@ -25,7 +25,7 @@ const createAuthService = ({ userRepository, jwtService, hasherService }) => {
       throw new BadRequestError('Email already in use');
     }
 
-    const hashedPassword = await hasherService.hash(password);
+    const hashedPassword = await cryptoService.hash(password);
 
     const user = await userRepository.create({
       name,
@@ -53,7 +53,7 @@ const createAuthService = ({ userRepository, jwtService, hasherService }) => {
       throw new UnauthenticatedError('Invalid Credentials');
     }
 
-    const isPasswordCorrect = await hasherService.compare(password, user.password);
+    const isPasswordCorrect = await cryptoService.compare(password, user.password);
 
     if (!isPasswordCorrect) {
       throw new UnauthenticatedError('Invalid Credentials');

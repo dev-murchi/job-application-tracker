@@ -1,7 +1,7 @@
 const bcrypt = require('bcryptjs');
 const { BCRYPT_SALT_ROUNDS } = require('../constants');
 
-const createHasherService = () => {
+const createBcryptCryptoService = () => {
   return {
     hash: async (plainText) => {
       const salt = await bcrypt.genSalt(BCRYPT_SALT_ROUNDS);
@@ -14,4 +14,4 @@ const createHasherService = () => {
   };
 };
 
-module.exports = { createHasherService };
+module.exports = { createBcryptCryptoService };
