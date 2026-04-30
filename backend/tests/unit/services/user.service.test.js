@@ -1,7 +1,7 @@
 const { describe, beforeEach, it, expect } = require('@jest/globals');
-const { BadRequestError } = require('../../../errors');
+const { BadRequestError } = require('../../../shared/errors');
 
-const { createUserService } = require('../../../services/user.service');
+const { createUserService } = require('../../../application/services/user.service');
 
 // Create mock userRepository
 const createMockUserRepository = () => ({

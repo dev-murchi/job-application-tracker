@@ -4,9 +4,9 @@
 
 const { rawConfig, createConfigService } = require('./config');
 const { createContainerRegistry } = require('./ioc/registry');
-const { createHttpServer } = require('./http-server/server');
-const { ConfigSchema } = require('./schemas');
-const { createLoggerService } = require('./logger/winston/logger');
+const { createHttpServer } = require('./presentations/http-server/server');
+const { ConfigSchema } = require('./shared/schemas');
+const { createLoggerService } = require('./infrastructure/logger/winston/logger');
 
 const FORCE_EXIT_TIMEOUT = 10_000;
 

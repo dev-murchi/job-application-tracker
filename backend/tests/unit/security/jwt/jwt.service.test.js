@@ -1,6 +1,6 @@
 const { describe, beforeEach, it, expect } = require('@jest/globals');
 const jwt = require('jsonwebtoken');
-const { createJwtService } = require('../../../../security/jwt.service');
+const { createJwtService } = require('../../../../infrastructure/security/jwt.service');
 
 jest.mock('jsonwebtoken');
 

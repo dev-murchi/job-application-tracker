@@ -2,7 +2,7 @@ const { describe, beforeEach, afterEach, it, expect } = require('@jest/globals')
 
 const {
   attachCookie,
-} = require('../../../../../../../http-server/request-handler/express/rest/helpers/attach-cookie');
+} = require('../../../../../../../presentations/http-server/request-handler/express/rest/helpers/attach-cookie');
 
 describe('attachCookie', () => {
   let mockRes;

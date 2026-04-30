@@ -6,7 +6,7 @@ const {
   JobUpdateSchema,
   MongooseObjectIdSchema,
   UserUpdateSchema,
-} = require('../../../schemas');
+} = require('../../../shared/schemas');
 
 describe('Validation Schema Utils', () => {
   describe('UserRegisterSchema', () => {

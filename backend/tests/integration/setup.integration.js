@@ -1,7 +1,7 @@
 const { createContainerRegistry } = require('../../ioc/registry');
 const { rawConfig, createConfigService } = require('../../config');
 const { randomUUID } = require('crypto');
-const { ConfigSchema } = require('../../schemas');
+const { ConfigSchema } = require('../../shared/schemas');
 
 /**
  * Create a silent logger service for integration tests

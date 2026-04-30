@@ -13,10 +13,12 @@
  * all wiring lives here.
  */
 
-const { createMongoConnectionManager } = require('../database/mongodb/mongo-connection-manager');
+const {
+  createMongoConnectionManager,
+} = require('../infrastructure/database/mongodb/mongo-connection-manager');
 const {
   createMongoUserRepository,
-} = require('../database/mongodb/repositories/mongo-user.repository');
+} = require('../infrastructure/database/mongodb/repositories/mongo-user.repository');
 
 // Services
 const {
@@ -24,30 +26,36 @@ const {
   createJobService,
   createUserService,
   createHealthService,
-} = require('../services');
+} = require('../application/services');
 
-const { createBcryptCryptoService } = require('../crypto/bcrypt-crypto.service');
-const { createJwtService } = require('../security/jwt.service');
+const { createBcryptCryptoService } = require('../infrastructure/crypto/bcrypt-crypto.service');
+const { createJwtService } = require('../infrastructure/security/jwt.service');
 
 // Middleware
 const {
   createAuthenticationMiddleware,
-} = require('../http-server/request-handler/express/rest/middlewares/auth');
+} = require('../presentations/http-server/request-handler/express/rest/middlewares/auth');
 
 // Routes
-const { createAuthRouter } = require('../http-server/request-handler/express/rest/routers/auth');
-const { createJobsRouter } = require('../http-server/request-handler/express/rest/routers/jobs');
-const { createUserRouter } = require('../http-server/request-handler/express/rest/routers/user');
+const {
+  createAuthRouter,
+} = require('../presentations/http-server/request-handler/express/rest/routers/auth');
+const {
+  createJobsRouter,
+} = require('../presentations/http-server/request-handler/express/rest/routers/jobs');
+const {
+  createUserRouter,
+} = require('../presentations/http-server/request-handler/express/rest/routers/user');
 const {
   createHealthRouter,
-} = require('../http-server/request-handler/express/rest/routers/health');
+} = require('../presentations/http-server/request-handler/express/rest/routers/health');
 
 // App
-const { createApp } = require('../http-server/request-handler/express/app');
+const { createApp } = require('../presentations/http-server/request-handler/express/app');
 const { createContainerInstance } = require('./container');
 const {
   createMongoJobsRepository,
-} = require('../database/mongodb/repositories/mongo-jobs.repository');
+} = require('../infrastructure/database/mongodb/repositories/mongo-jobs.repository');
 
 /**
  * Build and wire the full application container.

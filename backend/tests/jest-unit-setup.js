@@ -3,7 +3,7 @@
 process.env.NODE_ENV = 'test';
 
 // Mock the logger to prevent file writes during tests
-jest.mock('../logger/winston/logger', () => ({
+jest.mock('../infrastructure/logger/winston/logger', () => ({
   info: jest.fn(),
   warn: jest.fn(),
   error: jest.fn(),

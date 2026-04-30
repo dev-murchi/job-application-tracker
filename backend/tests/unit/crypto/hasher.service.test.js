@@ -8,8 +8,10 @@ jest.mock('bcryptjs', () => ({
 }));
 
 const bcrypt = require('bcryptjs');
-const { BCRYPT_SALT_ROUNDS } = require('../../../constants');
-const { createBcryptCryptoService } = require('../../../crypto/bcrypt-crypto.service');
+const { BCRYPT_SALT_ROUNDS } = require('../../../shared/constants');
+const {
+  createBcryptCryptoService,
+} = require('../../../infrastructure/crypto/bcrypt-crypto.service');
 
 describe('hasher service', () => {
   beforeEach(() => {
