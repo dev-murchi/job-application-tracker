@@ -43,7 +43,9 @@ const createApp = ({ routes = [], loggerService, configService }) => {
 
   // Middleware setup
 
-  app.set('trust proxy', 1);
+  // 2 proxy hops: host-level nginx (Let's Encrypt) -> frontend nginx container (mTLS) -> here
+  app.set('trust proxy', 2);
+
   // Apply rate limiting in production
   if (isProduction) {
     app.use(appLevelRateLimit);
