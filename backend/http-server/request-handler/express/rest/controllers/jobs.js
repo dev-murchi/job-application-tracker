@@ -2,7 +2,8 @@ const { HttpStatusCodes } = require('../../../../../constants');
 
 /**
  * Factory function to create jobs controller with injected dependencies
- * @param {Object} jobService - Job service instance
+ * @param {Object} dependencies - Dependency object
+ * @param {Object} dependencies.jobService - Job service instance
  * @returns {Object} Jobs controller methods
  */
 const createJobsController = ({ jobService }) => {
