@@ -1,7 +1,24 @@
 const { createContainerRegistry } = require('../../ioc/registry');
-const { rawConfig, createConfigService } = require('../../config');
+const {
+  createEnvironmentConfigSource,
+  createConfigService,
+} = require('../../adapters/infrastructure/config');
 const { randomUUID } = require('crypto');
-const { ConfigSchema } = require('../../schemas');
+const { ConfigSchema } = require('../../shared/schemas');
+const {
+  USER_REPOSITORY_PORT,
+  JOB_REPOSITORY_PORT,
+  TOKEN_SERVICE_PORT,
+  AUTH_SERVICE_PORT,
+  JOB_SERVICE_PORT,
+  USER_SERVICE_PORT,
+  CRYPTO_SERVICE_PORT,
+  DB_CONNECTION_MANAGER_PORT,
+  EXPRESS_APP,
+  CONFIG_SERVICE_PORT,
+} = require('../../ioc/di-tokens');
+
+const rawConfig = createEnvironmentConfigSource().read();
 
 /**
  * Create a silent logger service for integration tests
@@ -17,55 +34,109 @@ const createTestLoggerService = () => ({
   stream: { write: () => {} },
 });
 
+const MONGO_TEST_URL_ENV = 'MONGO_TEST_URL';
+const MONGO_URL_ENV = 'MONGO_URL';
+const DEFAULT_AUTH_SOURCE = 'admin';
+
+const resolveMongoBaseUrl = () => {
+  const dbUrl = process.env[MONGO_TEST_URL_ENV] || rawConfig.mongoUrl;
+
+  if (typeof dbUrl !== 'string' || dbUrl.trim().length === 0) {
+    throw new Error(
+      `Missing MongoDB URL for integration tests. Set '${MONGO_TEST_URL_ENV}' (preferred) or '${MONGO_URL_ENV}' in the test environment.`,
+    );
+  }
+
+  return dbUrl.trim();
+};
+
+const buildIsolatedTestDbUrl = (baseUrl, testDbName) => {
+  let parsedUrl;
+
+  try {
+    parsedUrl = new URL(baseUrl);
+  } catch (error) {
+    throw new Error(
+      `Invalid MongoDB URL '${baseUrl}' for integration tests. Provide a valid '${MONGO_TEST_URL_ENV}' or '${MONGO_URL_ENV}'.`,
+      { cause: error },
+    );
+  }
+
+  if (parsedUrl.protocol !== 'mongodb:' && parsedUrl.protocol !== 'mongodb+srv:') {
+    throw new Error(
+      `Unsupported MongoDB protocol '${parsedUrl.protocol}'. Expected 'mongodb:' or 'mongodb+srv:'.`,
+    );
+  }
+
+  parsedUrl.pathname = `/${testDbName}`;
+
+  if (!parsedUrl.searchParams.has('authSource')) {
+    parsedUrl.searchParams.set('authSource', DEFAULT_AUTH_SOURCE);
+  }
+
+  return parsedUrl.toString();
+};
+
 const createTestConnection = async (testSuite) => {
   const workerId = process.env.JEST_WORKER_ID ?? '1';
   const testDbName = `test_db_${testSuite}_${workerId}_${randomUUID().replace(/-/g, '')}`;
-  const dbUrl = process.env.MONGO_TEST_URL || rawConfig.mongoUrl;
-  const index = dbUrl.lastIndexOf('/');
-  const url = dbUrl.slice(0, index);
-  const authSource = dbUrl.slice(index).split('?authSource=')[1] ?? 'admin';
+  const baseDbUrl = resolveMongoBaseUrl();
+  const testDbUrl = buildIsolatedTestDbUrl(baseDbUrl, testDbName);
 
-  const testDbUrl = `${url}/${testDbName}?authSource=${authSource}`;
+  try {
+    // Create a test logger service for the container
+    const loggerService = createTestLoggerService();
 
-  // Create a test logger service for the container
-  const loggerService = createTestLoggerService();
+    const configService = createConfigService();
 
-  const configService = createConfigService();
+    const mergedConfig = { ...rawConfig, mongoUrl: testDbUrl };
+    configService.loadConfig(ConfigSchema, mergedConfig);
 
-  const mergedConfig = { ...rawConfig, mongoUrl: testDbUrl };
-  configService.loadConfig(ConfigSchema, mergedConfig);
+    // Create container with isolated test database
+    const container = await createContainerRegistry({ configService, loggerService });
 
-  // Create container with isolated test database
-  const container = await createContainerRegistry({ configService, loggerService });
+    // Connect to database
+    const dbConnectionManager = container.resolve(DB_CONNECTION_MANAGER_PORT);
+    await dbConnectionManager.connect(testDbUrl);
 
-  // Connect to database
-  const dbConnectionManager = container.resolve('dbConnectionManager');
-  await dbConnectionManager.connect(testDbUrl);
+    const connection = dbConnectionManager.getDriverInstance();
+    // Return a wrapper object with direct access to commonly used dependencies
+    return {
+      // Container methods
+      resolve: (name) => container.resolve(name),
+      dispose: () => container.dispose(),
 
-  const connection = dbConnectionManager.getDriverInstance();
-  // Return a wrapper object with direct access to commonly used dependencies
-  return {
-    // Container methods
-    resolve: (name) => container.resolve(name),
-    dispose: () => container.dispose(),
-
-    // Direct access to commonly used dependencies for convenience
-    connection: connection,
-    dbConnectionManager: dbConnectionManager,
-    userRepository: container.resolve('userRepository'),
-    jobRepository: container.resolve('jobRepository'),
-    app: container.resolve('app'),
-    jwtService: container.resolve('jwtService'),
-    authService: container.resolve('authService'),
-    jobService: container.resolve('jobService'),
-    userService: container.resolve('userService'),
-    configService: container.resolve('configService'),
-  };
+      // Direct access to commonly used dependencies for convenience
+      connection: connection,
+      dbConnectionManager: dbConnectionManager,
+      userRepository: container.resolve(USER_REPOSITORY_PORT),
+      jobRepository: container.resolve(JOB_REPOSITORY_PORT),
+      app: container.resolve(EXPRESS_APP),
+      jwtService: container.resolve(TOKEN_SERVICE_PORT),
+      authService: container.resolve(AUTH_SERVICE_PORT),
+      jobService: container.resolve(JOB_SERVICE_PORT),
+      userService: container.resolve(USER_SERVICE_PORT),
+      configService: container.resolve(CONFIG_SERVICE_PORT),
+    };
+  } catch (error) {
+    throw new Error(`Failed to initialize integration test connection for suite '${testSuite}'.`, {
+      cause: error,
+    });
+  }
 };
 
 const closeTestConnection = async (container) => {
-  await container.connection.dropDatabase();
-  await container.dispose();
+  if (!container) {
+    return;
+  }
+
+  if (container.connection && typeof container.connection.dropDatabase === 'function') {
+    await container.connection.dropDatabase();
+  }
+
+  if (typeof container.dispose === 'function') {
+    await container.dispose();
+  }
 };
 
 const clearDatabase = async (container) => {
@@ -74,8 +145,8 @@ const clearDatabase = async (container) => {
 };
 
 const seedTestUser = async (container, userData = {}) => {
-  const userRepository = container.resolve('userRepository');
-  const cryptoService = container.resolve('cryptoService');
+  const userRepository = container.resolve(USER_REPOSITORY_PORT);
+  const cryptoService = container.resolve(CRYPTO_SERVICE_PORT);
 
   const defaultUserData = {
     name: 'Test',
@@ -93,7 +164,7 @@ const seedTestUser = async (container, userData = {}) => {
 };
 
 const seedTestJobs = async (container, userId, count = 5) => {
-  const jobRepository = container.resolve('jobRepository');
+  const jobRepository = container.resolve(JOB_REPOSITORY_PORT);
 
   const jobs = Array.from({ length: count }, (_, i) => ({
     company: `Test Company ${i + 1}`,
@@ -110,7 +181,7 @@ const seedTestJobs = async (container, userId, count = 5) => {
 };
 
 const createTestJob = async (container, userId, jobData = {}) => {
-  const jobRepository = container.resolve('jobRepository');
+  const jobRepository = container.resolve(JOB_REPOSITORY_PORT);
 
   const defaultJobData = {
     company: 'Test Company',
@@ -128,12 +199,12 @@ const createTestJob = async (container, userId, jobData = {}) => {
 };
 
 const deleteTestJob = async (container, jobId) => {
-  const jobRepository = container.resolve('jobRepository');
+  const jobRepository = container.resolve(JOB_REPOSITORY_PORT);
   await jobRepository.deleteById(jobId);
 };
 
 const deleteTestUser = async (container, userId) => {
-  const userRepository = container.resolve('userRepository');
+  const userRepository = container.resolve(USER_REPOSITORY_PORT);
   await userRepository.deleteById(userId);
 };
 
@@ -146,23 +217,23 @@ const createTestCookie = (token) => {
 };
 
 const getAllUsers = async (container) => {
-  const userRepository = container.resolve('userRepository');
+  const userRepository = container.resolve(USER_REPOSITORY_PORT);
   return await userRepository.findAllWithPassword();
 };
 
 const getUserCount = async (container) => {
-  const userRepository = container.resolve('userRepository');
+  const userRepository = container.resolve(USER_REPOSITORY_PORT);
   return await userRepository.count({});
 };
 
 const getAllJobs = async (container, userId = null) => {
-  const jobRepository = container.resolve('jobRepository');
+  const jobRepository = container.resolve(JOB_REPOSITORY_PORT);
   const query = userId ? { createdBy: userId } : {};
   return await jobRepository.find(query);
 };
 
 const getJobCount = async (container) => {
-  const jobRepository = container.resolve('jobRepository');
+  const jobRepository = container.resolve(JOB_REPOSITORY_PORT);
   return await jobRepository.count({});
 };
 

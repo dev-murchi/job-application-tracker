@@ -2,9 +2,17 @@
  * Generic DI container factory.
  *
  * API:
+ *   bindContract(token, contract)
+ *     Declare a port contract for a token before any adapter is registered.
+ *     `contract` must expose a `validate(instance)` function that throws when
+ *     the instance does not satisfy the port interface.
+ *     Ports-and-adapters enforcement: every subsequent register() call for that
+ *     token will automatically run contract.validate(instance).
+ *
  *   register(name, instance, onDisposeFn?)
  *     Eagerly store a fully-constructed dependency.
  *     Throws if the token is already registered (override prevention).
+ *     If a contract is bound for the token it is validated before storing.
  *
  *   registerFactory(name, factory, onDisposeFn?)
  *     Register a lazy factory: (resolve) => instance.
@@ -28,6 +36,7 @@
 const createContainerInstance = () => {
   const instances = new Map(); // eagerly registered instances + cached factory results
   const factories = new Map(); // lazily registered factory functions
+  const contracts = new Map(); // port contracts keyed by token (string or Symbol)
   const disposeCallbacks = [];
   const resolvingStack = []; // active resolution chain — used for cycle detection
   let disposed = false;
@@ -88,15 +97,40 @@ const createContainerInstance = () => {
 
   return {
     /**
-     * Eagerly register a fully-constructed dependency.
+     * Declare a port contract for a token.
+     * Must be called before the token is registered.
+     * All subsequent register() calls for this token will run contract.validate(instance).
      *
-     * @param {string}   name          Unique token
-     * @param {*}        instance      The resolved value
-     * @param {Function} [onDisposeFn] Optional async () => void called during dispose()
+     * @param {string|Symbol} token    The DI token that identifies the port
+     * @param {{ validate: (instance: *) => void }} contract
+     */
+    bindContract: (token, contract) => {
+      assertNotDisposed();
+      if (!contract || typeof contract.validate !== 'function') {
+        throw new Error(
+          `Contract for token '${String(token)}' must expose a validate(instance) function`,
+        );
+      }
+      if (contracts.has(token)) {
+        throw new Error(`A contract is already bound for token '${String(token)}'`);
+      }
+      contracts.set(token, contract);
+    },
+
+    /**
+     * Eagerly register a fully-constructed dependency.
+     * If a contract is bound for the token, validates the instance first.
+     *
+     * @param {string|Symbol} name    Unique token
+     * @param {*}             instance The resolved value
+     * @param {Function}      [onDisposeFn] Optional async () => void called during dispose()
      */
     register: (name, instance, onDisposeFn) => {
       assertNotDisposed();
       assertNotRegistered(name);
+      if (contracts.has(name)) {
+        contracts.get(name).validate(instance);
+      }
       assertDisposeFn(name, onDisposeFn);
       instances.set(name, instance);
       if (onDisposeFn !== undefined) {

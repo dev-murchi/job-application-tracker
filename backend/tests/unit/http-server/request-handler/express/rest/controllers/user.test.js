@@ -1,9 +1,9 @@
 const { describe, beforeEach, afterEach, it, expect } = require('@jest/globals');
 
-const { HttpStatusCodes } = require('../../../../../../../constants');
+const { HttpStatusCodes } = require('../../../../../../../shared/constants');
 const {
   createUserController,
-} = require('../../../../../../../http-server/request-handler/express/rest/controllers');
+} = require('../../../../../../../adapters/presentations/http-server/request-handler/express/rest/controllers');
 
 // Mock user service factory
 const createMockUserService = () => ({

@@ -1,12 +1,14 @@
 const { describe, beforeEach, it, expect } = require('@jest/globals');
-const { createConfigService } = require('../../../config/config.service');
+const { createConfigService } = require('../../../adapters/infrastructure/config/config.service');
 
 // Mock the validation utility
-jest.mock('../../../config/config-validation', () => ({
-  loadAndValidate: jest.fn(),
+jest.mock('../../../adapters/infrastructure/config/validators/config-schema.validator', () => ({
+  validateConfigWithSchema: jest.fn(),
 }));
 
-const { loadAndValidate } = require('../../../config/config-validation');
+const {
+  validateConfigWithSchema,
+} = require('../../../adapters/infrastructure/config/validators/config-schema.validator');
 
 describe('Config Service', () => {
   let configService;
@@ -30,11 +32,11 @@ describe('Config Service', () => {
       const mockRawConfig = { PORT: '3000' };
       const validatedConfig = { port: 3000 };
 
-      loadAndValidate.mockReturnValue(validatedConfig);
+      validateConfigWithSchema.mockReturnValue(validatedConfig);
 
       configService.loadConfig(mockSchema, mockRawConfig);
 
-      expect(loadAndValidate).toHaveBeenCalledWith(mockSchema, mockRawConfig);
+      expect(validateConfigWithSchema).toHaveBeenCalledWith(mockSchema, mockRawConfig);
       expect(configService.get('port')).toBe(3000);
     });
 
@@ -43,11 +45,11 @@ describe('Config Service', () => {
       const mockSchema = {};
 
       // First load
-      loadAndValidate.mockReturnValue({ port: 3000 });
+      validateConfigWithSchema.mockReturnValue({ port: 3000 });
       configService.loadConfig(mockSchema, {});
 
       // Second load (overwrite)
-      loadAndValidate.mockReturnValue({ port: 4000 });
+      validateConfigWithSchema.mockReturnValue({ port: 4000 });
       configService.loadConfig(mockSchema, {});
 
       expect(consoleSpy).toHaveBeenCalledWith(
@@ -65,7 +67,7 @@ describe('Config Service', () => {
     });
 
     it('should retrieve stored values', () => {
-      loadAndValidate.mockReturnValue({ apiKey: 'abc-123' });
+      validateConfigWithSchema.mockReturnValue({ apiKey: 'abc-123' });
       configService.loadConfig({}, {});
 
       expect(configService.get('apiKey')).toBe('abc-123');
@@ -77,7 +79,7 @@ describe('Config Service', () => {
       const config1 = { port: 3000 };
       const config2 = { dbUrl: 'mongodb://localhost' };
 
-      loadAndValidate.mockReturnValueOnce(config1).mockReturnValueOnce(config2);
+      validateConfigWithSchema.mockReturnValueOnce(config1).mockReturnValueOnce(config2);
 
       configService.loadConfig({}, {});
       configService.loadConfig({}, {});
@@ -91,7 +93,7 @@ describe('Config Service', () => {
     });
 
     it('should return a copy, not a reference to internal map', () => {
-      loadAndValidate.mockReturnValue({ port: 3000 });
+      validateConfigWithSchema.mockReturnValue({ port: 3000 });
       configService.loadConfig({}, {});
 
       const allConfig = configService.getAll();

@@ -1,5 +1,5 @@
 const { describe, beforeEach, it, expect } = require('@jest/globals');
-const { createHealthService } = require('../../../services/health.service');
+const { createHealthService } = require('../../../application/services/health.service');
 
 // Mock dbConnectionManager factory
 const createMockDbConnectionManager = () => ({

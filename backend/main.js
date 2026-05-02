@@ -2,13 +2,18 @@
  * Application Bootstrap - Composition Root Orchestrator
  */
 
-const { rawConfig, createConfigService } = require('./config');
+const {
+  createEnvironmentConfigSource,
+  createConfigService,
+} = require('./adapters/infrastructure/config');
 const { createContainerRegistry } = require('./ioc/registry');
-const { createHttpServer } = require('./http-server/server');
-const { ConfigSchema } = require('./schemas');
-const { createLoggerService } = require('./logger/winston/logger');
+const { createHttpServer } = require('./adapters/presentations/http-server/server');
+const { ConfigSchema } = require('./shared/schemas');
+const { GRACEFUL_SHUTDOWN_TIMEOUT_MS, REQUEST_TIMEOUT_BUFFER_MS } = require('./shared/constants');
+const { createLoggerService } = require('./adapters/infrastructure/logger/winston/logger');
+const { DB_CONNECTION_MANAGER_PORT, EXPRESS_APP } = require('./ioc/di-tokens');
 
-const FORCE_EXIT_TIMEOUT = 10_000;
+const FORCE_EXIT_TIMEOUT = GRACEFUL_SHUTDOWN_TIMEOUT_MS + REQUEST_TIMEOUT_BUFFER_MS;
 
 /**
  * Main Bootstrap Function
@@ -32,7 +37,7 @@ const bootstrap = async () => {
 
     // Force exit if shutdown hangs
     const forceExitTimeout = setTimeout(() => {
-      loggerService.error('Shutdown timed out (10s). Forcing process exit.');
+      loggerService.error(`Shutdown timed out (${FORCE_EXIT_TIMEOUT}ms). Forcing process exit.`);
       process.exit(1);
     }, FORCE_EXIT_TIMEOUT);
 
@@ -63,6 +68,7 @@ const bootstrap = async () => {
 
   try {
     // 1. Create configuration service
+    const rawConfig = createEnvironmentConfigSource().read();
     const configService = createConfigService();
     configService.loadConfig(ConfigSchema, rawConfig);
 
@@ -78,7 +84,7 @@ const bootstrap = async () => {
     });
 
     // 4. Connect to database
-    const dbConnectionManager = container.resolve('dbConnectionManager');
+    const dbConnectionManager = container.resolve(DB_CONNECTION_MANAGER_PORT);
     await dbConnectionManager.connect(configService.get('mongoUrl'));
 
     // 5. Create and start HTTP server
@@ -87,10 +93,10 @@ const bootstrap = async () => {
       loggerService,
     });
 
-    const app = container.resolve('app');
+    const expressApp = container.resolve(EXPRESS_APP);
 
     // Start listening
-    await httpServer.start(app, () => container.dispose());
+    await httpServer.start(expressApp, () => container.dispose());
 
     loggerService.info('Application bootstrap complete');
 

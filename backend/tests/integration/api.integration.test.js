@@ -50,29 +50,55 @@ describe('API Integration Tests', () => {
   });
 
   describe('CORS Middleware', () => {
+    const getRequestOrigin = () => {
+      const configuredCorsOrigin = container.configService.get('corsOrigin');
+
+      if (Array.isArray(configuredCorsOrigin)) {
+        return configuredCorsOrigin[0];
+      }
+
+      if (configuredCorsOrigin === '*') {
+        return 'http://localhost:3000';
+      }
+
+      return configuredCorsOrigin;
+    };
+
     it('should include CORS headers in response', async () => {
-      const response = await request(app)
-        .get('/')
-        .set('Origin', 'http://localhost:3000')
-        .expect(200);
+      const requestOrigin = getRequestOrigin();
+      const configuredCorsOrigin = container.configService.get('corsOrigin');
+      const response = await request(app).get('/').set('Origin', requestOrigin).expect(200);
 
       expect(response.headers['access-control-allow-origin']).toBeDefined();
+
+      if (configuredCorsOrigin === '*') {
+        expect(response.headers['access-control-allow-origin']).toBe('*');
+      } else {
+        expect(response.headers['access-control-allow-origin']).toBe(requestOrigin);
+      }
     });
 
     it('should allow credentials', async () => {
+      const requestOrigin = getRequestOrigin();
+      const configuredCorsOrigin = container.configService.get('corsOrigin');
       const response = await request(app)
         .options('/api/v1/auth/login')
-        .set('Origin', 'http://localhost:3000')
+        .set('Origin', requestOrigin)
         .set('Access-Control-Request-Method', 'POST')
         .expect(204);
 
-      expect(response.headers['access-control-allow-credentials']).toBe('true');
+      if (configuredCorsOrigin === '*') {
+        expect(response.headers['access-control-allow-credentials']).toBeUndefined();
+      } else {
+        expect(response.headers['access-control-allow-credentials']).toBe('true');
+      }
     });
 
     it('should handle preflight OPTIONS requests', async () => {
+      const requestOrigin = getRequestOrigin();
       const response = await request(app)
         .options('/api/v1/auth/register')
-        .set('Origin', 'http://localhost:3000')
+        .set('Origin', requestOrigin)
         .set('Access-Control-Request-Method', 'POST')
         .expect(204);
 
@@ -80,9 +106,10 @@ describe('API Integration Tests', () => {
     });
 
     it('should allow specified HTTP methods', async () => {
+      const requestOrigin = getRequestOrigin();
       const response = await request(app)
         .options('/api/v1/jobs')
-        .set('Origin', 'http://localhost:3000')
+        .set('Origin', requestOrigin)
         .set('Access-Control-Request-Method', 'GET')
         .expect(204);
 

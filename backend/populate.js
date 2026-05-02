@@ -1,7 +1,9 @@
-const { rawConfig } = require('./config');
+const { createEnvironmentConfigSource } = require('./adapters/infrastructure/config');
 const fs = require('fs/promises');
 const { createUserSchema, createJobSchema } = require('./models');
 const { createMongoConnectionManager } = require('./database/mongodb/mongo-connection-manager');
+
+const rawConfig = createEnvironmentConfigSource().read();
 
 const configService = { get: (key) => rawConfig[key] };
 

@@ -1,6 +1,6 @@
 const { describe, beforeEach, it, expect } = require('@jest/globals');
-const { BadRequestError, UnauthenticatedError } = require('../../../errors');
-const { createAuthService } = require('../../../services/auth.service');
+const { BadRequestError, UnauthenticatedError } = require('../../../shared/errors');
+const { createAuthService } = require('../../../application/services/auth.service');
 
 // Mock user repository
 const mockUser = {

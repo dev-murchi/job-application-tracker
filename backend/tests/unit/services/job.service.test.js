@@ -1,6 +1,6 @@
 const { describe, beforeEach, it, expect } = require('@jest/globals');
-const { BadRequestError, NotFoundError } = require('../../../errors');
-const { createJobService } = require('../../../services/job.service');
+const { BadRequestError, NotFoundError } = require('../../../shared/errors');
+const { createJobService } = require('../../../application/services/job.service');
 
 // Mock mongoose ObjectId
 jest.mock('mongoose');

@@ -208,6 +208,23 @@ describe('Auth Integration Tests', () => {
       expect(userCount).toBe(0);
     });
 
+    it('should reject registration when password exceeds maximum length', async () => {
+      const userData = {
+        name: 'John',
+        lastName: 'Doe',
+        email: 'john@example.com',
+        password: 'a'.repeat(129),
+        location: 'City',
+      };
+
+      const response = await request(app).post('/api/v1/auth/register').send(userData).expect(400);
+
+      expect(response.body.success).toBe(false);
+
+      const userCount = await getUserCount(container);
+      expect(userCount).toBe(0);
+    });
+
     it('should reject registration with name shorter than 3 characters', async () => {
       const userData = {
         name: 'Jo',
