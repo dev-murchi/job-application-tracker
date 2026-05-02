@@ -1,3 +1,28 @@
+/**
+ * Job Data Transfer Object.
+ *
+ * Safe, flattened job shape returned to API consumers.
+ *
+ * @typedef {Object} JobDTO
+ * @property {string}  _id
+ * @property {string}  position
+ * @property {string}  company
+ * @property {string}  status
+ * @property {string}  jobType
+ * @property {string}  jobLocation
+ * @property {string}  [companyWebsite]
+ * @property {string}  [jobPostingUrl]
+ * @property {string}  createdBy
+ * @property {Date}  createdAt
+ * @property {Date}  updatedAt
+ */
+
+/**
+ * Creates a JobDTO from a job data object.
+ *
+ * @param {Object} data - The raw job data object, typically from the database.
+ * @returns {JobDTO} The formatted Job Data Transfer Object.
+ */
 const createJobDTO = (data) => {
   return {
     _id: data._id,

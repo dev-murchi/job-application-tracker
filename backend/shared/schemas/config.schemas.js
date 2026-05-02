@@ -12,6 +12,8 @@ const {
   DEFAULT_RATE_LIMIT_MAX_REQUESTS,
   DEFAULT_LOG_LEVEL,
   DEFAULT_REQUEST_SIZE_LIMIT,
+  DEFAULT_TRUST_PROXY_HOPS,
+  MAX_TRUST_PROXY_HOPS,
   PORT_MIN,
   PORT_MAX,
   JWT_LIFETIME_REGEX,
@@ -20,7 +22,55 @@ const {
   REQUEST_SIZE_LIMIT_REGEX_ERROR,
 } = require('../constants');
 
-const { calculateShannonEntropy } = require('../../config/config-validation');
+const { calculateShannonEntropy } = require('../utils/shannon-entropy');
+
+const SUPPORTED_MONGO_PROTOCOLS = ['mongodb:', 'mongodb+srv:'];
+const SUPPORTED_CORS_PROTOCOLS = ['http:', 'https:'];
+
+const isValidMongoUrl = (value) => {
+  try {
+    const parsedUrl = new URL(value);
+    return SUPPORTED_MONGO_PROTOCOLS.includes(parsedUrl.protocol) && Boolean(parsedUrl.hostname);
+  } catch (_error) {
+    return false;
+  }
+};
+
+const normalizeCorsOrigins = (value) =>
+  value
+    .split(',')
+    .map((origin) => origin.trim())
+    .filter((origin) => origin.length > 0);
+
+const isValidCorsOrigin = (origin) => {
+  try {
+    const parsedUrl = new URL(origin);
+    return SUPPORTED_CORS_PROTOCOLS.includes(parsedUrl.protocol) && Boolean(parsedUrl.hostname);
+  } catch (_error) {
+    return false;
+  }
+};
+
+const CorsOriginSchema = z
+  .string()
+  .trim()
+  .refine(
+    (value) => {
+      if (value === DEFAULT_CORS_ORIGIN) {
+        return true;
+      }
+
+      const origins = normalizeCorsOrigins(value);
+      return origins.length > 0 && origins.every((origin) => isValidCorsOrigin(origin));
+    },
+    {
+      message:
+        "CORS origin must be '*' or a comma-separated list of valid http(s) origins (e.g. https://app.example.com,https://admin.example.com)",
+    },
+  )
+  .transform((value) =>
+    value === DEFAULT_CORS_ORIGIN ? DEFAULT_CORS_ORIGIN : normalizeCorsOrigins(value),
+  );
 
 /**
  * JWT Secret validation based on JWT BCP recommendations
@@ -54,7 +104,13 @@ const ConfigSchema = z
     port: z.coerce.number().int().min(PORT_MIN).max(PORT_MAX),
 
     // MongoDB configuration
-    mongoUrl: z.string().min(1, 'MongoDB URL is required'),
+    mongoUrl: z
+      .string()
+      .trim()
+      .min(1, 'MongoDB URL is required')
+      .refine((value) => isValidMongoUrl(value), {
+        message: 'MongoDB URL must be a valid mongodb:// or mongodb+srv:// URI',
+      }),
 
     // JWT configuration
     jwtSecret: JwtSecretSchema,
@@ -89,7 +145,15 @@ const ConfigSchema = z
       .default(DEFAULT_JWT_LIFETIME),
 
     // CORS Configuration
-    corsOrigin: z.string().default(DEFAULT_CORS_ORIGIN),
+    corsOrigin: CorsOriginSchema.default(DEFAULT_CORS_ORIGIN),
+
+    // Proxy trust configuration
+    trustProxyHops: z.coerce
+      .number()
+      .int()
+      .min(1)
+      .max(MAX_TRUST_PROXY_HOPS)
+      .default(DEFAULT_TRUST_PROXY_HOPS),
 
     // Rate Limiting
     rateLimitWindowMs: z.coerce.number().int().positive().default(DEFAULT_RATE_LIMIT_WINDOW_MS),

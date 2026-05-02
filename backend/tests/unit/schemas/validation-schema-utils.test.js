@@ -84,6 +84,31 @@ describe('Validation Schema Utils', () => {
       expect(() => UserRegisterSchema.parse(data)).toThrow();
     });
 
+    it('should reject password longer than 128 characters', () => {
+      const data = {
+        name: 'John',
+        lastName: 'Smith',
+        email: 'john@example.com',
+        password: 'a'.repeat(129),
+        location: 'NY',
+      };
+
+      expect(() => UserRegisterSchema.parse(data)).toThrow();
+    });
+
+    it('should reject email longer than 254 characters', () => {
+      const longLocalPart = 'a'.repeat(250);
+      const data = {
+        name: 'John',
+        lastName: 'Smith',
+        email: `${longLocalPart}@example.com`,
+        password: 'password123',
+        location: 'NY',
+      };
+
+      expect(() => UserRegisterSchema.parse(data)).toThrow();
+    });
+
     it('should reject empty location', () => {
       const data = {
         name: 'John',
@@ -153,6 +178,12 @@ describe('Validation Schema Utils', () => {
 
     it('should reject search term shorter than 3 characters', () => {
       const query = { search: 'ab' };
+
+      expect(() => JobSearchQuerySchema.parse(query)).toThrow();
+    });
+
+    it('should reject search term longer than 120 characters', () => {
+      const query = { search: 'a'.repeat(121) };
 
       expect(() => JobSearchQuerySchema.parse(query)).toThrow();
     });
@@ -257,6 +288,19 @@ describe('Validation Schema Utils', () => {
     it('should reject empty company name', () => {
       const data = {
         company: '',
+        position: 'Engineer',
+        jobType: 'full-time',
+        jobLocation: 'Remote',
+        status: 'pending',
+        companyWebsite: 'https://techcorp.com',
+      };
+
+      expect(() => JobCreateSchema.parse(data)).toThrow();
+    });
+
+    it('should reject company names longer than 50 characters', () => {
+      const data = {
+        company: 'C'.repeat(51),
         position: 'Engineer',
         jobType: 'full-time',
         jobLocation: 'Remote',

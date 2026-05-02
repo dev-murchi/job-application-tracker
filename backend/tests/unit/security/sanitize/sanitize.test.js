@@ -1,4 +1,4 @@
-const { createSanitizer } = require('../../../../infrastructure/security/sanitize');
+const { createSanitizer } = require('../../../../adapters/infrastructure/security/sanitize');
 const sanitizeHtml = require('sanitize-html');
 
 jest.mock('sanitize-html');

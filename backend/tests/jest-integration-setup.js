@@ -10,7 +10,7 @@ require('dotenv').config({
 process.env.NODE_ENV = 'test';
 
 // Mock the logger to prevent file writes during tests
-jest.mock('../infrastructure/logger/winston/logger', () => ({
+jest.mock('../adapters/infrastructure/logger/winston/logger', () => ({
   info: jest.fn(),
   warn: jest.fn(),
   error: jest.fn(),

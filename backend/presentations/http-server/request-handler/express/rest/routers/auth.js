@@ -3,10 +3,12 @@ const { UserRegisterSchema, UserLoginSchema } = require('../../../../../../share
 const { validateBody, createRateLimiters } = require('../middlewares');
 const { createAuthController } = require('../controllers/auth');
 
+/**@typedef {import('../../../../../../application/ports/driving/auth.service.port').AuthServicePort} AuthServicePort */
+
 /**
  * Factory function to create auth router with injected dependencies
  * @param {Object} dependencies - Dependency object
- * @param {Object} dependencies.authService - Auth service instance
+ * @param {AuthServicePort} dependencies.authService - Auth service instance
  * @param {Object} dependencies.configService - Configuration service
  * @returns {express.Router} Configured Express router
  */

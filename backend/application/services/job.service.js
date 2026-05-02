@@ -2,6 +2,13 @@ const { BadRequestError, NotFoundError, UnauthenticatedError } = require('../../
 const { MONTHLY_STATS_LOOKBACK_MONTHS } = require('../../shared/constants');
 const { createJobDTO } = require('../../shared/dtos/job.dto');
 
+/**@typedef {import('../../shared/dtos/job.dto').JobDTO} JobDTO */
+/**@typedef {import('../ports/driving/job.service.port').JobServicePort} JobServicePort */
+/**@typedef {import('../ports/driving/job.service.port').JobFilters} JobFilters */
+/**@typedef {import('../ports/driving/job.service.port').JobListResult} JobListResult */
+/**@typedef {import('../ports/driving/job.service.port').JobStatsResult} JobStatsResult */
+/**@typedef {import('../ports/driven/database/job.repository.port').JobRepositoryPort} JobRepositoryPort */
+
 const checkPermissions = (requestUser, resourceUserId) => {
   if (requestUser.userId === resourceUserId.toString()) {
     return;
@@ -12,7 +19,9 @@ const checkPermissions = (requestUser, resourceUserId) => {
 
 /**
  * Factory function to create job service with injected dependencies
- * @param {Object} jobRepository - Job database repository
+ * @param {Object} dependencies - Dependency object
+ * @param {JobRepositoryPort} dependencies.jobRepository - Job database repository
+ * @returns {JobServicePort} Job service methods
  */
 const createJobService = ({ jobRepository }) => {
   /**

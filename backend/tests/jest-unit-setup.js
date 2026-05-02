@@ -3,29 +3,42 @@
 process.env.NODE_ENV = 'test';
 
 // Mock the logger to prevent file writes during tests
-jest.mock('../infrastructure/logger/winston/logger', () => ({
+jest.mock('../adapters/infrastructure/logger/winston/logger', () => ({
   info: jest.fn(),
   warn: jest.fn(),
   error: jest.fn(),
   debug: jest.fn(),
 }));
 
-// Mock the config module to provide test defaults
-// This prevents the need for actual environment variables in unit tests
-jest.mock('../config', () => ({
-  nodeEnv: 'test',
-  port: 3000,
-  mongoUrl: 'mongodb://localhost:27017/test',
-  jwtSecret: 'test-jwt-secret-minimum-32-characters-long-for-security',
-  jwtLifetime: '7d',
-  corsOrigin: '*',
-  rateLimitWindowMs: 900000,
-  rateLimitMaxRequests: 100,
-  logLevel: 'error',
-  requestSizeLimit: '100kb',
-  isProduction: false,
-  isDevelopment: false,
-}));
+// Mock infrastructure config adapters to avoid env/dependency coupling in unit tests
+jest.mock('../adapters/infrastructure/config', () => {
+  const defaults = {
+    nodeEnv: 'test',
+    port: 3000,
+    mongoUrl: 'mongodb://localhost:27017/test',
+    jwtSecret: 'test-jwt-secret-minimum-32-characters-long-for-security',
+    jwtLifetime: '7d',
+    corsOrigin: '*',
+    rateLimitWindowMs: 900000,
+    rateLimitMaxRequests: 100,
+    logLevel: 'error',
+    requestSizeLimit: '100kb',
+    isProduction: false,
+    isDevelopment: false,
+    isTest: true,
+  };
+
+  return {
+    createEnvironmentConfigSource: () => ({
+      read: () => ({ ...defaults }),
+    }),
+    createConfigService: () => ({
+      get: (key) => defaults[key],
+      getAll: () => ({ ...defaults }),
+      loadConfig: jest.fn(),
+    }),
+  };
+});
 
 // Global test timeout
 jest.setTimeout(30000);

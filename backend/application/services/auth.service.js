@@ -1,19 +1,28 @@
 const { BadRequestError, UnauthenticatedError } = require('../../shared/errors');
 const { crateUserDTO } = require('../../shared/dtos/user.dto');
 
+/**@typedef { import('../../shared/dtos/user.dto').UserDTO } UserDTO */
+/**@typedef { import('../../shared/dtos/auth.dto').RegisterUserInputDTO } RegisterUserInputDTO */
+/**@typedef { import('../../shared/dtos/auth.dto').AuthResult } AuthResult */
+/**@typedef { import('../../shared/dtos/auth.dto').AuthCredentials } AuthCredentials */
+/**@typedef { import('../ports/driving/auth.service.port').AuthServicePort } AuthServicePort */
+/**@typedef { import('../ports/driven/database/user.repository.port').UserRepositoryPort } UserRepositoryPort */
+/**@typedef { import('../ports/driven/security/token.service.port').TokenServicePort } TokenServicePort */
+/**@typedef { import('../ports/driven/crypto/crypto.service.port').CryptoServicePort } CryptoServicePort */
+
 /**
  * Factory function to create auth service with injected dependencies
  * @param {Object} dependencies - Dependency object
- * @param {Object} dependencies.userRepository - User database repository
- * @param {Object} dependencies.jwtService - JWT service for token operations
- * @param {Object} dependencies.cryptoService - Hash service
- * @returns {Object} Auth service methods
+ * @param {UserRepositoryPort} dependencies.userRepository - User database repository
+ * @param {TokenServicePort} dependencies.jwtService - JWT service for token operations
+ * @param {CryptoServicePort} dependencies.cryptoService - Password hashing service
+ * @returns {AuthServicePort} Auth service methods
  */
 const createAuthService = ({ userRepository, jwtService, cryptoService }) => {
   /**
    * Register a new user
-   * @param {Object} userData - User registration data
-   * @returns {Object} Formatted user data
+   * @param {RegisterUserInputDTO} userData - User registration data
+   * @returns {UserDTO} Formatted user data
    * @throws {BadRequestError} If email already exists
    */
   const registerUser = async (userData) => {
@@ -40,8 +49,8 @@ const createAuthService = ({ userRepository, jwtService, cryptoService }) => {
 
   /**
    * Authenticate user and generate JWT
-   * @param {Object} credentials - Login credentials
-   * @returns {Object} User data and JWT token
+   * @param {AuthCredentials} credentials - Login credentials
+   * @returns {AuthResult} User data and JWT token
    * @throws {UnauthenticatedError} If credentials are invalid
    */
   const authenticateUser = async (credentials) => {

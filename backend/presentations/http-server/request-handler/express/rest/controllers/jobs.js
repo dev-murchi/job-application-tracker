@@ -1,9 +1,11 @@
 const { HttpStatusCodes } = require('../../../../../../shared/constants');
 
+/**@typedef {import('../../../../../../application/ports/driving/job.service.port').JobServicePort} JobServicePort */
+
 /**
  * Factory function to create jobs controller with injected dependencies
  * @param {Object} dependencies - Dependency object
- * @param {Object} dependencies.jobService - Job service instance
+ * @param {JobServicePort} dependencies.jobService - Job service instance
  * @returns {Object} Jobs controller methods
  */
 const createJobsController = ({ jobService }) => {

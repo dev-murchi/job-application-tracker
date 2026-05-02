@@ -1,10 +1,12 @@
 const { HttpStatusCodes } = require('../../../../../../shared/constants');
 const { crateUserDTO } = require('../../../../../../shared/dtos/user.dto');
 
+/**@typedef { import('../../../../../../application/ports/driving/user.service.port').UserServicePort } UserServicePort */
+
 /**
  * Factory function to create user controller with injected dependencies
  * @param {Object} dependencies - Dependency object
- * @param {Object} dependencies.userService - User service instance
+ * @param {UserServicePort} dependencies.userService - User service instance
  * @returns {Object} User controller methods
  */
 const createUserController = ({ userService }) => {

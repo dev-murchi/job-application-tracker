@@ -55,12 +55,10 @@ COPY --from=dependencies --chown=appuser:appgroup /tmp/prod_node_modules ./node_
 COPY --chown=appuser:appgroup ./package.json ./main.js ./
 
 # Application directories — explicit per directory for controlled inclusion
-COPY --chown=appuser:appgroup ./application/        ./application/
-COPY --chown=appuser:appgroup ./config/             ./config/
-COPY --chown=appuser:appgroup ./infrastructure/     ./infrastructure/
-COPY --chown=appuser:appgroup ./ioc/                ./ioc/
-COPY --chown=appuser:appgroup ./presentations/      ./presentations/
-COPY --chown=appuser:appgroup ./shared/             ./shared/
+COPY --chown=appuser:appgroup ./adapters/        ./adapters/
+COPY --chown=appuser:appgroup ./application/     ./application/
+COPY --chown=appuser:appgroup ./ioc/             ./ioc/
+COPY --chown=appuser:appgroup ./shared/          ./shared/
 
 
 # Switch to the non-root user for runtime security

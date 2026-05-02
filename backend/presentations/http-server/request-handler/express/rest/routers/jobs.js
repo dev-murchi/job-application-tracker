@@ -9,10 +9,12 @@ const { validateQuery, validateBody, validateParams } = require('../middlewares'
 const { z } = require('zod');
 const { createJobsController } = require('../controllers/jobs');
 
+/**@typedef {import('../../../../../../application/ports/driving/job.service.port').JobServicePort} JobServicePort */
+
 /**
  * Factory function to create jobs router with injected dependencies
  * @param {Object} dependencies - Jobs Router dependencies
- * @param {Object} dependencies.jobService - Jobs service
+ * @param {JobServicePort} dependencies.jobService - Jobs service
  * @returns {express.Router} Configured Express router
  */
 const createJobsRouter = ({ jobService }) => {

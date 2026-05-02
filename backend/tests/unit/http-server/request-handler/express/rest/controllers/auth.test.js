@@ -1,7 +1,7 @@
 const { describe, beforeEach, afterEach, it, expect } = require('@jest/globals');
 const {
   createAuthController,
-} = require('../../../../../../../presentations/http-server/request-handler/express/rest/controllers');
+} = require('../../../../../../../adapters/presentations/http-server/request-handler/express/rest/controllers');
 const { HttpStatusCodes } = require('../../../../../../../shared/constants');
 
 // Mock dependencies before importing

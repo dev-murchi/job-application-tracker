@@ -1,6 +1,6 @@
 const {
   notFound,
-} = require('../../../../../../../presentations/http-server/request-handler/express/rest/middlewares');
+} = require('../../../../../../../adapters/presentations/http-server/request-handler/express/rest/middlewares');
 
 describe('Not Found Middleware', () => {
   let req, res;

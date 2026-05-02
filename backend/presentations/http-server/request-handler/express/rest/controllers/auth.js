@@ -2,10 +2,12 @@ const { HttpStatusCodes } = require('../../../../../../shared/constants');
 const { ONE_SECOND_MS } = require('../../../../../../shared/constants');
 const { attachCookie } = require('../helpers/attach-cookie');
 
+/**@typedef {import('../../../../../../application/ports/driving/auth.service.port').AuthServicePort} AuthServicePort */
+
 /**
  * Factory function to create auth controller with injected dependencies
  * @param {Object} dependencies - Dependency object
- * @param {Object} dependencies.authService - Auth service instance
+ * @param {AuthServicePort} dependencies.authService - Auth service instance
  * @param {Object} dependencies.configService - Configuration service
  * @returns {Object} Auth controller methods
  */

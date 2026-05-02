@@ -1,6 +1,6 @@
 const {
   createErrorHandler,
-} = require('../../../../../../../presentations/http-server/request-handler/express/rest/middlewares');
+} = require('../../../../../../../adapters/presentations/http-server/request-handler/express/rest/middlewares');
 const { HttpStatusCodes } = require('../../../../../../../shared/constants');
 
 // Mock configService factory

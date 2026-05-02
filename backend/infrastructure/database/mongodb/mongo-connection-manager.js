@@ -120,6 +120,8 @@ const registerEventListeners = (connection, handlers) => {
   connection.on('all', handlers.onAll);
 };
 
+/**@typedef {import('../../../application/ports/driven/database/db-connection-manager.port').DbConnectionManagerPort} DbConnectionManagerPort */
+
 const validateConnectionUrl = (url) => {
   if (!url || typeof url !== 'string') {
     throw new Error(
@@ -128,17 +130,6 @@ const validateConnectionUrl = (url) => {
   }
   return url;
 };
-
-/**
- * @typedef {Object} DbConnectionManager
- * @property {(url: string) => Promise<mongoose.Connection>} connect - Open the connection using a MongoDB URI
- * @property {(force?: boolean) => Promise<void>} close - Close the connection; optional `force` to immediately close sockets
- * @property {() => boolean} isConnected - True when the connection `readyState` === `READY_STATE_CONNECTED`
- * @property {() => {state: string, readyState: number, host?: string, port?: number, name?: string}} getStatus - Connection snapshot
- * @property {() => ({maxPoolSize?: number, minPoolSize?: number, currentConnections?: number|string}|null)} getPoolStats - Pool configuration/metrics or `null`
- * @property {() => Promise<{success: boolean, responseTime: number, timestamp: string, error?: string}>} healthPing - Lightweight health check
- * @property {() => mongoose.Connection} getDriverInstance - Underlying Mongoose `Connection` instance
- */
 
 /**
  * Create a MongoDB connection manager (Mongoose adapter).
@@ -179,7 +170,7 @@ const validateConnectionUrl = (url) => {
  * @param {Object} deps - Dependency bag
  * @param {Object} deps.configService - Configuration service exposing `get(key)`; expects boolean `isProduction` key
  * @param {Object} deps.loggerService - Structured logger with `info`, `warn`, `error` methods
- * @returns {DbConnectionManager} Adapter exposing connection management methods described above
+ * @returns {DbConnectionManagerPort} Adapter exposing connection management methods described above
  *
  * @throws {Error} If `connect` is called with a missing or invalid `url` (see `validateConnectionUrl`)
  * @throws {Error} Mongoose/driver errors originating from connect/close/ping operations

@@ -1,11 +1,14 @@
 const { UnauthenticatedError } = require('../../../../../../shared/errors');
 const { MongooseObjectIdSchema } = require('../../../../../../shared/schemas');
 
+/**@typedef {import('../../../../../../application/ports/driven/database/user.repository.port').UserRepositoryPort} UserRepositoryPort */
+/**@typedef {import('../../../../../../application/ports/driven/security/token.service.port').TokenServicePort} TokenServicePort */
+
 /**
  * @param {Object} dependencies - Dependency object
- * @param {Object} dependencies.userRepository - User database repository
+ * @param {UserRepositoryPort} dependencies.userRepository - User database repository
  * @param {Object} dependencies.loggerService - Logger service instance for authentication logging
- * @param {Object} dependencies.jwtService - JWT service for token verification
+ * @param {TokenServicePort} dependencies.jwtService - JWT service for token verification
  * @returns {Function} Express middleware function for JWT authentication
  */
 const createAuthenticationMiddleware = ({ userRepository, loggerService, jwtService }) => {

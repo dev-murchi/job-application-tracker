@@ -1,6 +1,6 @@
 const {
   createAuthenticationMiddleware,
-} = require('../../../../../../../presentations/http-server/request-handler/express/rest/middlewares/auth');
+} = require('../../../../../../../adapters/presentations/http-server/request-handler/express/rest/middlewares/auth');
 const { UnauthenticatedError } = require('../../../../../../../shared/errors');
 
 // Mock userRepository factory

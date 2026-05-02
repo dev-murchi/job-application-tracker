@@ -12,6 +12,7 @@ describe('createContainerInstance', () => {
 
   describe('factory', () => {
     it('returns an object with the full public API', () => {
+      expect(typeof container.bindContract).toBe('function');
       expect(typeof container.register).toBe('function');
       expect(typeof container.registerFactory).toBe('function');
       expect(typeof container.resolve).toBe('function');
@@ -28,6 +29,57 @@ describe('createContainerInstance', () => {
       const other = createContainerInstance();
       container.register('a', 1);
       expect(other.has('a')).toBe(false);
+    });
+  });
+
+  // ── bindContract ──────────────────────────────────────────────────────────
+
+  describe('bindContract', () => {
+    it('accepts a contract with a validate function', () => {
+      const token = Symbol('Svc');
+      expect(() => container.bindContract(token, { validate: () => {} })).not.toThrow();
+    });
+
+    it('throws when contract has no validate function', () => {
+      const token = Symbol('Svc');
+      expect(() => container.bindContract(token, {})).toThrow('validate(instance)');
+      expect(() => container.bindContract(token, null)).toThrow('validate(instance)');
+    });
+
+    it('throws when the same token is bound twice', () => {
+      const token = Symbol('Svc');
+      container.bindContract(token, { validate: () => {} });
+      expect(() => container.bindContract(token, { validate: () => {} })).toThrow(
+        'A contract is already bound',
+      );
+    });
+
+    it('throws when called on a disposed container', async () => {
+      await container.dispose();
+      expect(() => container.bindContract(Symbol('x'), { validate: () => {} })).toThrow(
+        'Container has been disposed',
+      );
+    });
+
+    it('validates the instance when register() is called for a bound token', () => {
+      const token = Symbol('Port');
+      const contract = {
+        validate(instance) {
+          if (typeof instance.doWork !== 'function') {
+            throw new TypeError("adapter must implement 'doWork()'");
+          }
+        },
+      };
+      container.bindContract(token, contract);
+
+      expect(() => container.register(token, {})).toThrow("adapter must implement 'doWork()'");
+      expect(() => container.register(token, { doWork: () => {} })).not.toThrow();
+    });
+
+    it('works with both Symbol and string tokens', () => {
+      const strContract = { validate: () => {} };
+      container.bindContract('myPort', strContract);
+      expect(() => container.register('myPort', {})).not.toThrow();
     });
   });
 
