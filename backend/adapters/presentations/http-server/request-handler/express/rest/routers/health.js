@@ -1,10 +1,12 @@
 const express = require('express');
 const { createHealthController } = require('../controllers/health');
 
+/**@typedef {import('../../../../../../../application/ports/driving/health.service.port').HealthServicePort} HealthServicePort*/
+
 /**
  * Factory function to create health router with injected dependencies
  * @param {Object} dependencies - Health Router dependencies
- * @param {Object} dependencies.healthService - Health service
+ * @param {HealthServicePort} dependencies.healthService - Health service
  * @returns {express.Router} Configured health router
  */
 const createHealthRouter = ({ healthService }) => {

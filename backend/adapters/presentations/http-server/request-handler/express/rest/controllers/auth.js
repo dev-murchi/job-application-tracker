@@ -3,12 +3,13 @@ const { ONE_SECOND_MS } = require('../../../../../../../shared/constants');
 const { attachCookie } = require('../helpers/attach-cookie');
 
 /**@typedef {import('../../../../../../../application/ports/driving/auth.service.port').AuthServicePort} AuthServicePort */
+/**@typedef {import('../../../../../../../application/ports/driven/config/config-service.port').ConfigServicePort}  ConfigServicePort*/
 
 /**
  * Factory function to create auth controller with injected dependencies
  * @param {Object} dependencies - Dependency object
  * @param {AuthServicePort} dependencies.authService - Auth service instance
- * @param {Object} dependencies.configService - Configuration service
+ * @param {ConfigServicePort} dependencies.configService - Configuration service
  * @returns {Object} Auth controller methods
  */
 const createAuthController = ({ authService, configService }) => {

@@ -1,3 +1,7 @@
+/**@typedef {import('../../../../application/ports/driven/database/db-connection-manager.port').DbConnectionManagerPort} DbConnectionManagerPort */
+/**@typedef {import('../../../../application/ports/driven/config/config-service.port').ConfigServicePort} ConfigServicePort */
+/**@typedef {import('../../../../application/ports/driven/logger/logger.service.port').LoggerServicePort} LoggerServicePort*/
+
 const mongoose = require('mongoose');
 const {
   POOL_MAX_PROD,
@@ -65,7 +69,7 @@ const createConnectionOptions = (isProduction) => ({
 /**
  * Create event handlers for MongoDB connection lifecycle events
  * @param {mongoose.Connection} connection - Mongoose connection instance
- * @param {Object} loggerService - Logger service instance
+ * @param {LoggerServicePort} loggerService - Logger service instance
  * @param {boolean} isProduction - Whether running in production mode
  * @returns {Object} Object containing all event handler functions
  */
@@ -120,8 +124,6 @@ const registerEventListeners = (connection, handlers) => {
   connection.on('all', handlers.onAll);
 };
 
-/**@typedef {import('../../../../application/ports/driven/database/db-connection-manager.port').DbConnectionManagerPort} DbConnectionManagerPort */
-
 const validateConnectionUrl = (url) => {
   if (!url || typeof url !== 'string') {
     throw new Error(
@@ -168,8 +170,8 @@ const validateConnectionUrl = (url) => {
  *    behavior.
  *
  * @param {Object} deps - Dependency bag
- * @param {Object} deps.configService - Configuration service exposing `get(key)`; expects boolean `isProduction` key
- * @param {Object} deps.loggerService - Structured logger with `info`, `warn`, `error` methods
+ * @param {ConfigServicePort} deps.configService - Configuration service exposing `get(key)`; expects boolean `isProduction` key
+ * @param {LoggerServicePort} deps.loggerService - Structured logger with `info`, `warn`, `error` methods
  * @returns {DbConnectionManagerPort} Adapter exposing connection management methods described above
  *
  * @throws {Error} If `connect` is called with a missing or invalid `url` (see `validateConnectionUrl`)

@@ -9,6 +9,12 @@ const { createJobDTO } = require('../../shared/dtos/job.dto');
 /**@typedef {import('../ports/driving/job.service.port').JobStatsResult} JobStatsResult */
 /**@typedef {import('../ports/driven/database/job.repository.port').JobRepositoryPort} JobRepositoryPort */
 
+/**
+ * Assert that the requesting user owns the resource.
+ * @param {{ userId: string }} requestUser - The authenticated user making the request.
+ * @param {*} resourceUserId - The owner ID stored on the resource (ObjectId or string).
+ * @throws {UnauthenticatedError} If the user does not own the resource.
+ */
 const checkPermissions = (requestUser, resourceUserId) => {
   if (requestUser.userId === resourceUserId.toString()) {
     return;
@@ -27,8 +33,8 @@ const createJobService = ({ jobRepository }) => {
   /**
    * Create a new job posting
    * @param {Object} jobData - Job data
-   * @param {String} userId - User ID creating the job
-   * @returns {Object} Created job
+   * @param {string} userId - User ID creating the job
+   * @returns {Promise<JobDTO>} Created job
    */
   const createJob = async (jobData, userId) => {
     const { position, company, jobType, jobLocation, status, companyWebsite, jobPostingUrl } =
@@ -50,7 +56,10 @@ const createJobService = ({ jobRepository }) => {
   };
 
   /**
-   * Build query object for job search
+   * Build a MongoDB query object for job search.
+   * @param {string} userId - The authenticated user's ID.
+   * @param {JobFilters} filters - Search and filter parameters.
+   * @returns {Object} Mongoose-compatible query object.
    */
   const buildSearchQuery = (userId, filters) => {
     const { search, status, jobType } = filters;
@@ -75,7 +84,8 @@ const createJobService = ({ jobRepository }) => {
   };
 
   /**
-   * Get sort options mapping
+   * Returns the sort-field mapping from user-facing sort keys to Mongoose sort expressions.
+   * @returns {Record<string, string>} Map of sort key to Mongoose sort expression.
    */
   const getSortOptions = () => ({
     newest: '-createdAt',
@@ -86,9 +96,9 @@ const createJobService = ({ jobRepository }) => {
 
   /**
    * Get all jobs with pagination and filtering
-   * @param {String} userId - User ID
-   * @param {Object} filters - Search filters and pagination params
-   * @returns {Object} Jobs with pagination metadata
+   * @param {string} userId - User ID
+   * @param {JobFilters} filters - Search filters and pagination params
+   * @returns {Promise<JobListResult>} Jobs with pagination metadata
    */
   const getAllJobs = async (userId, filters) => {
     const { sort, page, limit } = filters;
@@ -125,8 +135,8 @@ const createJobService = ({ jobRepository }) => {
 
   /**
    * Get a single job by ID
-   * @param {String} jobId - Job ID
-   * @returns {Object} Job document
+   * @param {string} jobId - Job ID
+   * @returns {Promise<JobDTO>} Job document
    * @throws {NotFoundError} If job not found
    */
   const getJobById = async (jobId) => {
@@ -141,10 +151,10 @@ const createJobService = ({ jobRepository }) => {
 
   /**
    * Update a job
-   * @param {String} jobId - Job ID
+   * @param {string} jobId - Job ID
    * @param {Object} updates - Fields to update
-   * @param {Object} user - Current user (for permission check)
-   * @returns {Object} Updated job
+   * @param {{ userId: string }} user - Current user (for permission check)
+   * @returns {Promise<JobDTO>} Updated job
    * @throws {BadRequestError} If no updates provided
    * @throws {NotFoundError} If job not found
    */
@@ -193,8 +203,9 @@ const createJobService = ({ jobRepository }) => {
 
   /**
    * Delete a job
-   * @param {String} jobId - Job ID
-   * @param {Object} user - Current user (for permission check)
+   * @param {string} jobId - Job ID
+   * @param {{ userId: string }} user - Current user (for permission check)
+   * @returns {Promise<void>}
    * @throws {NotFoundError} If job not found
    */
   const deleteJob = async (jobId, user) => {
@@ -211,8 +222,8 @@ const createJobService = ({ jobRepository }) => {
 
   /**
    * Get job statistics for a user
-   * @param {String} userId - User ID
-   * @returns {Object} Stats by status and monthly applications
+   * @param {string} userId - User ID
+   * @returns {Promise<JobStatsResult>} Stats by status and monthly applications
    */
   const getJobStats = async (userId) => {
     // Use Promise.all for high performance (run both queries in parallel)

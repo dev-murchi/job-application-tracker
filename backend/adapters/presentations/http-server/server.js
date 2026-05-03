@@ -205,12 +205,15 @@ const runCleanup = async ({ onClose, log }) => {
   }
 };
 
+/**@typedef {import('../../../application/ports/driven/config/config-service.port').ConfigServicePort} ConfigServicePort*/
+/**@typedef {import('../../../application/ports/driven/logger/logger.service.port').LoggerServicePort} LoggerServicePort*/
+
 /**
  * HTTP Server wrapper - create a restartable, production-friendly HTTP server wrapper.
  *
  * @param {Object} dependencies - Wrapper dependencies
- * @param {Object} dependencies.configService - Configuration service instance
- * @param {Object} dependencies.loggerService - Logger service instance
+ * @param {ConfigServicePort} dependencies.configService - Configuration service instance
+ * @param {LoggerServicePort} dependencies.loggerService - Logger service instance
  * @returns {{
  *  start: (requestHandler: function, onClose?: function) => Promise<void>,
  *  stop: (options?: { graceMs?: number, force?: boolean }) => Promise<void>,

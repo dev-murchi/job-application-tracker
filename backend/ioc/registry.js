@@ -75,7 +75,7 @@ const {
   TOKEN_SERVICE_PORT,
   DB_CONNECTION_MANAGER_PORT,
   CONFIG_SERVICE_PORT,
-  LOGGER_SERVICE,
+  LOGGER_SERVICE_PORT,
   DB_CONNECTION,
   AUTH_ROUTER,
   JOBS_ROUTER,
@@ -126,7 +126,7 @@ const createContainerRegistry = ({ configService, loggerService }) => {
 
   // Register core services
   container.register(CONFIG_SERVICE_PORT, configService);
-  container.register(LOGGER_SERVICE, loggerService);
+  container.register(LOGGER_SERVICE_PORT, loggerService);
 
   // ============================================
   // DATABASE LAYER

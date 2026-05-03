@@ -20,8 +20,13 @@
  */
 
 /**
- *
- * @param {*} data
+ * Creates a RegisterUserInputDTO from raw input data.
+ * @param {Object} data - Raw input, typically from a validated request body.
+ * @param {string} data.name
+ * @param {string} data.lastName
+ * @param {string} data.email
+ * @param {string} data.password
+ * @param {string} [data.location]
  * @returns {RegisterUserInputDTO}
  */
 const createRegisterUserInputDTO = (data) => {

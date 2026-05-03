@@ -1,17 +1,18 @@
+/**@typedef {import('../ports/driven/database/db-connection-manager.port').DbConnectionManagerPort} DbConnectionManagerPort */
+/**@typedef {import('../ports/driven/config/config-service.port').ConfigServicePort} ConfigServicePort */
+/**@typedef {import('../ports/driving/health.service.port').HealthServicePort} HealthServicePort */
+
 /**
  * Factory function to create health service with injected dependencies
  * @param {Object} dependencies - Dependency object
- * @param {Object} dependencies.dbConnectionManager - Database connection manager for health checks
- * @param {Object} dependencies.configService - Configuration service
- * @returns {Object} Health service methods
+ * @param {DbConnectionManagerPort} dependencies.dbConnectionManager - Database connection manager for health checks
+ * @param {ConfigServicePort} dependencies.configService - Configuration service
+ * @returns {HealthServicePort} Health service methods
  */
 const createHealthService = ({ dbConnectionManager, configService }) => {
   const isProduction = configService.get('isProduction');
   const nodeEnv = configService.get('nodeEnv');
-  /**
-   * Get application health status
-   * @returns {Promise<Object>} Health status including database connection
-   */
+
   const getHealthStatus = async () => {
     let dbStatus;
     let dbPing;

@@ -4,7 +4,7 @@ const { validateConfigWithSchema } = require('./validators/config-schema.validat
 
 /**
  * Creates a new configuration service instance with an isolated state.
- * * @example
+ * @example
  * const configService = createConfigService();
  * configService.loadConfig(mySchema, process.env);
  * const port = configService.get('PORT');

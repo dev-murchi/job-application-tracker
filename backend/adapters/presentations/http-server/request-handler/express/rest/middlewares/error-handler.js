@@ -53,10 +53,12 @@ const sanitizeErrorMessage = (message, statusCode, isProduction) => {
   return message;
 };
 
+/**@typedef {import('../../../../../../../application/ports/driven/config/config-service.port').ConfigServicePort} ConfigServicePort*/
+
 /**
  * Create error handler middleware factory
  * @param {Object} dependencies - Dependency object
- * @param {Object} dependencies.configService - Configuration service
+ * @param {ConfigServicePort} dependencies.configService - Configuration service
  * @returns {Function} Express error handling middleware
  */
 const createErrorHandler = ({ configService }) => {
