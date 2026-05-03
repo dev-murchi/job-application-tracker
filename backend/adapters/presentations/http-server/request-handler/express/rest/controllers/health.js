@@ -1,9 +1,11 @@
 const { HttpStatusCodes } = require('../../../../../../../shared/constants');
 
+/**@typedef {import('../../../../../../../application/ports/driving/health.service.port').HealthServicePort} HealthServicePort */
+
 /**
  * Factory function to create health controller with injected dependencies
  * @param {Object} dependencies - Dependency object
- * @param {Object} dependencies.healthService - Health service for health checks
+ * @param {HealthServicePort} dependencies.healthService - Health service for health checks
  * @returns {Object} Health controller methods
  */
 const createHealthController = ({ healthService }) => {

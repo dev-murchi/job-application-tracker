@@ -17,7 +17,7 @@ const createUserService = ({ userRepository }) => {
    * Update user profile
    * @param {String} userId - User ID
    * @param {UpdateProfileInput} updates - Fields to update
-   * @returns {UserDTO} Updated user data
+   * @returns {Promise<UserDTO>} Updated user data
    * @throws {BadRequestError} If no updates provided
    */
   const updateUserProfile = async (userId, updates) => {
@@ -42,7 +42,7 @@ const createUserService = ({ userRepository }) => {
   /**
    * Get user by ID
    * @param {String} userId - User ID
-   * @returns {UserDTO} User data
+   * @returns {Promise<UserDTO>} User data
    */
   const getUserById = async (userId) => {
     const user = await userRepository.findById(userId);

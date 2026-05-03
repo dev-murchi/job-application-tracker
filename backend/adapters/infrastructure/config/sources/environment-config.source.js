@@ -4,6 +4,11 @@ require('dotenv').config({
   quiet: true,
 });
 
+/**
+ * Read a secret value — prefers a Docker/Kubernetes file secret over a plain env var.
+ * @param {{ envVar: string, fileEnvVar: string, env: NodeJS.ProcessEnv, fileSystem: { existsSync: Function, readFileSync: Function } }} opts
+ * @returns {string|undefined} The secret value, or `undefined` if neither source is set.
+ */
 const readSecret = ({ envVar, fileEnvVar, env, fileSystem }) => {
   const filePath = env[fileEnvVar];
 

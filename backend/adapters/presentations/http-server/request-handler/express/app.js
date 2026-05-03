@@ -16,6 +16,9 @@ const { createRateLimiters, notFound, createErrorHandler } = require('./rest/mid
 // Utilities
 const { createSanitizer } = require('../../../../infrastructure/security/sanitize');
 
+/**@typedef {import('../../../../../application/ports/driven/config/config-service.port').ConfigServicePort} ConfigServicePort*/
+/**@typedef {import('../../../../../application/ports/driven/logger/logger.service.port').LoggerServicePort} LoggerServicePort*/
+
 /**
  * Factory function to create Express app with injected dependencies
  * @param {Object} options - Configuration options
@@ -23,8 +26,8 @@ const { createSanitizer } = require('../../../../infrastructure/security/sanitiz
  * @param {string} options.routes[].path - Route path
  * @param {express.Router} options.routes[].router - Express router
  * @param {Array<Function>} [options.routes[].middleware] - Optional middleware array
- * @param {Object} options.loggerService - Logger service instance for application logging
- * @param {Object} options.configService - Configuration service for app settings
+ * @param {LoggerServicePort} options.loggerService - Logger service instance for application logging
+ * @param {ConfigServicePort} options.configService - Configuration service for app settings
  * @returns {express.Application} Configured Express application
  */
 const createApp = ({ routes = [], loggerService, configService }) => {

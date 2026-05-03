@@ -30,6 +30,9 @@ const userRepositoryContract = {
  * @property {(email: string) => Promise<Record<string, any>|null>}                 findByEmailWithPassword - Find a user by email including the password field.
  * @property {(data: Object) => Promise<Record<string, any>>}                       create                  - Persist a new user and return the created document.
  * @property {(id: string, data: Object) => Promise<Record<string, any>|null>}      updateById              - Update a user by ID and return the updated document.
+ * @property {() => Promise<Array<Record<string, any>>>}                            findAllWithPassword     - Return all users including the password field (admin/test use only).
+ * @property {(id: string) => Promise<Record<string, any>|null>}                    deleteById              - Delete a user by ID and return the deleted document.
+ * @property {(filter?: Object) => Promise<number>}                                 count                   - Count users matching an optional filter.
  */
 
 module.exports = { userRepositoryContract };

@@ -25,9 +25,9 @@ const CRYPTO_SERVICE_PORT = Symbol('CryptoService');
 const TOKEN_SERVICE_PORT = Symbol('TokenService');
 const DB_CONNECTION_MANAGER_PORT = Symbol('DbConnectionManager');
 const CONFIG_SERVICE_PORT = Symbol('ConfigPort');
+const LOGGER_SERVICE_PORT = Symbol('LoggerService');
 
 // ── Infrastructure / framework ────────────────────────────────────────────
-const LOGGER_SERVICE = Symbol('LoggerService');
 const DB_CONNECTION = Symbol('DbConnection');
 
 // ── Presentation layer ────────────────────────────────────────────────────
@@ -39,20 +39,17 @@ const AUTHENTICATION_MIDDLEWARE = Symbol('AuthenticationMiddleware');
 const EXPRESS_APP = Symbol('ExpressApp');
 
 module.exports = {
-  // in
   AUTH_SERVICE_PORT,
   JOB_SERVICE_PORT,
   USER_SERVICE_PORT,
   HEALTH_SERVICE_PORT,
-  // out
   USER_REPOSITORY_PORT,
   JOB_REPOSITORY_PORT,
   CRYPTO_SERVICE_PORT,
   TOKEN_SERVICE_PORT,
   DB_CONNECTION_MANAGER_PORT,
   CONFIG_SERVICE_PORT,
-  // infrastructure / framework
-  LOGGER_SERVICE,
+  LOGGER_SERVICE_PORT,
   DB_CONNECTION,
   // presentation
   AUTH_ROUTER,

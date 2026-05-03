@@ -22,7 +22,7 @@ const createAuthService = ({ userRepository, jwtService, cryptoService }) => {
   /**
    * Register a new user
    * @param {RegisterUserInputDTO} userData - User registration data
-   * @returns {UserDTO} Formatted user data
+   * @returns {Promise<UserDTO>} Formatted user data
    * @throws {BadRequestError} If email already exists
    */
   const registerUser = async (userData) => {
@@ -50,7 +50,7 @@ const createAuthService = ({ userRepository, jwtService, cryptoService }) => {
   /**
    * Authenticate user and generate JWT
    * @param {AuthCredentials} credentials - Login credentials
-   * @returns {AuthResult} User data and JWT token
+   * @returns {Promise<AuthResult>} User data and JWT token
    * @throws {UnauthenticatedError} If credentials are invalid
    */
   const authenticateUser = async (credentials) => {

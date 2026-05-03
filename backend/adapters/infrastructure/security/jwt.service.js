@@ -1,10 +1,11 @@
 const jwt = require('jsonwebtoken');
 
 /**@typedef {import('../../../application/ports/driven/security/token.service.port').TokenServicePort} TokenServicePort */
+/**@typedef {import('../../../application/ports/driven/config/config-service.port').ConfigServicePort} ConfigServicePort */
 
 /**
  * Factory function to create JWT service
- * @param {{ configService: Object }} deps
+ * @param {{ configService: ConfigServicePort }} deps
  * @returns {TokenServicePort} JWT service with sign and verify methods
  */
 const createJwtService = ({ configService }) => {

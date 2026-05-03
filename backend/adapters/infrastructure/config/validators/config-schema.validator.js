@@ -1,11 +1,11 @@
 const { z } = require('zod');
 
 /**
- * Load and validate configuration
+ * Validate a raw configuration object against a Zod schema.
  * @param {z.ZodSchema} schema - Zod schema to validate against
  * @param {object} rawConfig - Raw configuration object from environment
- * @returns {object} Validated configuration object
- * @throws {Error} Exits process if validation fails
+ * @returns {object} Validated and parsed configuration object
+ * @throws {Error} If validation fails (wraps ZodError with a human-readable message)
  */
 const validateConfigWithSchema = (schema, rawConfig) => {
   try {

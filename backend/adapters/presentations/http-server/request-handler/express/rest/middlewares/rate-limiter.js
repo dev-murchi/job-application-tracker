@@ -1,9 +1,11 @@
 const rateLimit = require('express-rate-limit');
 
+/**@typedef {import('../../../../../../../application/ports/driven/config/config-service.port').ConfigServicePort} ConfigServicePort*/
+
 /**
  * Create rate limiter middleware factory
  * @param {Object} options - Options object
- * @param {Object} options.configService - Configuration service
+ * @param {ConfigServicePort} options.configService - Configuration service
  * @returns {Object} Rate limiter middleware instances
  */
 const createRateLimiters = ({ configService }) => {
