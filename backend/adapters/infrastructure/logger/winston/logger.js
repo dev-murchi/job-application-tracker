@@ -34,9 +34,12 @@ const createLoggerService = ({ configService }) => {
     exitOnError: false,
   });
 
-  const { info, warn, error, debug } = logger;
-
-  return { info, warn, error, debug };
+  return {
+    info: logger.info.bind(logger),
+    warn: logger.warn.bind(logger),
+    error: logger.error.bind(logger),
+    debug: logger.debug.bind(logger),
+  };
 };
 
 module.exports = { createLoggerService };

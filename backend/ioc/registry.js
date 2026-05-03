@@ -102,6 +102,7 @@ const {
   dbConnectionManagerContract,
 } = require('../application/ports/driven/database/db-connection-manager.port');
 const { configServiceContract } = require('../application/ports/driven/config/config-service.port');
+const { loggerServiceContract } = require('../application/ports/driven/logger/logger.service.port');
 
 /**
  * Build and wire the full application container.
@@ -123,6 +124,7 @@ const createContainerRegistry = ({ configService, loggerService }) => {
   container.bindContract(HEALTH_SERVICE_PORT, healthServiceContract);
   container.bindContract(DB_CONNECTION_MANAGER_PORT, dbConnectionManagerContract);
   container.bindContract(CONFIG_SERVICE_PORT, configServiceContract);
+  container.bindContract(LOGGER_SERVICE_PORT, loggerServiceContract);
 
   // Register core services
   container.register(CONFIG_SERVICE_PORT, configService);
