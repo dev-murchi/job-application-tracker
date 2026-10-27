@@ -108,7 +108,7 @@ const LIMIT_DEFAULT = 10;
 const LIMIT_MAX = 100;
 
 // ==================== Job Constants ====================
-const JOB_STATUS_ENUM = ['interview', 'declined', 'pending', 'offered', 'accepted'];
+const JOB_STATUS_ENUM = ['interview', 'rejected', 'withdrawn', 'pending', 'offered', 'accepted'];
 const JOB_TYPE_ENUM = ['full-time', 'part-time', 'internship'];
 const SORT_ORDER_ENUM = ['a-z', 'z-a', 'newest', 'oldest'];
 const MONTHLY_STATS_LOOKBACK_MONTHS = 6;

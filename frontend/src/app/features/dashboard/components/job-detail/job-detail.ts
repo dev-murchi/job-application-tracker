@@ -34,7 +34,8 @@ export class JobDetail {
       [JobStatus.Interview]: 'scheduleIcon',
       [JobStatus.Offered]: 'applicationApprovedIcon',
       [JobStatus.Accepted]: 'checkCircleIcon',
-      [JobStatus.Declined]: 'eventRejectedIcon',
+      [JobStatus.Rejected]: 'eventRejectedIcon',
+      [JobStatus.Withdrawn]: 'cancelIcon',
     };
 
     if (status) {

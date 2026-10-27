@@ -451,7 +451,8 @@ describe('Job Service', () => {
         interview: 3,
         offered: 0,
         accepted: 0,
-        declined: 2,
+        rejected: 2,
+        withdrawn: 1,
       };
       const mockMonthlyStats = [
         { date: '2025-11', count: 4 },
@@ -482,7 +483,8 @@ describe('Job Service', () => {
         interview: 0,
         offered: 0,
         accepted: 0,
-        declined: 0,
+        rejected: 0,
+        withdrawn: 0,
       };
       mockJobRepository.getStatusDistributionForUser.mockResolvedValue(emptyStats);
       mockJobRepository.getMonthlyCountsForUser.mockResolvedValue([]);
@@ -500,7 +502,8 @@ describe('Job Service', () => {
         interview: 0,
         offered: 0,
         accepted: 0,
-        declined: 0,
+        rejected: 0,
+        withdrawn: 0,
       };
       // Simulate 6 months, all zero
       const monthlyStats = Array.from({ length: 6 }, (_, i) => ({

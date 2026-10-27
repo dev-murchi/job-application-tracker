@@ -169,7 +169,7 @@ const seedTestJobs = async (container, userId, count = 5) => {
   const jobs = Array.from({ length: count }, (_, i) => ({
     company: `Test Company ${i + 1}`,
     position: `Test Position ${i + 1}`,
-    status: ['pending', 'interview', 'declined'][i % 3],
+    status: ['pending', 'interview', 'rejected'][i % 3],
     jobType: ['full-time', 'part-time', 'internship'][i % 3],
     jobLocation: `Test Location ${i + 1}`,
     companyWebsite: `https://testcompany${i + 1}.com`,

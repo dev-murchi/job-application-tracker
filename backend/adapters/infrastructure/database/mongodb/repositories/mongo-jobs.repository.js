@@ -56,7 +56,8 @@ const createMongoJobsRepository = ({ connection, configService }) => {
         interview: statsMap.interview || 0,
         offered: statsMap.offered || 0,
         accepted: statsMap.accepted || 0,
-        declined: statsMap.declined || 0,
+        rejected: statsMap.rejected || 0,
+        withdrawn: statsMap.withdrawn || 0,
       };
     },
 

@@ -31,9 +31,13 @@ export class JobStatusBadge {
         background: 'bg-[var(--color-job-status-accepted-bg)]',
         text: 'text-[var(--color-job-status-accepted-text)]',
       },
-      [JobStatus.Declined]: {
-        background: 'bg-[var(--color-job-status-declined-bg)]',
-        text: 'text-[var(--color-job-status-declined-text)]',
+      [JobStatus.Rejected]: {
+        background: 'bg-[var(--color-job-status-rejected-bg)]',
+        text: 'text-[var(--color-job-status-rejected-text)]',
+      },
+      [JobStatus.Withdrawn]: {
+        background: 'bg-[var(--color-job-status-withdrawn-bg)]',
+        text: 'text-[var(--color-job-status-withdrawn-text)]',
       },
     };
 

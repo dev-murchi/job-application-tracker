@@ -93,7 +93,8 @@ export class JobForm {
       { key: 'Interview Scheduled', value: JobStatus.Interview },
       { key: 'Offer Received', value: JobStatus.Offered },
       { key: 'Offer Accepted', value: JobStatus.Accepted },
-      { key: 'Application Declined', value: JobStatus.Declined },
+      { key: 'Application Rejected', value: JobStatus.Rejected },
+      { key: 'Application Withdrawn', value: JobStatus.Withdrawn },
     ],
   });
 

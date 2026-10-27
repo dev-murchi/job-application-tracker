@@ -44,7 +44,7 @@ This application is a containerized full-stack implementation of the [Jobs API](
 
 ### Job Application Tracking
 - Full CRUD operations for job applications
-- Track job status (pending, interview, declined, offer)
+- Track job status (pending, interview, offered, accepted, rejected, withdrawn)
 - Store company, position, and application metadata
 - Filter and search capabilities
 - User-specific job isolation with permission checks

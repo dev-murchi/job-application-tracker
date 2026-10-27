@@ -38,7 +38,8 @@ const STATUS_OPTIONS: SelectOption[] = [
   { key: 'Interview', value: JobStatus.Interview },
   { key: 'Offered', value: JobStatus.Offered },
   { key: 'Accepted', value: JobStatus.Accepted },
-  { key: 'Declined', value: JobStatus.Declined },
+  { key: 'Rejected', value: JobStatus.Rejected },
+  { key: 'Withdrawn', value: JobStatus.Withdrawn },
 ];
 
 const TYPE_OPTIONS: SelectOption[] = [

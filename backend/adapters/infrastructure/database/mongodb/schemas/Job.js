@@ -29,7 +29,7 @@ const createJobSchema = ({ configService }) => {
       },
       status: {
         type: String,
-        enum: ['interview', 'declined', 'pending', 'offered', 'accepted'],
+        enum: ['interview', 'rejected', 'withdrawn', 'pending', 'offered', 'accepted'],
         default: 'pending',
       },
       jobType: {

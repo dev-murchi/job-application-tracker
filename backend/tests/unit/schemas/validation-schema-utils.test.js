@@ -189,7 +189,14 @@ describe('Validation Schema Utils', () => {
     });
 
     it('should accept valid status values', () => {
-      const validStatuses = ['interview', 'declined', 'pending', 'offered', 'accepted'];
+      const validStatuses = [
+        'interview',
+        'rejected',
+        'withdrawn',
+        'pending',
+        'offered',
+        'accepted',
+      ];
 
       validStatuses.forEach((status) => {
         const result = JobSearchQuerySchema.parse({ status });
@@ -199,6 +206,12 @@ describe('Validation Schema Utils', () => {
 
     it('should reject invalid status values', () => {
       const query = { status: 'invalid-status' };
+
+      expect(() => JobSearchQuerySchema.parse(query)).toThrow();
+    });
+
+    it('should reject the removed declined status', () => {
+      const query = { status: 'declined' };
 
       expect(() => JobSearchQuerySchema.parse(query)).toThrow();
     });

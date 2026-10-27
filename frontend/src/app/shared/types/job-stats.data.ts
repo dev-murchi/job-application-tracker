@@ -6,7 +6,8 @@ export interface MonthlyApplication {
 export interface JobStats {
   defaultStats: {
     interview: number;
-    declined: number;
+    rejected: number;
+    withdrawn: number;
     pending: number;
     offered: number;
     accepted: number;

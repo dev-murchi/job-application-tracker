@@ -33,7 +33,8 @@ const jobRepositoryContract = {
  * @property {number}  interview
  * @property {number}  offered
  * @property {number}  accepted
- * @property {number}  declined
+ * @property {number}  rejected
+ * @property {number}  withdrawn
  */
 
 /**

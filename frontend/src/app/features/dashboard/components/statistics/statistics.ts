@@ -81,7 +81,7 @@ export class Statistics implements OnInit {
       (stats.data.defaultStats.interview || 0) +
       (stats.data.defaultStats.offered || 0) +
       (stats.data.defaultStats.accepted || 0) +
-      (stats.data.defaultStats.declined || 0);
+      (stats.data.defaultStats.rejected || 0);
     return ((responded / total) * 100).toFixed(1);
   });
 
@@ -138,13 +138,22 @@ export class Statistics implements OnInit {
         dotClass: 'bg-[var(--color-job-status-accepted-text)]',
       },
       {
-        label: 'Declined',
-        status: JobStatus.Declined,
-        value: stats.data.defaultStats.declined || 0,
-        valueCss: 'text-[var(--color-job-status-declined-text)]',
+        label: 'Rejected',
+        status: JobStatus.Rejected,
+        value: stats.data.defaultStats.rejected || 0,
+        valueCss: 'text-[var(--color-job-status-rejected-text)]',
         backgroundClass:
-          'bg-[var(--color-job-status-declined-bg)]/50 hover:bg-[var(--color-job-status-declined-bg)]',
-        dotClass: 'bg-[var(--color-job-status-declined-text)]',
+          'bg-[var(--color-job-status-rejected-bg)]/50 hover:bg-[var(--color-job-status-rejected-bg)]',
+        dotClass: 'bg-[var(--color-job-status-rejected-text)]',
+      },
+      {
+        label: 'Withdrawn',
+        status: JobStatus.Withdrawn,
+        value: stats.data.defaultStats.withdrawn || 0,
+        valueCss: 'text-[var(--color-job-status-withdrawn-text)]',
+        backgroundClass:
+          'bg-[var(--color-job-status-withdrawn-bg)]/50 hover:bg-[var(--color-job-status-withdrawn-bg)]',
+        dotClass: 'bg-[var(--color-job-status-withdrawn-text)]',
       },
     ];
   });

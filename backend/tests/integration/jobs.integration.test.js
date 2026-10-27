@@ -504,7 +504,7 @@ describe('Jobs Integration Tests', () => {
 
     it('should update only specified fields', async () => {
       const updateData = {
-        status: 'declined',
+        status: 'rejected',
       };
 
       const response = await request(app)
@@ -513,7 +513,7 @@ describe('Jobs Integration Tests', () => {
         .send(updateData)
         .expect(200);
 
-      expect(response.body.job.status).toBe('declined');
+      expect(response.body.job.status).toBe('rejected');
       expect(response.body.job.company).toBe('Old Corp'); // Should remain unchanged
       expect(response.body.job.position).toBe('Old Position'); // Should remain unchanged
     });
@@ -760,10 +760,18 @@ describe('Jobs Integration Tests', () => {
       await createTestJob(container, testUser._id, {
         company: 'D',
         position: 'P4',
-        status: 'declined',
+        status: 'rejected',
         jobType: 'full-time',
         jobLocation: 'R',
         companyWebsite: 'https://d.com',
+      });
+      await createTestJob(container, testUser._id, {
+        company: 'F',
+        position: 'P6',
+        status: 'withdrawn',
+        jobType: 'full-time',
+        jobLocation: 'R',
+        companyWebsite: 'https://f.com',
       });
       await createTestJob(container, testUser._id, {
         company: 'E',
@@ -784,7 +792,8 @@ describe('Jobs Integration Tests', () => {
       expect(response.body.defaultStats).toMatchObject({
         pending: 2,
         interview: 1,
-        declined: 1,
+        rejected: 1,
+        withdrawn: 1,
         offered: 1,
         accepted: 0,
       });
@@ -826,7 +835,8 @@ describe('Jobs Integration Tests', () => {
       expect(response.body.defaultStats).toMatchObject({
         pending: 0,
         interview: 0,
-        declined: 0,
+        rejected: 0,
+        withdrawn: 0,
         offered: 0,
         accepted: 0,
       });

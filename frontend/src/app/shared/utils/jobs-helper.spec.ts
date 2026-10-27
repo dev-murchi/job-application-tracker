@@ -197,7 +197,8 @@ describe('JobsHelper', () => {
       const statistics: JobStats = {
         defaultStats: {
           interview: 3,
-          declined: 2,
+          rejected: 2,
+          withdrawn: 1,
           pending: 5,
           offered: 1,
           accepted: 0,
@@ -225,7 +226,8 @@ describe('JobsHelper', () => {
       const statistics: JobStats = {
         defaultStats: {
           interview: 3,
-          declined: 2,
+          rejected: 2,
+          withdrawn: 1,
           pending: 5,
           offered: 1,
           accepted: 0,

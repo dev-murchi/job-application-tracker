@@ -457,7 +457,8 @@ describe('Jobs Controller', () => {
           interview: 3,
           offered: 0,
           accepted: 0,
-          declined: 2,
+          rejected: 2,
+          withdrawn: 1,
         },
         monthlyApplications: [
           { date: '2024-08', count: 3 },
@@ -482,7 +483,8 @@ describe('Jobs Controller', () => {
           interview: 0,
           offered: 0,
           accepted: 0,
-          declined: 0,
+          rejected: 0,
+          withdrawn: 0,
         },
         monthlyApplications: expect.any(Array),
       };
@@ -502,7 +504,8 @@ describe('Jobs Controller', () => {
           interview: 0,
           offered: 0,
           accepted: 0,
-          declined: 0,
+          rejected: 0,
+          withdrawn: 0,
         },
         monthlyApplications: [
           { date: '2024-06', count: 0 },
