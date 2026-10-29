@@ -1,7 +1,7 @@
 const { createSanitizer } = require('../../../../adapters/infrastructure/security/sanitize');
 const sanitizeHtml = require('sanitize-html');
 
-jest.mock('sanitize-html');
+jest.mock('sanitize-html', () => jest.fn());
 
 describe('Sanitize Utility - Minimal Tests for 100% Coverage', () => {
   let sanitizeData;
