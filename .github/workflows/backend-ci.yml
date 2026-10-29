@@ -14,7 +14,7 @@ on:
       - .github/workflows/backend-ci.yml
 
 env:
-  NODE_VERSION: '22'
+  NODE_VERSION: '24'
   WORKING_DIR: ./backend
   CACHE_PATH: backend/package-lock.json
 
@@ -96,7 +96,10 @@ jobs:
     
     services:
       mongodb:
-        image: mongo:8.0
+        # MongoDB 8.0+ refuses to start on Linux kernels 6.19–7.0.13 (TCMalloc/rseq bug,
+        # SERVER-121912, SERVER-125742), which ubuntu-latest runners now use. 7.0 is not
+        # affected. Move back to 8.0 (8.0.30+) once runners ship kernel 7.0.14+.
+        image: mongo:7.0
         env:
           MONGO_INITDB_ROOT_USERNAME: ${{ secrets.TEST_MONGO_USERNAME }}
           MONGO_INITDB_ROOT_PASSWORD: ${{ secrets.TEST_MONGO_PASSWORD }}
