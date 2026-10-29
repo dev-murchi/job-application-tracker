@@ -14,7 +14,7 @@ on:
       - .github/workflows/backend-ci.yml
 
 env:
-  NODE_VERSION: '22'
+  NODE_VERSION: '24'
   WORKING_DIR: ./backend
   CACHE_PATH: backend/package-lock.json
 
