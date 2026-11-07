@@ -29,7 +29,7 @@ const createJobsController = ({ jobService }) => {
    * Get a single job by ID
    */
   const getJob = async (req, res) => {
-    const job = await jobService.getJobById(req.params.id);
+    const job = await jobService.getJobById(req.params.id, req.user);
     res.status(HttpStatusCodes.OK).json({ job });
   };
 

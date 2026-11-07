@@ -452,6 +452,26 @@ describe('Jobs Integration Tests', () => {
       expect(response.body.message).toContain('No job with id');
     });
 
+    it('should return 404 when job belongs to another user', async () => {
+      const otherUser = await seedTestUser(container, {
+        name: 'Other',
+        lastName: 'User',
+        email: 'other@example.com',
+        password: 'password123',
+        location: 'City',
+      });
+      const otherCookie = createTestCookie(generateTestToken(container, otherUser));
+
+      const response = await request(app)
+        .get(`/api/v1/jobs/${testJob._id}`)
+        .set('Cookie', otherCookie)
+        .expect(404);
+
+      expect(response.body.success).toBe(false);
+      expect(response.body.message).toBe(`No job with id :${testJob._id}`);
+      expect(response.body.job).toBeUndefined();
+    });
+
     it('should reject invalid ObjectId format', async () => {
       const response = await request(app)
         .get('/api/v1/jobs/invalid-id')
@@ -600,7 +620,7 @@ describe('Jobs Integration Tests', () => {
       expect(response.body.message).toContain('No job with id');
     });
 
-    it('should reject update from unauthorized user', async () => {
+    it('should return 404 when updating a job of another user', async () => {
       // Create another user
       const otherUser = await seedTestUser(container, {
         name: 'Other',
@@ -619,9 +639,15 @@ describe('Jobs Integration Tests', () => {
         .patch(`/api/v1/jobs/${testJob._id}`)
         .set('Cookie', otherCookie)
         .send(updateData)
-        .expect(401);
+        .expect(404);
 
       expect(response.body.success).toBe(false);
+      expect(response.body.message).toBe(`No job with id :${testJob._id}`);
+
+      // Verify job is unchanged
+      const jobs = await getAllJobs(container, testUser._id);
+      const unchanged = jobs.find((job) => job._id.toString() === testJob._id.toString());
+      expect(unchanged.company).toBe(testJob.company);
     });
 
     it('should reject update with invalid status', async () => {
@@ -704,7 +730,7 @@ describe('Jobs Integration Tests', () => {
       expect(response.body.message).toContain('No job with id');
     });
 
-    it('should reject deletion from unauthorized user', async () => {
+    it('should return 404 when deleting a job of another user', async () => {
       // Create another user
       const otherUser = await seedTestUser(container, {
         name: 'Other',
@@ -720,9 +746,10 @@ describe('Jobs Integration Tests', () => {
       const response = await request(app)
         .delete(`/api/v1/jobs/${testJob._id}`)
         .set('Cookie', otherCookie)
-        .expect(401);
+        .expect(404);
 
       expect(response.body.success).toBe(false);
+      expect(response.body.message).toBe(`No job with id :${testJob._id}`);
 
       // Verify job still exists
       const jobs = await getAllJobs(container, testUser._id);

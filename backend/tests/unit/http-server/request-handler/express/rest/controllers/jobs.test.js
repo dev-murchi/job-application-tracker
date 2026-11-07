@@ -395,7 +395,7 @@ describe('Jobs Controller', () => {
       expect(mockJobService.updateJob).toHaveBeenCalledWith(jobId, req.body, req.user);
     });
 
-    it('should check permissions before updating', async () => {
+    it('should propagate NotFoundError for a job of another user', async () => {
       req.body = { company: 'New Corp' };
 
       const secondUserReq = {
@@ -403,11 +403,9 @@ describe('Jobs Controller', () => {
         user: { userId: 'user999' },
       };
 
-      mockJobService.updateJob.mockRejectedValue(new Error('Not authorized to access this route'));
+      mockJobService.updateJob.mockRejectedValue(new NotFoundError(`No job with id :${jobId}`));
 
-      await expect(jobsController.updateJob(secondUserReq, res)).rejects.toThrow(
-        'Not authorized to access this route',
-      );
+      await expect(jobsController.updateJob(secondUserReq, res)).rejects.toThrow(NotFoundError);
     });
   });
 
@@ -434,12 +432,10 @@ describe('Jobs Controller', () => {
       await expect(jobsController.deleteJob(req, res)).rejects.toThrow(`No job with id :${jobId}`);
     });
 
-    it('should check permissions before deleting', async () => {
-      mockJobService.deleteJob.mockRejectedValue(new Error('Not authorized to access this route'));
+    it('should propagate NotFoundError for a job of another user', async () => {
+      mockJobService.deleteJob.mockRejectedValue(new NotFoundError(`No job with id :${jobId}`));
 
-      await expect(jobsController.deleteJob(req, res)).rejects.toThrow(
-        'Not authorized to access this route',
-      );
+      await expect(jobsController.deleteJob(req, res)).rejects.toThrow(NotFoundError);
     });
   });
 
@@ -541,7 +537,7 @@ describe('Jobs Controller', () => {
 
       await jobsController.getJob(req, res);
 
-      expect(mockJobService.getJobById).toHaveBeenCalledWith(jobId);
+      expect(mockJobService.getJobById).toHaveBeenCalledWith(jobId, req.user);
       expect(res.json).toHaveBeenCalledWith({ job: mockJob });
     });
 

@@ -1,4 +1,4 @@
-const { BadRequestError, NotFoundError, UnauthenticatedError } = require('../../shared/errors');
+const { BadRequestError, NotFoundError } = require('../../shared/errors');
 const { MONTHLY_STATS_LOOKBACK_MONTHS } = require('../../shared/constants');
 const { createJobDTO } = require('../../shared/dtos/job.dto');
 
@@ -10,18 +10,12 @@ const { createJobDTO } = require('../../shared/dtos/job.dto');
 /**@typedef {import('../ports/driven/database/job.repository.port').JobRepositoryPort} JobRepositoryPort */
 
 /**
- * Assert that the requesting user owns the resource.
+ * Check whether the requesting user owns the resource.
  * @param {{ userId: string }} requestUser - The authenticated user making the request.
  * @param {*} resourceUserId - The owner ID stored on the resource (ObjectId or string).
- * @throws {UnauthenticatedError} If the user does not own the resource.
+ * @returns {boolean}
  */
-const checkPermissions = (requestUser, resourceUserId) => {
-  if (requestUser.userId === resourceUserId.toString()) {
-    return;
-  }
-
-  throw new UnauthenticatedError('Not authorized to access this job');
-};
+const isOwner = (requestUser, resourceUserId) => requestUser.userId === resourceUserId.toString();
 
 /**
  * Factory function to create job service with injected dependencies
@@ -30,6 +24,24 @@ const checkPermissions = (requestUser, resourceUserId) => {
  * @returns {JobServicePort} Job service methods
  */
 const createJobService = ({ jobRepository }) => {
+  /**
+   * Load a job that belongs to the requesting user.
+   * Missing and foreign jobs throw the same error, so job existence is not revealed.
+   * @param {string} jobId - Job ID
+   * @param {{ userId: string }} user - Current user (for ownership check)
+   * @returns {Promise<Object>} Job record
+   * @throws {NotFoundError} If the job does not exist or is not owned by the user
+   */
+  const findOwnedJob = async (jobId, user) => {
+    const job = await jobRepository.findById(jobId);
+
+    if (!job || !isOwner(user, job.createdBy)) {
+      throw new NotFoundError(`No job with id :${jobId}`);
+    }
+
+    return job;
+  };
+
   /**
    * Create a new job posting
    * @param {Object} jobData - Job data
@@ -136,15 +148,12 @@ const createJobService = ({ jobRepository }) => {
   /**
    * Get a single job by ID
    * @param {string} jobId - Job ID
+   * @param {{ userId: string }} user - Current user (for ownership check)
    * @returns {Promise<JobDTO>} Job document
-   * @throws {NotFoundError} If job not found
+   * @throws {NotFoundError} If job not found or not owned by the user
    */
-  const getJobById = async (jobId) => {
-    const job = await jobRepository.findById(jobId);
-
-    if (!job) {
-      throw new NotFoundError(`No job with id :${jobId}`);
-    }
+  const getJobById = async (jobId, user) => {
+    const job = await findOwnedJob(jobId, user);
 
     return createJobDTO(job);
   };
@@ -156,7 +165,7 @@ const createJobService = ({ jobRepository }) => {
    * @param {{ userId: string }} user - Current user (for permission check)
    * @returns {Promise<JobDTO>} Updated job
    * @throws {BadRequestError} If no updates provided
-   * @throws {NotFoundError} If job not found
+   * @throws {NotFoundError} If job not found or not owned by the user
    */
   const updateJob = async (jobId, updates, user) => {
     const { company, position, status, jobType, jobLocation, companyWebsite, jobPostingUrl } =
@@ -174,13 +183,7 @@ const createJobService = ({ jobRepository }) => {
       throw new BadRequestError('No changes provided');
     }
 
-    const job = await jobRepository.findById(jobId);
-
-    if (!job) {
-      throw new NotFoundError(`No job with id :${jobId}`);
-    }
-
-    checkPermissions(user, job.createdBy);
+    await findOwnedJob(jobId, user);
 
     const data = {
       company,
@@ -206,16 +209,10 @@ const createJobService = ({ jobRepository }) => {
    * @param {string} jobId - Job ID
    * @param {{ userId: string }} user - Current user (for permission check)
    * @returns {Promise<void>}
-   * @throws {NotFoundError} If job not found
+   * @throws {NotFoundError} If job not found or not owned by the user
    */
   const deleteJob = async (jobId, user) => {
-    const job = await jobRepository.findById(jobId);
-
-    if (!job) {
-      throw new NotFoundError(`No job with id :${jobId}`);
-    }
-
-    checkPermissions(user, job.createdBy);
+    await findOwnedJob(jobId, user);
 
     await jobRepository.deleteById(jobId);
   };
