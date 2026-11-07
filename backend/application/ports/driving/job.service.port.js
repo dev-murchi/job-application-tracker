@@ -51,7 +51,7 @@ const jobServiceContract = {
  * @typedef {Object} JobServicePort
  * @property {(jobData: Object, userId: string) => Promise<JobDTO>}                          createJob    - Create a new job posting for the given user.
  * @property {(userId: string, filters: JobFilters) => Promise<JobListResult>}               getAllJobs   - Retrieve a paginated, filtered list of jobs for the given user.
- * @property {(jobId: string) => Promise<JobDTO>}                                            getJobById   - Retrieve a single job by ID.
+ * @property {(jobId: string, user: Object) => Promise<JobDTO>}                              getJobById   - Retrieve a single job by ID (ownership enforced).
  * @property {(jobId: string, updates: Object, user: Object) => Promise<JobDTO>}             updateJob    - Update an existing job (ownership enforced).
  * @property {(jobId: string, user: Object) => Promise<void>}                               deleteJob    - Delete a job (ownership enforced).
  * @property {(userId: string) => Promise<JobStatsResult>}                                   getJobStats  - Return status distribution and monthly counts for the user.
