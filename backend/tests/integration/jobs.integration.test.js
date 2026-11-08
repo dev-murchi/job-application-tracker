@@ -58,7 +58,7 @@ describe('Jobs Integration Tests', () => {
       companyWebsite: 'https://nonexistcorp.com',
     });
 
-    await deleteTestJob(container, nonExistJob._id);
+    await deleteTestJob(container, nonExistJob._id, testUser._id);
 
     authToken = generateTestToken(container, testUser);
     authCookie = createTestCookie(authToken);

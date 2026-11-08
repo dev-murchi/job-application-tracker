@@ -53,8 +53,8 @@ const jobRepositoryContract = {
  * @property {(id: string) => Promise<Record<string, any>|null>}                                                findById                      - Find a single job by ID.
  * @property {(filter: Object, options?: PaginationOptions) => Promise<Array<Record<string, any>>>}             findWithPagination            - Find jobs matching a filter with optional sort/skip/limit.
  * @property {(filter: Object) => Promise<number>}                                                              count                         - Count jobs matching a filter.
- * @property {(id: string, data: Object) => Promise<Record<string, any>|null>}                                  updateById                    - Update a job by ID and return the updated document.
- * @property {(id: string) => Promise<Record<string, any>|null>}                                                deleteById                    - Delete a job by ID and return the deleted document.
+ * @property {(id: string, ownerId: string, data: Object) => Promise<Record<string, any>|null>}                 updateById                    - Atomically update a job owned by `ownerId` and return the updated document. Returns null if the job does not exist or is owned by someone else. Throws TypeError if `ownerId` is empty or not an ID value.
+ * @property {(id: string, ownerId: string) => Promise<Record<string, any>|null>}                               deleteById                    - Atomically delete a job owned by `ownerId` and return the deleted document. Returns null if the job does not exist or is owned by someone else. Throws TypeError if `ownerId` is empty or not an ID value.
  * @property {(userId: string) => Promise<StatusDistribution>}                                                  getStatusDistributionForUser  - Aggregate job counts grouped by status for a user.
  * @property {(userId: string, lookbackMonths: number) => Promise<Array<MonthlyCount>>}                         getMonthlyCountsForUser       - Aggregate monthly job creation counts for a user.
  */

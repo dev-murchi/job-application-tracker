@@ -183,8 +183,6 @@ const createJobService = ({ jobRepository }) => {
       throw new BadRequestError('No changes provided');
     }
 
-    await findOwnedJob(jobId, user);
-
     const data = {
       company,
       position,
@@ -199,7 +197,11 @@ const createJobService = ({ jobRepository }) => {
       data['jobPostingUrl'] = '';
     }
 
-    const updatedJob = await jobRepository.updateById(jobId, data);
+    const updatedJob = await jobRepository.updateById(jobId, user.userId, data);
+
+    if (!updatedJob) {
+      throw new NotFoundError(`No job with id :${jobId}`);
+    }
 
     return createJobDTO(updatedJob);
   };
@@ -212,9 +214,11 @@ const createJobService = ({ jobRepository }) => {
    * @throws {NotFoundError} If job not found or not owned by the user
    */
   const deleteJob = async (jobId, user) => {
-    await findOwnedJob(jobId, user);
+    const deletedJob = await jobRepository.deleteById(jobId, user.userId);
 
-    await jobRepository.deleteById(jobId);
+    if (!deletedJob) {
+      throw new NotFoundError(`No job with id :${jobId}`);
+    }
   };
 
   /**
