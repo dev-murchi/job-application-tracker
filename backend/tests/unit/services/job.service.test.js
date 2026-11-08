@@ -338,13 +338,12 @@ describe('Job Service', () => {
       };
       const updatedJob = { ...mockJob, ...updates };
 
-      mockJobRepository.findById.mockResolvedValue(mockJob);
       mockJobRepository.updateById.mockResolvedValue(updatedJob);
 
       const result = await jobService.updateJob(jobId, updates, user);
 
-      expect(mockJobRepository.findById).toHaveBeenCalledWith(jobId);
-      expect(mockJobRepository.updateById).toHaveBeenCalledWith(jobId, {
+      expect(mockJobRepository.findById).not.toHaveBeenCalled();
+      expect(mockJobRepository.updateById).toHaveBeenCalledWith(jobId, user.userId, {
         position: 'Senior Developer',
         company: 'NewCorp',
         status: 'interview',
@@ -373,31 +372,24 @@ describe('Job Service', () => {
       await expect(jobService.updateJob(jobId, updates, user)).rejects.toThrow(
         'No changes provided',
       );
-      expect(mockJobRepository.findById).not.toHaveBeenCalled();
+      expect(mockJobRepository.updateById).not.toHaveBeenCalled();
     });
 
-    it('should throw NotFoundError when job not found', async () => {
-      const jobId = 'nonexistent123';
-      const updates = { position: 'New Position' };
-      const user = { userId: 'user123' };
-
-      mockJobRepository.findById.mockResolvedValue(null);
-
-      await expect(jobService.updateJob(jobId, updates, user)).rejects.toThrow(NotFoundError);
-    });
-
-    it('should throw NotFoundError when job belongs to another user', async () => {
+    it('should throw NotFoundError when the repository finds no owned job', async () => {
       const jobId = 'job123';
       const updates = { position: 'New Position' };
       const user = { userId: 'user123' };
-      const mockJob = { _id: jobId, createdBy: 'otherUser456' };
 
-      mockJobRepository.findById.mockResolvedValue(mockJob);
+      // The repository returns null for both a missing job and a job owned by someone else
+      mockJobRepository.updateById.mockResolvedValue(null);
+
       await expect(jobService.updateJob(jobId, updates, user)).rejects.toThrow(NotFoundError);
       await expect(jobService.updateJob(jobId, updates, user)).rejects.toThrow(
         `No job with id :${jobId}`,
       );
-      expect(mockJobRepository.updateById).not.toHaveBeenCalled();
+      expect(mockJobRepository.updateById).toHaveBeenCalledWith(jobId, user.userId, {
+        position: 'New Position',
+      });
     });
 
     it('should clear jobPostingUrl when empty string provided', async () => {
@@ -407,15 +399,14 @@ describe('Job Service', () => {
         jobPostingUrl: '',
       };
       const user = { userId: 'user123' };
-      const mockJob = { _id: jobId, createdBy: 'user123' };
 
-      mockJobRepository.findById.mockResolvedValue(mockJob);
       mockJobRepository.updateById.mockResolvedValue({});
 
       await jobService.updateJob(jobId, updates, user);
 
       expect(mockJobRepository.updateById).toHaveBeenCalledWith(
         jobId,
+        user.userId,
         expect.objectContaining({
           jobPostingUrl: '',
         }),
@@ -427,39 +418,25 @@ describe('Job Service', () => {
     it('should delete job successfully', async () => {
       const jobId = 'job123';
       const user = { userId: 'user123' };
-      const mockJob = {
-        _id: jobId,
-        createdBy: 'user123',
-      };
 
-      mockJobRepository.findById.mockResolvedValue(mockJob);
-      mockJobRepository.deleteById.mockResolvedValue(mockJob);
+      mockJobRepository.deleteById.mockResolvedValue({ _id: jobId, createdBy: 'user123' });
 
       await jobService.deleteJob(jobId, user);
 
-      expect(mockJobRepository.findById).toHaveBeenCalledWith(jobId);
-      expect(mockJobRepository.deleteById).toHaveBeenCalledWith(jobId);
+      expect(mockJobRepository.findById).not.toHaveBeenCalled();
+      expect(mockJobRepository.deleteById).toHaveBeenCalledWith(jobId, user.userId);
     });
 
-    it('should throw NotFoundError when job not found', async () => {
-      const jobId = 'nonexistent123';
-      const user = { userId: 'user123' };
-
-      mockJobRepository.findById.mockResolvedValue(null);
-
-      await expect(jobService.deleteJob(jobId, user)).rejects.toThrow(NotFoundError);
-      expect(mockJobRepository.deleteById).not.toHaveBeenCalled();
-    });
-
-    it('should throw NotFoundError when job belongs to another user', async () => {
+    it('should throw NotFoundError when the repository finds no owned job', async () => {
       const jobId = 'job123';
       const user = { userId: 'user123' };
-      const mockJob = { _id: jobId, createdBy: 'otherUser456' };
 
-      mockJobRepository.findById.mockResolvedValue(mockJob);
+      // The repository returns null for both a missing job and a job owned by someone else
+      mockJobRepository.deleteById.mockResolvedValue(null);
+
       await expect(jobService.deleteJob(jobId, user)).rejects.toThrow(NotFoundError);
       await expect(jobService.deleteJob(jobId, user)).rejects.toThrow(`No job with id :${jobId}`);
-      expect(mockJobRepository.deleteById).not.toHaveBeenCalled();
+      expect(mockJobRepository.deleteById).toHaveBeenCalledWith(jobId, user.userId);
     });
   });
 

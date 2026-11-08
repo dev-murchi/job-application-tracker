@@ -6,6 +6,24 @@ const { format, subMonths, startOfMonth } = require('date-fns');
 /**@typedef {import('../../../../../application/ports/driven/database/job.repository.port').JobRepositoryPort} JobRepositoryPort */
 
 /**
+ * Guard for owner-scoped writes: an empty or non-scalar owner (e.g. a query operator object)
+ * must never widen the filter.
+ * @param {*} ownerId
+ * @returns {string|import('mongoose').Types.ObjectId} The same value when valid
+ * @throws {TypeError} If ownerId is missing, empty, or not a string/ObjectId
+ */
+const requireOwnerId = (ownerId) => {
+  const isValid =
+    (typeof ownerId === 'string' && ownerId.length > 0) ||
+    ownerId instanceof mongoose.Types.ObjectId;
+
+  if (!isValid) {
+    throw new TypeError('ownerId must be a non-empty string or ObjectId for job writes');
+  }
+  return ownerId;
+};
+
+/**
  * Factory that creates a `JobRepositoryPort` adapter using a Mongoose connection.
  * @param {{ connection: MongooseConnection, configService: Object }} deps
  * @returns {JobRepositoryPort}
@@ -30,11 +48,18 @@ const createMongoJobsRepository = ({ connection, configService }) => {
     count: async (filter) => {
       return await JobModel.countDocuments(filter);
     },
-    updateById: async (id, data) => {
-      return await JobModel.findOneAndUpdate({ _id: id }, data, { new: true, runValidators: true });
+    updateById: async (id, ownerId, data) => {
+      return await JobModel.findOneAndUpdate(
+        { _id: id, createdBy: requireOwnerId(ownerId) },
+        data,
+        {
+          new: true,
+          runValidators: true,
+        },
+      );
     },
-    deleteById: async (id) => {
-      return await JobModel.findByIdAndDelete(id);
+    deleteById: async (id, ownerId) => {
+      return await JobModel.findOneAndDelete({ _id: id, createdBy: requireOwnerId(ownerId) });
     },
 
     getStatusDistributionForUser: async (userId) => {

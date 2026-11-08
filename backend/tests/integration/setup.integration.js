@@ -198,9 +198,9 @@ const createTestJob = async (container, userId, jobData = {}) => {
   return job;
 };
 
-const deleteTestJob = async (container, jobId) => {
+const deleteTestJob = async (container, jobId, ownerId) => {
   const jobRepository = container.resolve(JOB_REPOSITORY_PORT);
-  await jobRepository.deleteById(jobId);
+  await jobRepository.deleteById(jobId, ownerId);
 };
 
 const deleteTestUser = async (container, userId) => {
